@@ -109,6 +109,19 @@ def analyze():
             ["totalContributions"]
         )
 
+    if active_days > 0:
+        average_contributions = round(total_contributions / active_days, 2)
+    else:
+        average_contributions = 0
+
+    most_active_day = None
+
+    if contribution_days:
+        most_active_day = max(
+            contribution_days,
+            key=lambda day: day["contributionCount"]
+        )
+    
     contribution_heatmap = []
 
     if "data" in graphql_data and graphql_data["data"].get("user"):
@@ -211,7 +224,9 @@ def analyze():
         contribution_days=contribution_days,
         active_days=active_days,
         longest_streak=longest_streak,
-        contribution_heatmap=contribution_heatmap
+        contribution_heatmap=contribution_heatmap,
+        average_contributions=average_contributions,
+        most_active_day=most_active_day
     )
 
 if __name__ == "__main__":

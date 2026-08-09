@@ -96,6 +96,25 @@
                     <h3>{{ longest_streak }}</h3>
                     <p>Longest Contribution Streak</p>
                 </div>
+                 
+                <div class="analysis-card">
+                    <span>📊</span>
+                    <h3>{{ average_contributions }}</h3>
+                    <p>Avg Contributions / Active Day</p>
+                </div>
+
+                <div class="analysis-card">
+                    <span>📅</span>
+
+                    {% if most_active_day %}
+                        <h3>{{ most_active_day.contributionCount }}</h3>
+                        <p>Most Contributions in One Day</p>
+                        <small>{{ most_active_day.date }}</small>
+                    {% else %}
+                        <h3>0</h3>
+                        <p>Most Contributions in One Day</p>
+                    {% endif %}
+                </div>
             </div>
 
             <section class="contribution-section">
