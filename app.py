@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request
 import requests
 from dotenv import load_dotenv
+from datetime import datetime
 import os
+from collections import defaultdict
 
 load_dotenv()
 
@@ -121,7 +123,36 @@ def analyze():
             contribution_days,
             key=lambda day: day["contributionCount"]
         )
-    
+
+    monthly_contributions = defaultdict(int)
+
+    for day in contribution_days:
+        month = day["date"][:7]
+        monthly_contributions[month] += day["contributionCount"]
+
+    most_active_month = None
+
+    if monthly_contributions:
+        most_active_month = max(
+            monthly_contributions,
+            key=monthly_contributions.get
+        )
+
+    most_active_month_count = (
+        monthly_contributions[most_active_month]
+        if most_active_month
+        else 0
+    )    
+
+    if most_active_month:
+        most_active_month_display = datetime.strptime(
+            most_active_month,
+            "%Y-%m"
+        ).strftime("%B %Y")
+    else:
+        most_active_month_display = "—"
+
+
     contribution_heatmap = []
 
     if "data" in graphql_data and graphql_data["data"].get("user"):
@@ -226,7 +257,10 @@ def analyze():
         longest_streak=longest_streak,
         contribution_heatmap=contribution_heatmap,
         average_contributions=average_contributions,
-        most_active_day=most_active_day
+        most_active_day=most_active_day,
+        most_active_month=most_active_month,
+        most_active_month_count=most_active_month_count,
+        most_active_month_display=most_active_month_display
     )
 
 if __name__ == "__main__":

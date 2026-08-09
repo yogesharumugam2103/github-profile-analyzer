@@ -115,6 +115,19 @@
                         <p>Most Contributions in One Day</p>
                     {% endif %}
                 </div>
+
+                <div class="analysis-card">
+                    <span>📅</span>
+
+                    {% if most_active_month %}
+                        <h3>{{ most_active_month_display }}</h3>
+                        <p>Most Active Month</p>
+                        <small>{{ most_active_month_count }} contributions</small>
+                    {% else %}
+                        <h3>—</h3>
+                        <p>Most Active Month</p>
+                    {% endif %}
+                </div>
             </div>
 
             <section class="contribution-section">
