@@ -49,6 +49,14 @@ def analyze():
             key=language_counts.get
         )
 
+    most_starred_repo = None
+
+    if repos:
+        most_starred_repo = max(
+            repos,
+            key=lambda repo: repo["stargazers_count"]
+        )    
+
     total_language_repos = sum(language_counts.values())
 
     language_percentages = {}
@@ -64,7 +72,8 @@ def analyze():
         total_stars=total_stars,
         total_forks=total_forks,
         most_used_language=most_used_language,
-        language_percentages=language_percentages
+        language_percentages=language_percentages,
+        most_starred_repo=most_starred_repo
     )
 
 if __name__ == "__main__":

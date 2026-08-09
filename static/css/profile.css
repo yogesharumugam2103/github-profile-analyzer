@@ -220,3 +220,32 @@ body {
     background: #24292f;
     border-radius: 10px;
 }
+
+.top-repository {
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 12px;
+    background: #f4f6f8;
+}
+
+.top-repository h3 {
+    margin-top: 0;
+}
+
+.top-repository h4 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.top-repository p {
+    line-height: 1.5;
+}
+
+.top-repository a {
+    color: #0969da;
+    text-decoration: none;
+}
+
+.top-repository a:hover {
+    text-decoration: underline;
+}
