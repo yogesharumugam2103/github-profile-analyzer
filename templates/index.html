@@ -11,8 +11,8 @@
         <h1>GitHub Profile Analyzer</h1>
         <p>Analyze a GitHub profile and explore its statistics.</p>
 
-        <form>
-            <input type="text" placeholder="Enter GitHub username">
+        <form action="/analyze" method="GET">
+            <input type="text" name="username" placeholder="Enter GitHub username" required>
             <button type="submit">Analyze Profile</button>
         </form>
     </main>
