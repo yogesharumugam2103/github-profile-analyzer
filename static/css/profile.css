@@ -1,0 +1,105 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+.profile-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 60px auto;
+}
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 40px;
+    background: white;
+    border-radius: 16px;
+}
+
+.avatar {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-info h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+}
+
+.profile-info h2 {
+    margin: 0 0 20px;
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.profile-info p {
+    line-height: 1.6;
+}
+
+.location {
+    margin-top: 20px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    padding: 25px;
+    background: white;
+    border-radius: 16px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat span {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.stat p {
+    margin: 5px 0 0;
+}
+
+.github-link {
+    display: block;
+    width: fit-content;
+    margin: 25px auto;
+    padding: 12px 20px;
+    background: #24292f;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+}
+
+.github-link:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+    .profile-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .avatar {
+        width: 140px;
+        height: 140px;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 20px;
+    }
+}

@@ -22,7 +22,9 @@ def analyze():
     if response.status_code != 200:
         return "Something went wrong while contacting GitHub."
 
-    return response.json()
+    user_data = response.json()
+
+    return render_template("profile.html", user=user_data)
 
 if __name__ == "__main__":
     app.run(debug=True)
