@@ -103,3 +103,42 @@ body {
         gap: 20px;
     }
 }
+
+.repositories {
+    margin-top: 30px;
+}
+
+.repositories h2 {
+    margin-bottom: 20px;
+}
+
+.repository-card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+}
+
+.repository-card h3 {
+    margin-top: 0;
+}
+
+.repository-card p {
+    color: #555;
+    line-height: 1.5;
+}
+
+.repository-info {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.repository-card a {
+    color: #0969da;
+    text-decoration: none;
+}
+
+.repository-card a:hover {
+    text-decoration: underline;
+}

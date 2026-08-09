@@ -24,7 +24,17 @@ def analyze():
 
     user_data = response.json()
 
-    return render_template("profile.html", user=user_data)
+    repos_response = requests.get(
+        f"https://api.github.com/users/{username}/repos"
+    )
+
+    repos = repos_response.json()
+
+    return render_template(
+        "profile.html",
+        user=user_data,
+        repos=repos
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

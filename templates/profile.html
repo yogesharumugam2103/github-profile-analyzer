@@ -42,6 +42,30 @@
         <a class="github-link" href="{{ user.html_url }}" target="_blank">
             View GitHub Profile
         </a>
+
+        <section class="repositories">
+            <h2>Repositories</h2>
+
+            {% for repo in repos %}
+                <div class="repository-card">
+                    <h3>{{ repo.name }}</h3>
+
+                    <p>
+                        {{ repo.description or "No description available." }}
+                    </p>
+
+                    <div class="repository-info">
+                        <span>{{ repo.language or "Unknown" }}</span>
+                        <span>⭐ {{ repo.stargazers_count }}</span>
+                        <span>🍴 {{ repo.forks_count }}</span>
+                    </div>
+
+                    <a href="{{ repo.html_url }}" target="_blank">
+                        View Repository
+                    </a>
+                </div>
+            {% endfor %}
+        </section>
     </main>
 </body>
 </html>
