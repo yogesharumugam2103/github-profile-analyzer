@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Profile Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>GitHub Profile Analyzer</h1>
-    <p>Analyze a GitHub profile and explore its statistics.</p>
+    <main class="container">
+        <h1>GitHub Profile Analyzer</h1>
+        <p>Analyze a GitHub profile and explore its statistics.</p>
+
+        <form>
+            <input type="text" placeholder="Enter GitHub username">
+            <button type="submit">Analyze Profile</button>
+        </form>
+    </main>
 </body>
 </html>
