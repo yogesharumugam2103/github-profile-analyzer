@@ -142,3 +142,81 @@ body {
 .repository-card a:hover {
     text-decoration: underline;
 }
+
+.analysis {
+    margin-top: 30px;
+}
+
+.analysis h2 {
+    margin-bottom: 20px;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.analysis-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.analysis-card span {
+    font-size: 28px;
+}
+
+.analysis-card h3 {
+    margin: 10px 0 5px;
+    font-size: 26px;
+}
+
+.analysis-card p {
+    margin: 0;
+    color: #555;
+}
+
+@media (max-width: 600px) {
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.language-analysis {
+    margin-top: 30px;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+}
+
+.language-analysis h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.language-row {
+    margin-bottom: 20px;
+}
+
+.language-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.language-bar {
+    width: 100%;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.language-progress {
+    height: 100%;
+    background: #24292f;
+    border-radius: 10px;
+}

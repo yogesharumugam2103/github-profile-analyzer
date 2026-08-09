@@ -39,6 +39,47 @@
             </div>
         </section>
 
+        <section class="analysis">
+            <h2>Profile Analysis</h2>
+
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <span>⭐</span>
+                    <h3>{{ total_stars }}</h3>
+                    <p>Total Stars</p>
+                </div>
+        
+                <div class="analysis-card">
+                    <span>🍴</span>
+                    <h3>{{ total_forks }}</h3>
+                    <p>Total Forks</p>
+                </div>
+        
+                <div class="analysis-card">
+                    <span>💻</span>
+                    <h3>{{ most_used_language }}</h3>
+                    <p>Most Used Language</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="language-analysis">
+            <h2>Language Distribution</h2>
+
+            {% for language, percentage in language_percentages.items() %}
+                <div class="language-row">
+                    <div class="language-header">
+                        <span>{{ language }}</span>
+                        <span>{{ percentage }}%</span>
+                    </div>
+
+                    <div class="language-bar">
+                        <div class="language-progress" style="width: {{ percentage }}%;"></div>
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+
         <a class="github-link" href="{{ user.html_url }}" target="_blank">
             View GitHub Profile
         </a>

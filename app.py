@@ -30,10 +30,41 @@ def analyze():
 
     repos = repos_response.json()
 
+    total_stars = sum(repo["stargazers_count"] for repo in repos)
+    total_forks = sum(repo["forks_count"] for repo in repos)
+
+    language_counts = {}
+
+    for repo in repos:
+        language = repo["language"]
+
+        if language:
+            language_counts[language] = language_counts.get(language, 0) + 1
+
+    most_used_language = "Not available"
+
+    if language_counts:
+        most_used_language = max(
+            language_counts,
+            key=language_counts.get
+        )
+
+    total_language_repos = sum(language_counts.values())
+
+    language_percentages = {}
+
+    for language, count in language_counts.items():
+        percentage = round((count / total_language_repos) * 100, 1)
+        language_percentages[language] = percentage
+    
     return render_template(
         "profile.html",
         user=user_data,
-        repos=repos
+        repos=repos,
+        total_stars=total_stars,
+        total_forks=total_forks,
+        most_used_language=most_used_language,
+        language_percentages=language_percentages
     )
 
 if __name__ == "__main__":
