@@ -60,6 +60,24 @@
                     <h3>{{ most_used_language }}</h3>
                     <p>Most Used Language</p>
                 </div>
+
+                <div class="analysis-card">
+                    <span>📈</span>
+                    <h3>{{ average_stars }}</h3>
+                    <p>Average Stars / Repository</p>
+                </div>
+                
+                <div class="analysis-card">
+                    <span>📁</span>
+                    <h3>{{ original_repos }}</h3>
+                    <p>Original Repositories</p>
+                </div>
+                
+                <div class="analysis-card">
+                    <span>🔀</span>
+                    <h3>{{ forked_repos }}</h3>
+                    <p>Forked Repositories</p>
+                </div>
             </div>
 
             {% if most_starred_repo %}
@@ -83,7 +101,28 @@
                     </a>
                 </div>
             {% endif %}
-            
+
+            {% if most_forked_repo %}
+                <div class="top-repository">
+                    <h3>🍴 Most-Forked Repository</h3>
+
+                    <h4>{{ most_forked_repo.name }}</h4>
+
+                    <p>
+                        {{ most_forked_repo.description or "No description available." }}
+                    </p>
+
+                    <p>
+                        🍴 {{ most_forked_repo.forks_count }} forks
+                        &nbsp; • &nbsp;
+                        ⭐ {{ most_forked_repo.stargazers_count }} stars
+                    </p>
+
+                    <a href="{{ most_forked_repo.html_url }}" target="_blank">
+                        View Repository
+                    </a>
+                </div>
+            {% endif %}
         </section>
 
         <section class="language-analysis">

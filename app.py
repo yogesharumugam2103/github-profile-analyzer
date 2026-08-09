@@ -56,6 +56,21 @@ def analyze():
             repos,
             key=lambda repo: repo["stargazers_count"]
         )    
+    most_forked_repo = None
+
+    if repos:
+        most_forked_repo = max(
+            repos,
+            key=lambda repo: repo["forks_count"]
+        )
+
+    average_stars = 0
+
+    if repos:
+        average_stars = round(total_stars / len(repos), 2)
+
+    original_repos = sum(1 for repo in repos if not repo["fork"])
+    forked_repos = sum(1 for repo in repos if repo["fork"]) 
 
     total_language_repos = sum(language_counts.values())
 
@@ -73,7 +88,11 @@ def analyze():
         total_forks=total_forks,
         most_used_language=most_used_language,
         language_percentages=language_percentages,
-        most_starred_repo=most_starred_repo
+        most_starred_repo=most_starred_repo,
+        most_forked_repo=most_forked_repo,
+        average_stars=average_stars,
+        original_repos=original_repos,
+        forked_repos=forked_repos
     )
 
 if __name__ == "__main__":
