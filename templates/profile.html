@@ -78,8 +78,53 @@
                     <h3>{{ forked_repos }}</h3>
                     <p>Forked Repositories</p>
                 </div>
+
+                <div class="analysis-card">
+                    <span>🔥</span>
+                    <h3>{{ total_contributions }}</h3>
+                    <p>Total Contributions</p>
+                </div>
+
+                <div class="analysis-card">
+                    <span>📅</span>
+                    <h3>{{ active_days }}</h3>
+                    <p>Active Contribution Days</p>
+                </div>
+
+                <div class="analysis-card">
+                    <span>🔥</span>
+                    <h3>{{ longest_streak }}</h3>
+                    <p>Longest Contribution Streak</p>
+                </div>
             </div>
 
+            <section class="contribution-section">
+                <h2>Contribution Activity</h2>
+
+                <div class="contribution-heatmap">
+                    {% for week in contribution_heatmap %}
+                        <div class="contribution-week">
+                            {% for day in week %}
+                                <div
+                                    class="contribution-day level-{{ day.level }}"
+                                    title="{{ day.date }}: {{ day.count }} contributions">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="contribution-legend">
+                    <span>Less</span>
+                    <span class="legend-box level-0"></span>
+                    <span class="legend-box level-1"></span>
+                    <span class="legend-box level-2"></span>
+                    <span class="legend-box level-3"></span>
+                    <span class="legend-box level-4"></span>
+                    <span>More</span>
+                </div>
+            </section>
+            
             {% if most_starred_repo %}
                 <div class="top-repository">
                     <h3>⭐ Most-Starred Repository</h3>
