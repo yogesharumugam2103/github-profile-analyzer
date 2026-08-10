@@ -37,7 +37,7 @@ def analyze():
     )
 
     repos = repos_response.json()
-
+  
     graphql_query = """
     query($username: String!) {
         user(login: $username) {
@@ -262,6 +262,11 @@ def analyze():
     original_repos = sum(1 for repo in repos if not repo["fork"])
     forked_repos = sum(1 for repo in repos if repo["fork"]) 
 
+    archived_repos = sum(
+        1 for repo in repos
+        if repo["archived"]
+    )
+
     total_language_repos = sum(language_counts.values())
 
     language_percentages = {}
@@ -294,7 +299,8 @@ def analyze():
         most_active_month_count=most_active_month_count,
         most_active_month_display=most_active_month_display,
         contribution_frequency=contribution_frequency,
-        contribution_trend=contribution_trend
+        contribution_trend=contribution_trend,
+        archived_repos=archived_repos
     )
 
 if __name__ == "__main__":
