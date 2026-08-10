@@ -85,7 +85,7 @@
                     <h3>{{ archived_repos }}</h3>
                     <p>Archived Repositories</p>
                 </div>
-                
+
                 <div class="analysis-card">
                     <span>🔥</span>
                     <h3>{{ total_contributions }}</h3>
@@ -147,7 +147,42 @@
                     <h3>{{ contribution_trend }}</h3>
                     <p>Contribution Trend</p>
                 </div>
+
+                <div class="analysis-card">
+                    <span>👤</span>
+                    <h3>{{ profile_completeness }}%</h3>
+                    <p>Profile Completeness</p>
+                </div>
             </div>
+
+            <section class="profile-completeness">
+                <h2>Profile Completeness</h2>
+            
+                <div class="completeness-summary">
+                    <h3>{{ profile_completeness }}%</h3>
+            
+                    <p>
+                        {{ completed_profile_fields }}
+                        of
+                        {{ total_profile_fields }}
+                        profile fields completed
+                    </p>
+                </div>
+            
+                {% if missing_profile_fields %}
+                    <div class="missing-fields">
+                        <h3>Missing Information</h3>
+            
+                        <ul>
+                            {% for field in missing_profile_fields %}
+                                <li>{{ field }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% else %}
+                    <p>All profile fields are completed.</p>
+                {% endif %}
+            </section>
 
             <section class="contribution-section">
                 <h2>Contribution Activity</h2>

@@ -32,6 +32,45 @@ def analyze():
 
     user_data = response.json()
 
+    profile_fields = [
+        user_data.get("name"),
+        user_data.get("bio"),
+        user_data.get("location"),
+        user_data.get("company"),
+        user_data.get("blog"),
+        user_data.get("twitter_username"),
+        user_data.get("avatar_url"),
+        user_data.get("email")
+    ]
+    
+    completed_profile_fields = sum(
+        1 for field in profile_fields
+        if field
+    )
+
+    total_profile_fields = len(profile_fields)
+
+    profile_completeness = round(
+        (completed_profile_fields / total_profile_fields) * 100
+    )
+
+    profile_field_names = [
+        ("Name", user_data.get("name")),
+        ("Bio", user_data.get("bio")),
+        ("Location", user_data.get("location")),
+        ("Company", user_data.get("company")),
+        ("Website", user_data.get("blog")),
+        ("Twitter/X", user_data.get("twitter_username")),
+        ("Profile Picture", user_data.get("avatar_url")),
+        ("Public Email", user_data.get("email"))
+    ]
+
+    missing_profile_fields = [
+        name
+        for name, value in profile_field_names
+        if not value
+    ]
+
     repos_response = requests.get(
         f"https://api.github.com/users/{username}/repos"
     )
@@ -300,7 +339,11 @@ def analyze():
         most_active_month_display=most_active_month_display,
         contribution_frequency=contribution_frequency,
         contribution_trend=contribution_trend,
-        archived_repos=archived_repos
+        archived_repos=archived_repos,
+        completed_profile_fields=completed_profile_fields,
+        total_profile_fields=total_profile_fields,
+        profile_completeness=profile_completeness,
+        missing_profile_fields=missing_profile_fields
     )
 
 if __name__ == "__main__":
