@@ -198,6 +198,28 @@ def analyze():
     
             contribution_heatmap.append(week_data)
 
+
+    midpoint = len(contribution_days) // 2
+
+    earlier_days = contribution_days[:midpoint]
+    recent_days = contribution_days[midpoint:]
+
+    earlier_contributions = sum(
+        day["contributionCount"]
+        for day in earlier_days
+    )
+
+    recent_contributions = sum(
+        day["contributionCount"]
+        for day in recent_days
+    )
+
+    if recent_contributions > earlier_contributions:
+        contribution_trend = "Increasing"
+    elif recent_contributions < earlier_contributions:
+        contribution_trend = "Decreasing"
+    else:
+        contribution_trend = "Stable"
     total_stars = sum(repo["stargazers_count"] for repo in repos)
     total_forks = sum(repo["forks_count"] for repo in repos)
 
@@ -271,7 +293,8 @@ def analyze():
         most_active_month=most_active_month,
         most_active_month_count=most_active_month_count,
         most_active_month_display=most_active_month_display,
-        contribution_frequency=contribution_frequency
+        contribution_frequency=contribution_frequency,
+        contribution_trend=contribution_trend
     )
 
 if __name__ == "__main__":
