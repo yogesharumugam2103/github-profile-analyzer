@@ -352,3 +352,10 @@ body {
 .missing-fields li {
     margin-bottom: 6px;
 }
+
+.language-chart {
+    width: 100%;
+    max-width: 500px;
+    margin: 10px auto 10px;
+    height: 500px;
+}
