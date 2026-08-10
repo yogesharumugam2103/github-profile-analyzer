@@ -93,6 +93,16 @@ def analyze():
         if day["contributionCount"] > 0
     )
 
+    total_days = len(contribution_days)
+
+    if total_days > 0:
+        contribution_frequency = round(
+            (active_days / total_days) * 100,
+            2
+        )
+    else:
+        contribution_frequency = 0
+    
     longest_streak = 0
     current_streak = 0
 
@@ -260,7 +270,8 @@ def analyze():
         most_active_day=most_active_day,
         most_active_month=most_active_month,
         most_active_month_count=most_active_month_count,
-        most_active_month_display=most_active_month_display
+        most_active_month_display=most_active_month_display,
+        contribution_frequency=contribution_frequency
     )
 
 if __name__ == "__main__":
