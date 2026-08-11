@@ -137,6 +137,12 @@ def analyze():
             break
     
         page += 1
+
+    recent_repos = sorted(
+        repos,
+        key=lambda repo: repo["updated_at"],
+        reverse=True
+    )[:3]
   
     graphql_query = """
     query($username: String!) {
@@ -424,7 +430,8 @@ def analyze():
         profile_completeness=profile_completeness,
         missing_profile_fields=missing_profile_fields,
         monthly_contributions=monthly_contributions,
-        contributions_available=contributions_available
+        contributions_available=contributions_available,
+        recent_repos=recent_repos
     )
 
 if __name__ == "__main__":

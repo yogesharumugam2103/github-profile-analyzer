@@ -424,6 +424,42 @@
         target="_blank">
         View GitHub Profile
     </a>
+ 
+    <section class="recent-repositories">
+        <h2>Recently Updated Repositories</h2>
+        {% if recent_repos %}
+            {% for repo in recent_repos %}
+                <div class="repository-card">
+                    <h3>{{ repo.name }}</h3>
+                    <p>
+                        {{ repo.description or "No description available." }}
+                    </p>
+                    <div class="repository-info">
+                        <span>
+                            {{ repo.language or "Unknown" }}
+                        </span>
+                        <span>
+                            ⭐ {{ repo.stargazers_count }}
+                        </span>
+                        <span>
+                            🍴 {{ repo.forks_count }}
+                        </span>
+                    </div>
+                    <p>
+                        Updated:
+                        {{ repo.updated_at[:10] }}
+                    </p>
+                    <a
+                        href="{{ repo.html_url }}"
+                        target="_blank">
+                        View Repository
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No repositories available.</p>
+        {% endif %}
+    </section>
 
     <section class="repositories">
         <h2>Repositories</h2>
