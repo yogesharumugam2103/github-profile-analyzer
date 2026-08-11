@@ -210,6 +210,68 @@
                     <span class="legend-box level-4"></span>
                     <span>More</span>
                 </div>
+
+                <div class="contribution-chart">
+                    <canvas id="contributionTrendChart"></canvas>
+                </div>
+                <script>
+                    const contributionMonths = [
+                        {% for month in monthly_contributions.keys() %}
+                            "{{ month }}"{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ];
+
+                    const contributionTotals = [
+                        {% for total in monthly_contributions.values() %}
+                            {{ total }}{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ];
+                
+                    const contributionCtx = document.getElementById(
+                        "contributionTrendChart"
+                    );
+                
+                    new Chart(contributionCtx, {
+                        type: "bar",
+                
+                        data: {
+                            labels: contributionMonths,
+                
+                            datasets: [{
+                                label: "Monthly Contributions",
+                                data: contributionTotals
+                            }]
+                        },
+                
+                        options: {
+                            responsive: true,
+                
+                            plugins: {
+                                legend: {
+                                    display: true
+                                }
+                            },
+                
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: "Month"
+                                    }
+                                },
+                
+                                y: {
+                                    beginAtZero: true,
+                
+                                    title: {
+                                        display: true,
+                                                        text: "Contributions"
+                                                    }
+                                }
+                            }
+                        }
+                    });
+                </script>
             </section>
             
             {% if most_starred_repo %}

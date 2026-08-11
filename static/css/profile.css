@@ -359,3 +359,10 @@ body {
     margin: 10px auto 10px;
     height: 500px;
 }
+
+.contribution-chart {
+    width: 100%;
+    max-width: 900px;
+    margin: 30px auto 10px;
+    height: 400px;
+}

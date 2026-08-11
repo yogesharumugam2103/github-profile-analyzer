@@ -343,7 +343,8 @@ def analyze():
         completed_profile_fields=completed_profile_fields,
         total_profile_fields=total_profile_fields,
         profile_completeness=profile_completeness,
-        missing_profile_fields=missing_profile_fields
+        missing_profile_fields=missing_profile_fields,
+        monthly_contributions=monthly_contributions
     )
 
 if __name__ == "__main__":
