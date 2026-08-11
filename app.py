@@ -3,13 +3,25 @@ import requests
 from dotenv import load_dotenv
 from datetime import datetime
 import os
+import re
 from collections import defaultdict
 
 load_dotenv()
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
+if not GITHUB_TOKEN:
+    raise RuntimeError(
+        "GITHUB_TOKEN is missing. Please add it to your .env file."
+    )
+
 app = Flask(__name__)
+
+def rate_limit_message(response):
+    return (
+        response.status_code == 403
+        and response.headers.get("X-RateLimit-Remaining") == "0"
+    )
 
 @app.route("/")
 def home():
@@ -17,15 +29,31 @@ def home():
 
 @app.route("/analyze")
 def analyze():
-    username = request.args.get("username")
+    username = request.args.get("username", "").strip()
 
     if not username:
         return "Please enter a GitHub username."
 
-    response = requests.get(f"https://api.github.com/users/{username}")
+    if not re.fullmatch(r"[A-Za-z0-9-]+", username):
+        return "Invalid GitHub username. Please use only letters, numbers, and hyphens."
+
+    try:
+        response = requests.get(
+            f"https://api.github.com/users/{username}",
+            timeout=10
+        )
+
+    except requests.exceptions.Timeout:
+        return "GitHub took too long to respond. Please try again."
+
+    except requests.exceptions.RequestException:
+        return "Unable to connect to GitHub. Please check your internet connection and try again."
 
     if response.status_code == 404:
         return "GitHub user not found."
+
+    if rate_limit_message(response):
+        return "GitHub API rate limit reached. Please try again later."
 
     if response.status_code != 200:
         return "Something went wrong while contacting GitHub."
@@ -71,11 +99,44 @@ def analyze():
         if not value
     ]
 
-    repos_response = requests.get(
-        f"https://api.github.com/users/{username}/repos"
-    )
+    repos = []
 
-    repos = repos_response.json()
+    page = 1
+
+    while True:
+        try:
+            repos_response = requests.get(
+                f"https://api.github.com/users/{username}/repos",
+                params={
+                    "per_page": 100,
+                    "page": page
+                },
+                timeout=10
+            )
+
+        except requests.exceptions.Timeout:
+            return "GitHub took too long to respond while fetching repositories."
+
+        except requests.exceptions.RequestException:
+            return "Unable to fetch repositories from GitHub. Please try again."
+
+        if rate_limit_message(repos_response):
+            return "GitHub API rate limit reached. Please try again later."
+        
+        if repos_response.status_code != 200:
+            return "Unable to fetch repositories from GitHub."
+    
+        page_repos = repos_response.json()
+    
+        if not page_repos:
+            break
+    
+        repos.extend(page_repos)
+    
+        if len(page_repos) < 100:
+            break
+    
+        page += 1
   
     graphql_query = """
     query($username: String!) {
@@ -95,27 +156,45 @@ def analyze():
     }
     """
 
-    graphql_response = requests.post(
-        "https://api.github.com/graphql",
-        json={
-            "query": graphql_query,
-            "variables": {
-                "username": username
-            }
-        },
-        headers={
-            "Authorization": f"Bearer {GITHUB_TOKEN}",
-            "X-GitHub-Api-Version": "2022-11-28"
-        }
-    )
+    try:
+        graphql_response = requests.post(
+            "https://api.github.com/graphql",
+            json={
+                "query": graphql_query,
+                "variables": {
+                    "username": username
+                }
+            },
+            headers={
+                "Authorization": f"Bearer {GITHUB_TOKEN}",
+                "X-GitHub-Api-Version": "2022-11-28"
+            },
+            timeout=10
+        )
+    
+        graphql_data = graphql_response.json()
 
-    graphql_data = graphql_response.json()
+        if rate_limit_message(graphql_response):
+            graphql_data = {}
 
-    total_contributions = 0
+    except requests.exceptions.Timeout:
+        graphql_data = {}
+
+    except requests.exceptions.RequestException:
+        graphql_data = {}
+
+    contributions_available = False
+    total_contributions = None
 
     contribution_days = []
 
-    if "data" in graphql_data and graphql_data["data"].get("user"):
+    if (
+        "data" in graphql_data
+        and graphql_data["data"].get("user")
+        and "contributionsCollection" in graphql_data["data"]["user"]
+    ):
+        contributions_available = True
+    
         weeks = (
             graphql_data["data"]["user"]
             ["contributionsCollection"]
@@ -152,7 +231,7 @@ def analyze():
         else:
             current_streak = 0
     
-    if "data" in graphql_data and graphql_data["data"].get("user"):
+    if contributions_available:
         total_contributions = (
             graphql_data["data"]["user"]
             ["contributionsCollection"]
@@ -344,7 +423,8 @@ def analyze():
         total_profile_fields=total_profile_fields,
         profile_completeness=profile_completeness,
         missing_profile_fields=missing_profile_fields,
-        monthly_contributions=monthly_contributions
+        monthly_contributions=monthly_contributions,
+        contributions_available=contributions_available
     )
 
 if __name__ == "__main__":
