@@ -463,43 +463,110 @@
 
     <section class="repositories">
         <h2>Repositories</h2>
+        <div id="repositoryList">
+            {% for repo in repos %}
+                <div class="repository-card">
+                    <h3>{{ repo.name }}</h3>
+                    <p>
+                        {{ repo.description or "No description available." }}
+                    </p>
+                    <div class="repository-info">
+                        <span>
+                            {{ repo.language or "Unknown" }}
+                        </span>
 
-        {% for repo in repos %}
-            <div class="repository-card">
-                <h3>{{ repo.name }}</h3>
+                        <span>
+                            ⭐ {{ repo.stargazers_count }}
+                        </span>
 
-                <p>
-                    {{
-                        repo.description
-                        or
-                        "No description available."
-                    }}
-                </p>
-
-                <div class="repository-info">
-                    <span>
-                        {{ repo.language or "Unknown" }}
-                    </span>
-
-                    <span>
-                        ⭐ {{ repo.stargazers_count }}
-                    </span>
-
-                    <span>
-                        🍴 {{ repo.forks_count }}
-                    </span>
+                        <span>
+                            🍴 {{ repo.forks_count }}
+                        </span>
+                    </div>
+                    <a
+                        href="{{ repo.html_url }}"
+                        target="_blank">
+                        View Repository
+                    </a>
                 </div>
-
-                <a
-                    href="{{ repo.html_url }}"
-                    target="_blank">
-                    View Repository
-                </a>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+        <div id="repositoryPagination" class="repository-pagination"></div>
     </section>
 
 </main>
 
+<script>
+    const repositories = document.querySelectorAll(
+        "#repositoryList .repository-card"
+    );
+    const repositoriesPerPage = 10;
+    const paginationContainer = document.getElementById(
+        "repositoryPagination"
+    );
+    let currentPage = 1;
+    const totalPages = Math.ceil(
+        repositories.length / repositoriesPerPage
+    );
+    function showRepositories(page, shouldScroll = false) {
+        currentPage = page;
+        const start = (page - 1) * repositoriesPerPage;
+        const end = start + repositoriesPerPage;
+        repositories.forEach((repo, index) => {
+            if (index >= start && index < end) {
+                repo.style.display = "";
+            } else {
+                repo.style.display = "none";
+            }
+        });
+        renderPagination();
+        if (shouldScroll) {
+            document.getElementById("repositoryList").scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        } 
+    }
+    function renderPagination() {
+        paginationContainer.innerHTML = "";
+        if (totalPages <= 1) {
+            return;
+        }
+        const previousButton = document.createElement("button");
+        previousButton.textContent = "Previous";
+        previousButton.disabled = currentPage === 1;
+        previousButton.addEventListener("click", () => {
+            if (currentPage > 1) {
+                showRepositories(currentPage - 1);
+            }
+        });
+        paginationContainer.appendChild(previousButton);
+        for (let page = 1; page <= totalPages; page++) {
+            const pageButton = document.createElement("button");
+        
+            pageButton.textContent = page;
+        
+            if (page === currentPage) {
+                pageButton.classList.add("active");
+            }
+        
+            pageButton.addEventListener("click", () => {
+                showRepositories(page, true);
+            });
+        
+            paginationContainer.appendChild(pageButton);
+        }
+        const nextButton = document.createElement("button");
+        nextButton.textContent = "Next";
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                showRepositories(currentPage + 1);
+            }
+        });
+        paginationContainer.appendChild(nextButton);
+    }
+    showRepositories(1);
+</script>
 </body>
 </html>

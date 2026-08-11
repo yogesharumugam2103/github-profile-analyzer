@@ -366,3 +366,34 @@ body {
     margin: 30px auto 10px;
     height: 400px;
 }
+
+.repository-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.repository-pagination button {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.repository-pagination button:hover:not(:disabled) {
+    background: #f0f0f0;
+}
+
+.repository-pagination button.active {
+    font-weight: bold;
+}
+
+.repository-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
