@@ -544,6 +544,155 @@ def analyze():
         active_repositories=active_repositories
     )
 
+def contribution_metrics(username):
+    graphql_query = """
+    query($username: String!) {
+        user(login: $username) {
+            contributionsCollection {
+                contributionCalendar {
+                    totalContributions
+                    weeks {
+                        contributionDays {
+                            contributionCount
+                            date
+                        }
+                    }
+                }
+            }
+        }
+    }
+    """
+
+    try:
+        response = requests.post(
+            "https://api.github.com/graphql",
+            json={
+                "query": graphql_query,
+                "variables": {
+                    "username": username
+                }
+            },
+            headers=GITHUB_HEADERS,
+            timeout=10
+        )
+    except requests.exceptions.Timeout:
+        return None
+    except requests.exceptions.RequestException:
+        return None
+
+    if rate_limit_message(response):
+        return None
+
+    if response.status_code != 200:
+        return None
+
+    try:
+        data = response.json()
+    except ValueError:
+        return None
+
+    if (
+        "data" not in data
+        or not data["data"].get("user")
+    ):
+        return None
+
+    calendar = (
+        data["data"]["user"]
+        ["contributionsCollection"]
+        ["contributionCalendar"]
+    )
+
+    contribution_days = []
+
+    for week in calendar["weeks"]:
+        for day in week["contributionDays"]:
+            contribution_days.append(day)
+
+    total_contributions = calendar["totalContributions"]
+
+    active_days = sum(
+        1
+        for day in contribution_days
+        if day["contributionCount"] > 0
+    )
+
+    longest_streak = 0
+    current_streak = 0
+
+    for day in contribution_days:
+        if day["contributionCount"] > 0:
+            current_streak += 1
+            longest_streak = max(
+                longest_streak,
+                current_streak
+            )
+        else:
+            current_streak = 0
+
+    if active_days > 0:
+        average_contributions = round(
+            total_contributions / active_days,
+            2
+        )
+    else:
+        average_contributions = 0
+
+    monthly_contributions = defaultdict(int)
+
+    for day in contribution_days:
+        month = day["date"][:7]
+        monthly_contributions[month] += day["contributionCount"]
+
+    most_active_month = None
+
+    if monthly_contributions:
+        most_active_month = max(
+            monthly_contributions,
+            key=monthly_contributions.get
+        )
+
+    most_active_month_count = (
+        monthly_contributions[most_active_month]
+        if most_active_month
+        else 0
+    )
+
+    sorted_months = sorted(monthly_contributions.keys())
+
+    if len(sorted_months) >= 6:
+        recent_months = sorted_months[-3:]
+        previous_months = sorted_months[-6:-3]
+
+        recent_total = sum(
+            monthly_contributions[month]
+            for month in recent_months
+        )
+
+        previous_total = sum(
+            monthly_contributions[month]
+            for month in previous_months
+        )
+
+        if recent_total > previous_total:
+            contribution_trend = "Increasing"
+        elif recent_total < previous_total:
+            contribution_trend = "Decreasing"
+        else:
+            contribution_trend = "Stable"
+    else:
+        contribution_trend = "Not enough data"
+
+    return {
+        "total_contributions": total_contributions,
+        "active_days": active_days,
+        "longest_streak": longest_streak,
+        "average_contributions": average_contributions,
+        "most_active_month": most_active_month,
+        "most_active_month_count": most_active_month_count,
+        "contribution_trend": contribution_trend
+    }
+
 @app.route("/compare")
 def compare():
     username1 = request.args.get("username1", "").strip()
@@ -608,7 +757,177 @@ def compare():
             "value2": user2["public_repos"]
         }
     ]
+
+    user_repositories = []
+
+    for username in [username1, username2]:
+        repositories = []
+        page = 1
+
+        while True:
+            try:
+                repos_response = requests.get(
+                    f"https://api.github.com/users/{username}/repos",
+                    params={
+                        "per_page": 100,
+                        "page": page
+                    },
+                    headers=GITHUB_HEADERS,
+                    timeout=10
+                )
+            except requests.exceptions.Timeout:
+                return "GitHub took too long to respond while fetching repositories."
+            except requests.exceptions.RequestException:
+                return "Unable to fetch repositories from GitHub."
     
+            if rate_limit_message(repos_response):
+                return "GitHub API rate limit reached. Please try again later."
+    
+            if repos_response.status_code != 200:
+                return "Unable to fetch repositories from GitHub."
+    
+            page_repositories = repos_response.json()
+    
+            if not page_repositories:
+                break
+    
+            repositories.extend(page_repositories)
+    
+            if len(page_repositories) < 100:
+                break
+    
+            page += 1
+    
+        user_repositories.append(repositories)
+
+    repos1 = user_repositories[0]
+    repos2 = user_repositories[1]
+
+    def repository_metrics(repositories):
+        total_stars = sum(
+            repo["stargazers_count"]
+            for repo in repositories
+        )
+    
+        total_forks = sum(
+            repo["forks_count"]
+            for repo in repositories
+        )
+    
+        original_repos = sum(
+            1 for repo in repositories
+            if not repo["fork"]
+        )
+
+        forked_repos = sum(
+            1 for repo in repositories
+            if repo["fork"]
+        )
+    
+        archived_repos = sum(
+            1 for repo in repositories
+            if repo["archived"]
+        )
+    
+        language_counts = {}
+    
+        for repo in repositories:
+            language = repo["language"]
+    
+            if language:
+                language_counts[language] = (
+                    language_counts.get(language, 0) + 1
+                )
+    
+        most_used_language = "Not available"
+    
+        if language_counts:
+            most_used_language = max(
+                language_counts,
+                key=language_counts.get
+            )
+    
+        return {
+            "total_stars": total_stars,
+            "total_forks": total_forks,
+            "original_repos": original_repos,
+            "forked_repos": forked_repos,
+            "archived_repos": archived_repos,
+            "most_used_language": most_used_language
+        }
+
+    repo_metrics1 = repository_metrics(repos1)
+    repo_metrics2 = repository_metrics(repos2)
+    contribution_metrics1 = contribution_metrics(username1)
+    contribution_metrics2 = contribution_metrics(username2)
+
+    comparison_metrics.extend([
+        {
+            "name": "Total Stars",
+            "value1": repo_metrics1["total_stars"],
+            "value2": repo_metrics2["total_stars"]
+        },
+        {
+            "name": "Total Forks",
+            "value1": repo_metrics1["total_forks"],
+            "value2": repo_metrics2["total_forks"]
+        },
+        {
+            "name": "Original Repositories",
+            "value1": repo_metrics1["original_repos"],
+            "value2": repo_metrics2["original_repos"]
+        },
+        {
+            "name": "Forked Repositories",
+            "value1": repo_metrics1["forked_repos"],
+            "value2": repo_metrics2["forked_repos"]
+        },
+        {
+            "name": "Archived Repositories",
+            "value1": repo_metrics1["archived_repos"],
+            "value2": repo_metrics2["archived_repos"]
+        },
+        {
+            "name": "Most Used Language",
+            "value1": repo_metrics1["most_used_language"],
+            "value2": repo_metrics2["most_used_language"]
+        }
+    ])
+
+    if contribution_metrics1 and contribution_metrics2:
+        comparison_metrics.extend([
+            {
+                "name": "Total Contributions",
+                "value1": contribution_metrics1["total_contributions"],
+                "value2": contribution_metrics2["total_contributions"]
+            },
+            {
+                "name": "Active Contribution Days",
+                "value1": contribution_metrics1["active_days"],
+                "value2": contribution_metrics2["active_days"]
+            },
+            {
+                "name": "Longest Contribution Streak",
+                "value1": contribution_metrics1["longest_streak"],
+                "value2": contribution_metrics2["longest_streak"]
+            },
+            {
+                "name": "Average Contributions / Active Day",
+                "value1": contribution_metrics1["average_contributions"],
+                "value2": contribution_metrics2["average_contributions"]
+            },
+            {
+                "name": "Most Active Month",
+                "value1": contribution_metrics1["most_active_month"],
+                "value2": contribution_metrics2["most_active_month"]
+            },
+            {
+                "name": "Contribution Trend",
+                "value1": contribution_metrics1["contribution_trend"],
+                "value2": contribution_metrics2["contribution_trend"]
+            }
+        ])
+
     return render_template(
         "compare.html",
         user1=user1,

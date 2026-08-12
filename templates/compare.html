@@ -4,30 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compare GitHub Profiles</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
 </head>
 <body>
     <main class="comparison-container">
-        <h1>GitHub Profile Comparison</h1>
+        <header class="comparison-header">
+            <h1>GitHub Profile Comparison</h1>
+            <p>Compare the GitHub activity and repository statistics of two profiles.</p>
+        </header>
         <section class="comparison-profiles">
             <div class="comparison-profile">
                 <img src="{{ user1.avatar_url }}" alt="{{ user1.login }}">
                 <h2>{{ user1.name or user1.login }}</h2>
                 <p>@{{ user1.login }}</p>
             </div>
+            <div class="vs">VS</div>
             <div class="comparison-profile">
                 <img src="{{ user2.avatar_url }}" alt="{{ user2.login }}">
                 <h2>{{ user2.name or user2.login }}</h2>
                 <p>@{{ user2.login }}</p>
             </div>
         </section>
-        <section class="comparison-metrics">
-            {% for metric in comparison_metrics %}
-                <div class="comparison-row">
-                    <span>{{ metric.name }}</span>
-                    <strong>{{ metric.value1 }}</strong>
-                    <strong>{{ metric.value2 }}</strong>
+        <section class="comparison-section">
+            <h2>👤 Profile Comparison</h2>
+            <div class="comparison-table">
+                <div class="comparison-header-row">
+                    <span>Metric</span>
+                    <strong>{{ user1.login }}</strong>
+                    <strong>{{ user2.login }}</strong>
                 </div>
-            {% endfor %}
+                {% for metric in comparison_metrics %}
+                    {% if metric.name in ["Followers", "Following", "Public Repositories"] %}
+                        <div class="comparison-row">
+                            <span>{{ metric.name }}</span>
+                            <strong class="{% if metric.value1 > metric.value2 %}winner{% elif metric.value2 > metric.value1 %}loser{% endif %}">
+                                {{ metric.value1 }}
+                            </strong>
+                            <strong class="{% if metric.value2 > metric.value1 %}winner{% elif metric.value1 > metric.value2 %}loser{% endif %}">
+                                {{ metric.value2 }}
+                            </strong>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
+        <section class="comparison-section">
+            <h2>📦 Repository Analysis</h2>
+            <div class="comparison-table">
+                <div class="comparison-header-row">
+                    <span>Metric</span>
+                    <strong>{{ user1.login }}</strong>
+                    <strong>{{ user2.login }}</strong>
+                </div>
+                {% for metric in comparison_metrics %}
+                    {% if metric.name in ["Total Stars", "Total Forks", "Original Repositories", "Forked Repositories", "Archived Repositories"] %}
+                        <div class="comparison-row">
+                            <span>{{ metric.name }}</span>
+                            <strong class="{% if metric.value1 > metric.value2 %}winner{% elif metric.value2 > metric.value1 %}loser{% endif %}">
+                                {{ metric.value1 }}
+                            </strong>
+                            <strong class="{% if metric.value2 > metric.value1 %}winner{% elif metric.value1 > metric.value2 %}loser{% endif %}">
+                                {{ metric.value2 }}
+                            </strong>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% for metric in comparison_metrics %}
+                    {% if metric.name == "Most Used Language" %}
+                        <div class="comparison-row">
+                            <span>{{ metric.name }}</span>
+                            <strong>{{ metric.value1 }}</strong>
+                            <strong>{{ metric.value2 }}</strong>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
+        <section class="comparison-section">
+            <h2>🔥 Contribution Activity</h2>
+            <div class="comparison-table">
+                <div class="comparison-header-row">
+                    <span>Metric</span>
+                    <strong>{{ user1.login }}</strong>
+                    <strong>{{ user2.login }}</strong>
+                </div>
+                {% for metric in comparison_metrics %}
+                    {% if metric.name in ["Total Contributions", "Active Contribution Days", "Longest Contribution Streak", "Average Contributions / Active Day"] %}
+                        <div class="comparison-row">
+                            <span>{{ metric.name }}</span>
+                            <strong class="{% if metric.value1 > metric.value2 %}winner{% elif metric.value2 > metric.value1 %}loser{% endif %}">
+                                {{ metric.value1 }}
+                            </strong>
+                            <strong class="{% if metric.value2 > metric.value1 %}winner{% elif metric.value1 > metric.value2 %}loser{% endif %}">
+                                {{ metric.value2 }}
+                            </strong>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {% for metric in comparison_metrics %}
+                    {% if metric.name in ["Most Active Month", "Contribution Trend"] %}
+                        <div class="comparison-row">
+                            <span>{{ metric.name }}</span>
+                            <strong>{{ metric.value1 }}</strong>
+                            <strong>{{ metric.value2 }}</strong>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </section>
     </main>
 </body>
