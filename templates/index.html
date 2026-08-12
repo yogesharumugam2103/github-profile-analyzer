@@ -373,6 +373,30 @@
         {% endif %}
     </section>
 
+    <section class="repo-size-analysis">
+        <h2>Repository Size Distribution</h2>
+        <div class="repo-size-grid">
+            <div class="repo-size-card">
+                <span>🟢</span>
+                <h3>{{ repo_size_distribution["Small"] }}</h3>
+                <p>Small Repositories</p>
+                <small>Less than 1 MB</small>
+            </div>
+            <div class="repo-size-card">
+                <span>🟡</span>
+                <h3>{{ repo_size_distribution["Medium"] }}</h3>
+                <p>Medium Repositories</p>
+                <small>1 MB – 10 MB</small>
+            </div>
+            <div class="repo-size-card">
+                <span>🔴</span>
+                <h3>{{ repo_size_distribution["Large"] }}</h3>
+                <p>Large Repositories</p>
+                <small>10 MB or more</small>
+            </div>
+        </div>
+    </section>
+
     <section class="repositories">
         <h2>Repositories</h2>
         <div id="repositoryList">

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 import requests
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import re
 from collections import defaultdict
@@ -263,6 +263,35 @@ def analyze():
     for day in contribution_days:
         month = day["date"][:7]
         monthly_contributions[month] += day["contributionCount"]
+    
+    if contribution_days:
+        first_month = datetime.strptime(
+            contribution_days[0]["date"],
+            "%Y-%m-%d"
+        ).replace(day=1)
+    
+        last_month = datetime.strptime(
+            contribution_days[-1]["date"],
+            "%Y-%m-%d"
+        ).replace(day=1)
+    
+        current_month = first_month
+    
+        while current_month <= last_month:
+            month_key = current_month.strftime("%Y-%m")
+    
+            if month_key not in monthly_contributions:
+                monthly_contributions[month_key] = 0
+    
+            if current_month.month == 12:
+                current_month = current_month.replace(
+                    year=current_month.year + 1,
+                    month=1
+                )
+            else:
+                current_month = current_month.replace(
+                    month=current_month.month + 1
+                )
 
     most_active_month = None
 
@@ -323,27 +352,32 @@ def analyze():
             contribution_heatmap.append(week_data)
 
 
-    midpoint = len(contribution_days) // 2
+    if contributions_available and monthly_contributions:
+        sorted_months = sorted(monthly_contributions.keys())
 
-    earlier_days = contribution_days[:midpoint]
-    recent_days = contribution_days[midpoint:]
-
-    earlier_contributions = sum(
-        day["contributionCount"]
-        for day in earlier_days
-    )
-
-    recent_contributions = sum(
-        day["contributionCount"]
-        for day in recent_days
-    )
-
-    if recent_contributions > earlier_contributions:
-        contribution_trend = "Increasing"
-    elif recent_contributions < earlier_contributions:
-        contribution_trend = "Decreasing"
+        recent_months = sorted_months[-3:]
+        previous_months = sorted_months[-6:-3]
+    
+        recent_total = sum(
+            monthly_contributions[month]
+            for month in recent_months
+        )
+    
+        previous_total = sum(
+            monthly_contributions[month]
+            for month in previous_months
+        )
+    
+        if recent_total > previous_total:
+            contribution_trend = "Increasing"
+        elif recent_total < previous_total:
+            contribution_trend = "Decreasing"
+        else:
+            contribution_trend = "Stable"
     else:
-        contribution_trend = "Stable"
+        contribution_trend = None
+
+
     total_stars = sum(repo["stargazers_count"] for repo in repos)
     total_forks = sum(repo["forks_count"] for repo in repos)
 
@@ -391,6 +425,22 @@ def analyze():
         if repo["archived"]
     )
 
+    repo_size_distribution = {
+        "Small": 0,
+        "Medium": 0,
+        "Large": 0
+    }
+    
+    for repo in repos:
+        size = repo.get("size", 0)
+    
+        if size < 1000:
+            repo_size_distribution["Small"] += 1
+        elif size < 10000:
+            repo_size_distribution["Medium"] += 1
+        else:
+            repo_size_distribution["Large"] += 1
+
     total_language_repos = sum(language_counts.values())
 
     language_percentages = {}
@@ -425,6 +475,7 @@ def analyze():
         contribution_frequency=contribution_frequency,
         contribution_trend=contribution_trend,
         archived_repos=archived_repos,
+        repo_size_distribution=repo_size_distribution,
         completed_profile_fields=completed_profile_fields,
         total_profile_fields=total_profile_fields,
         profile_completeness=profile_completeness,

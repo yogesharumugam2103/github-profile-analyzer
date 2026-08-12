@@ -515,3 +515,52 @@
         text-align: center;
     }
 }
+
+.repo-size-analysis {
+    margin-top: 30px;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+}
+
+.repo-size-analysis h2 {
+    margin: 0 0 25px;
+}
+
+.repo-size-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.repo-size-card {
+    padding: 25px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+.repo-size-card span {
+    font-size: 28px;
+}
+
+.repo-size-card h3 {
+    margin: 10px 0 5px;
+    font-size: 28px;
+}
+
+.repo-size-card p {
+    margin: 0 0 6px;
+    font-weight: 600;
+}
+
+.repo-size-card small {
+    color: #6b7280;
+}
+
+@media (max-width: 600px) {
+    .repo-size-grid {
+        grid-template-columns: 1fr;
+    }
+}
