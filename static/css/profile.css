@@ -564,3 +564,73 @@
         grid-template-columns: 1fr;
     }
 }
+
+.commit-activity {
+    margin-top: 30px;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+}
+
+.commit-activity h2 {
+    margin: 0 0 8px;
+}
+
+.section-description {
+    margin: 0 0 25px;
+    color: #6b7280;
+}
+
+.commit-activity-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.commit-activity-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.commit-activity-card h3 {
+    margin: 0 0 8px;
+    word-break: break-word;
+}
+
+.commit-activity-card a {
+    color: #0969da;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.commit-activity-card a:hover {
+    text-decoration: underline;
+}
+
+.commit-count {
+    min-width: 75px;
+    text-align: center;
+}
+
+.commit-count span {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.commit-count small {
+    color: #6b7280;
+}
+
+@media (max-width: 700px) {
+    .commit-activity-grid {
+        grid-template-columns: 1fr;
+    }
+}

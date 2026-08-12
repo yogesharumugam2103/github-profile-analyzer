@@ -373,6 +373,29 @@
         {% endif %}
     </section>
 
+    <section class="commit-activity">
+        <h2>Recent Commit Activity</h2>
+        <p class="section-description">Commit activity during the last 30 days.</p>
+        {% if active_repositories %}
+            <div class="commit-activity-grid">
+                {% for repo in active_repositories %}
+                    <div class="commit-activity-card">
+                        <div>
+                            <h3>{{ repo.name }}</h3>
+                            <a href="{{ repo.html_url }}" target="_blank">View Repository</a>
+                        </div>
+                        <div class="commit-count">
+                            <span>{{ repo.commit_count }}</span>
+                            <small>commits</small>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No recent commit activity available.</p>
+        {% endif %}
+    </section>    
+
     <section class="repo-size-analysis">
         <h2>Repository Size Distribution</h2>
         <div class="repo-size-grid">

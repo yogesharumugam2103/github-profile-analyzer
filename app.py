@@ -143,6 +143,56 @@ def analyze():
         key=lambda repo: repo["updated_at"],
         reverse=True
     )[:3]
+
+    active_repositories = []
+
+    for repo in recent_repos:
+        commit_count = 0
+        page = 1
+
+        while True:
+            try:
+                commits_response = requests.get(
+                    f"https://api.github.com/repos/{username}/{repo['name']}/commits",
+                    params={
+                        "since": (
+                            datetime.utcnow() - timedelta(days=30)
+                        ).isoformat() + "Z",
+                        "per_page": 100,
+                        "page": page
+                    },
+                    timeout=10
+                )
+            except requests.exceptions.Timeout:
+                commit_count = None
+                break
+            except requests.exceptions.RequestException:
+                commit_count = None
+                break
+    
+            if rate_limit_message(commits_response):
+                commit_count = None
+                break
+    
+            if commits_response.status_code != 200:
+                commit_count = None
+                break
+    
+            commits = commits_response.json()
+    
+            commit_count += len(commits)
+    
+            if len(commits) < 100:
+                break
+    
+            page += 1
+    
+        if commit_count is not None:
+            active_repositories.append({
+                "name": repo["name"],
+                "html_url": repo["html_url"],
+                "commit_count": commit_count
+            })
   
     graphql_query = """
     query($username: String!) {
@@ -482,7 +532,8 @@ def analyze():
         missing_profile_fields=missing_profile_fields,
         monthly_contributions=monthly_contributions,
         contributions_available=contributions_available,
-        recent_repos=recent_repos
+        recent_repos=recent_repos,
+        active_repositories=active_repositories
     )
 
 if __name__ == "__main__":
