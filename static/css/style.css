@@ -5,52 +5,137 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f4f6f8;
+    background: #f6f8fa;
     color: #1f2937;
+}
+
+.analyzer-header {
+    width: 100%;
+    background: #24292f;
+    color: white;
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.header-content {
+    width: 92%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 24px;
+    white-space: nowrap;
+}
+
+.header-content form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.header-content input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 14px;
+    border: 1px solid #57606a;
+    border-radius: 7px;
+    background: white;
+    color: #1f2937;
+    font-size: 15px;
+    outline: none;
+}
+
+.header-content input:focus {
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.2);
+}
+
+.header-content button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 7px;
+    background: #0969da;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.header-content button:hover {
+    background: #0757b5;
+    transform: translateY(-1px);
 }
 
 .container {
     width: 90%;
     max-width: 700px;
     margin: 100px auto;
-    padding: 40px;
+    padding: 50px 40px;
     text-align: center;
     background: white;
-    border-radius: 12px;
+    border: 1px solid #d8dee4;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
 }
 
-h1 {
-    margin-bottom: 10px;
+.container h2 {
+    margin: 0 0 12px;
+    font-size: 28px;
 }
 
-p {
-    margin-bottom: 30px;
-}
-
-form {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-input {
-    width: 60%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
+.container p {
+    margin: 0;
+    color: #57606a;
+    line-height: 1.6;
 }
 
 button {
-    padding: 12px 18px;
-    border: none;
-    border-radius: 6px;
-    background: #24292f;
-    color: white;
-    font-size: 16px;
     cursor: pointer;
 }
 
-button:hover {
-    opacity: 0.9;
+@media (max-width: 700px) {
+    .analyzer-header {
+        padding: 16px 0;
+    }
+
+    .header-content {
+        width: 90%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .header-content h1 {
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .header-content form {
+        max-width: none;
+    }
+
+    .container {
+        margin: 50px auto;
+        padding: 35px 20px;
+    }
+}
+
+@media (max-width: 450px) {
+    .header-content form {
+        flex-direction: column;
+    }
+
+    .header-content input,
+    .header-content button {
+        width: 100%;
+    }
 }

@@ -400,7 +400,7 @@ def analyze():
         language_percentages[language] = percentage
     
     return render_template(
-        "profile.html",
+        "index.html",
         user=user_data,
         repos=repos,
         total_stars=total_stars,
