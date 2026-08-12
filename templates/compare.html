@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare GitHub Profiles</title>
+</head>
+<body>
+    <main class="comparison-container">
+        <h1>GitHub Profile Comparison</h1>
+        <section class="comparison-profiles">
+            <div class="comparison-profile">
+                <img src="{{ user1.avatar_url }}" alt="{{ user1.login }}">
+                <h2>{{ user1.name or user1.login }}</h2>
+                <p>@{{ user1.login }}</p>
+            </div>
+            <div class="comparison-profile">
+                <img src="{{ user2.avatar_url }}" alt="{{ user2.login }}">
+                <h2>{{ user2.name or user2.login }}</h2>
+                <p>@{{ user2.login }}</p>
+            </div>
+        </section>
+        <section class="comparison-metrics">
+            {% for metric in comparison_metrics %}
+                <div class="comparison-row">
+                    <span>{{ metric.name }}</span>
+                    <strong>{{ metric.value1 }}</strong>
+                    <strong>{{ metric.value2 }}</strong>
+                </div>
+            {% endfor %}
+        </section>
+    </main>
+</body>
+</html>

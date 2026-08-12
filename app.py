@@ -15,6 +15,11 @@ if not GITHUB_TOKEN:
         "GITHUB_TOKEN is missing. Please add it to your .env file."
     )
 
+GITHUB_HEADERS = {
+    "Authorization": f"Bearer {GITHUB_TOKEN}",
+    "X-GitHub-Api-Version": "2022-11-28"
+}
+
 app = Flask(__name__)
 
 def rate_limit_message(response):
@@ -40,6 +45,7 @@ def analyze():
     try:
         response = requests.get(
             f"https://api.github.com/users/{username}",
+            headers=GITHUB_HEADERS,
             timeout=10
         )
 
@@ -111,6 +117,7 @@ def analyze():
                     "per_page": 100,
                     "page": page
                 },
+                headers=GITHUB_HEADERS,
                 timeout=10
             )
 
@@ -161,6 +168,7 @@ def analyze():
                         "per_page": 100,
                         "page": page
                     },
+                    headers=GITHUB_HEADERS,
                     timeout=10
                 )
             except requests.exceptions.Timeout:
@@ -534,6 +542,78 @@ def analyze():
         contributions_available=contributions_available,
         recent_repos=recent_repos,
         active_repositories=active_repositories
+    )
+
+@app.route("/compare")
+def compare():
+    username1 = request.args.get("username1", "").strip()
+    username2 = request.args.get("username2", "").strip()
+
+    if not username1 or not username2:
+        return "Please enter two GitHub usernames."
+
+    if not re.fullmatch(r"[A-Za-z0-9-]+", username1):
+        return "Invalid first GitHub username."
+
+    if not re.fullmatch(r"[A-Za-z0-9-]+", username2):
+        return "Invalid second GitHub username."
+
+    if username1.lower() == username2.lower():
+        return "Please enter two different GitHub usernames."
+
+    users = []
+
+    for username in [username1, username2]:
+        try:
+            response = requests.get(
+                f"https://api.github.com/users/{username}",
+                headers=GITHUB_HEADERS,
+                timeout=10
+            )
+
+        except requests.exceptions.Timeout:
+            return "GitHub took too long to respond. Please try again."
+
+        except requests.exceptions.RequestException:
+            return "Unable to connect to GitHub. Please check your internet connection and try again."
+
+        if response.status_code == 404:
+            return f"GitHub user '{username}' not found."
+
+        if rate_limit_message(response):
+            return "GitHub API rate limit reached. Please try again later."
+
+        if response.status_code != 200:
+            return "Something went wrong while contacting GitHub."
+
+        users.append(response.json())
+
+    user1 = users[0]
+    user2 = users[1]
+
+    comparison_metrics = [
+        {
+            "name": "Followers",
+            "value1": user1["followers"],
+            "value2": user2["followers"]
+        },
+        {
+            "name": "Following",
+            "value1": user1["following"],
+            "value2": user2["following"]
+        },
+        {
+            "name": "Public Repositories",
+            "value1": user1["public_repos"],
+            "value2": user2["public_repos"]
+        }
+    ]
+    
+    return render_template(
+        "compare.html",
+        user1=user1,
+        user2=user2,
+        comparison_metrics=comparison_metrics
     )
 
 if __name__ == "__main__":
