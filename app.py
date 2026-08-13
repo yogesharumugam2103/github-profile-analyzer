@@ -604,15 +604,15 @@ def contribution_metrics(username):
         ["contributionsCollection"]
     )
 
-    calendar = contributions_collection["contributionCalendar"]
+    calendar = contributions_collection.get("contributionCalendar", {})
     contribution_days = []
 
     for week in calendar["weeks"]:
         for day in week["contributionDays"]:
             contribution_days.append(day)
 
-    total_contributions = calendar["totalContributions"]
-    total_commits = contributions_collection["totalCommitContributions"]
+    total_contributions = calendar.get("totalContributions", 0)
+    total_commits = contributions_collection.get("totalCommitContributions", 0)
 
     active_days = sum(
         1
