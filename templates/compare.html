@@ -12,6 +12,32 @@
             <h1>GitHub Profile Comparison</h1>
             <p>Compare the GitHub activity and repository statistics of two profiles.</p>
         </header>
+        <section class="compare-form-section">
+            <h2>Compare Two GitHub Profiles</h2>
+            <p>Enter two GitHub usernames to compare their activity and repositories.</p>
+        
+            <form action="/compare" method="GET" class="compare-form">
+                <input
+                    type="text"
+                    name="username1"
+                    placeholder="First GitHub username"
+                    required
+                >
+        
+                <span class="form-vs">VS</span>
+        
+                <input
+                    type="text"
+                    name="username2"
+                    placeholder="Second GitHub username"
+                    required
+                >
+        
+                <button type="submit">Compare Profiles</button>
+            </form>
+        </section>
+
+        {% if user1 and user2 %}
         <section class="comparison-profiles">
             <div class="comparison-profile">
                 <img src="{{ user1.avatar_url }}" alt="{{ user1.login }}">
@@ -227,6 +253,7 @@
                 </div>
             {% endfor %}
         </section>
+        {% endif %}
     </main>
 </body>
 </html>

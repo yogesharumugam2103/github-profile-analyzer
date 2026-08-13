@@ -26,6 +26,8 @@
             >
             <button type="submit">Analyze</button>
         </form>
+
+        <a href="/compare" class="compare-link">Compare Profiles</a>
     </div>
 
     {% if user %}
@@ -374,15 +376,42 @@
         {% if recent_repos %}
             {% for repo in recent_repos %}
                 <div class="repository-card">
-                    <h3>{{ repo.name }}</h3>
-                    <p>{{ repo.description or "No description available." }}</p>
+
+                    <div class="repository-header">
+                        <div>
+                            <h3>{{ repo.name }}</h3>
+                
+                            {% if repo.fork %}
+                                <span class="repository-status">Forked</span>
+                            {% elif repo.archived %}
+                                <span class="repository-status">Archived</span>
+                            {% else %}
+                                <span class="repository-status">Original</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <p class="repository-description">
+                        {{ repo.description or "No description available." }}
+                    </p>
+                
                     <div class="repository-info">
-                        <span>{{ repo.language or "Unknown" }}</span>
+                        <span>💻 {{ repo.language or "Unknown" }}</span>
                         <span>⭐ {{ repo.stargazers_count }}</span>
                         <span>🍴 {{ repo.forks_count }}</span>
+                        <span>🐛 {{ repo.open_issues_count }} issues</span>
+                        <span>📦 {{ repo.size }} KB</span>
                     </div>
-                    <p>Updated: {{ repo.updated_at[:10] }}</p>
-                    <a href="{{ repo.html_url }}" target="_blank">View Repository</a>
+                
+                    <div class="repository-dates">
+                        <span>Created: {{ repo.created_at[:10] }}</span>
+                        <span>Updated: {{ repo.updated_at[:10] }}</span>
+                    </div>
+                
+                    <a href="{{ repo.html_url }}" target="_blank">
+                        View Repository →
+                    </a>
+
                 </div>
             {% endfor %}
 
@@ -440,17 +469,74 @@
 
     <section class="repositories" id="repositories">
         <h2>Repositories</h2>
+        <div class="repository-controls">
+            <input
+                type="text"
+                id="repositorySearch"
+                placeholder="Search repositories..."
+            >
+        
+            <select id="repositoryFilter">
+                <option value="all">All Repositories</option>
+                <option value="original">Original</option>
+                <option value="forked">Forked</option>
+                <option value="archived">Archived</option>
+            </select>
+        
+            <select id="repositorySort">
+                <option value="updated">Recently Updated</option>
+                <option value="stars">Most Stars</option>
+                <option value="forks">Most Forks</option>
+                <option value="name">Name (A-Z)</option>
+            </select>
+        </div>
+
         <div id="repositoryList">
             {% for repo in repos %}
-                <div class="repository-card">
-                    <h3>{{ repo.name }}</h3>
-                    <p>{{ repo.description or "No description available." }}</p>
+                <div
+                    class="repository-card"
+                    data-name="{{ repo.name | lower }}"
+                    data-stars="{{ repo.stargazers_count }}"
+                    data-forks="{{ repo.forks_count }}"
+                    data-updated="{{ repo.updated_at }}"
+                    data-type="{% if repo.archived %}archived{% elif repo.fork %}forked{% else %}original{% endif %}"
+                >
+
+                    <div class="repository-header">
+                        <div>
+                            <h3>{{ repo.name }}</h3>
+                
+                            {% if repo.fork %}
+                                <span class="repository-status">Forked</span>
+                            {% elif repo.archived %}
+                                <span class="repository-status">Archived</span>
+                            {% else %}
+                                <span class="repository-status">Original</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                
+                    <p class="repository-description">
+                        {{ repo.description or "No description available." }}
+                    </p>
+                
                     <div class="repository-info">
-                        <span>{{ repo.language or "Unknown" }}</span>
+                        <span>💻 {{ repo.language or "Unknown" }}</span>
                         <span>⭐ {{ repo.stargazers_count }}</span>
                         <span>🍴 {{ repo.forks_count }}</span>
+                        <span>🐛 {{ repo.open_issues_count }} issues</span>
+                        <span>📦 {{ repo.size }} KB</span>
                     </div>
-                    <a href="{{ repo.html_url }}" target="_blank">View Repository</a>
+                
+                    <div class="repository-dates">
+                        <span>Created: {{ repo.created_at[:10] }}</span>
+                        <span>Updated: {{ repo.updated_at[:10] }}</span>
+                    </div>
+                
+                    <a href="{{ repo.html_url }}" target="_blank">
+                        View Repository →
+                    </a>
+                
                 </div>
             {% endfor %}
         </div>
@@ -461,69 +547,181 @@
 </main>
 
 <script>
-    const repositories = document.querySelectorAll("#repositoryList .repository-card");
-    const repositoriesPerPage = 10;
-    const paginationContainer = document.getElementById("repositoryPagination");
-    let currentPage = 1;
-    const totalPages = Math.ceil(repositories.length / repositoriesPerPage);
+    const repositoryList = document.getElementById("repositoryList");
+    const repositoryCards = Array.from(
+        repositoryList.querySelectorAll(".repository-card")
+    );
 
-    function showRepositories(page, shouldScroll = false) {
-        currentPage = page;
-        const start = (page - 1) * repositoriesPerPage;
-        const end = start + repositoriesPerPage;
-        repositories.forEach((repo, index) => {
-            repo.style.display = index >= start && index < end ? "" : "none";
+    const searchInput = document.getElementById("repositorySearch");
+    const filterSelect = document.getElementById("repositoryFilter");
+    const sortSelect = document.getElementById("repositorySort");
+    const paginationContainer =
+        document.getElementById("repositoryPagination");
+
+    const repositoriesPerPage = 10;
+
+    let filteredRepositories = [...repositoryCards];
+    let currentPage = 1;
+
+    function updateRepositories() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const filter = filterSelect.value;
+        const sort = sortSelect.value;
+
+        filteredRepositories = repositoryCards.filter(repo => {
+            const name = repo.dataset.name;
+            const type = repo.dataset.type;
+
+            const matchesSearch = name.includes(searchTerm);
+
+            const matchesFilter =
+                filter === "all" || type === filter;
+
+            return matchesSearch && matchesFilter;
         });
+
+        filteredRepositories.sort((a, b) => {
+            if (sort === "stars") {
+                return Number(b.dataset.stars) -
+                       Number(a.dataset.stars);
+            }
+
+            if (sort === "forks") {
+                return Number(b.dataset.forks) -
+                       Number(a.dataset.forks);
+            }
+
+            if (sort === "name") {
+                return a.dataset.name.localeCompare(b.dataset.name);
+            }
+
+            return new Date(b.dataset.updated) -
+                   new Date(a.dataset.updated);
+        });
+
+        currentPage = 1;
+
+        renderRepositories();
         renderPagination();
-        if (shouldScroll) {
-            document.getElementById("repositoryList").scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-        }
+    }
+
+    function renderRepositories() {
+        repositoryCards.forEach(repo => {
+            repo.style.display = "none";
+        });
+
+        const start =
+            (currentPage - 1) * repositoriesPerPage;
+
+        const end =
+            start + repositoriesPerPage;
+
+        const visibleRepositories =
+            filteredRepositories.slice(start, end);
+
+        visibleRepositories.forEach(repo => {
+            repo.style.display = "";
+            repositoryList.appendChild(repo);
+        });
     }
 
     function renderPagination() {
         paginationContainer.innerHTML = "";
+
+        const totalPages = Math.ceil(
+            filteredRepositories.length /
+            repositoriesPerPage
+        );
+
         if (totalPages <= 1) {
             return;
         }
 
-        const previousButton = document.createElement("button");
+        const previousButton =
+            document.createElement("button");
+
         previousButton.textContent = "Previous";
         previousButton.disabled = currentPage === 1;
+
         previousButton.addEventListener("click", () => {
             if (currentPage > 1) {
-                showRepositories(currentPage - 1, true);
+                currentPage--;
+                renderRepositories();
+                renderPagination();
+
+                repositoryList.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
             }
         });
 
         paginationContainer.appendChild(previousButton);
 
         for (let page = 1; page <= totalPages; page++) {
-            const pageButton = document.createElement("button");
+            const pageButton =
+                document.createElement("button");
+
             pageButton.textContent = page;
+
             if (page === currentPage) {
                 pageButton.classList.add("active");
             }
+
             pageButton.addEventListener("click", () => {
-                showRepositories(page, true);
+                currentPage = page;
+
+                renderRepositories();
+                renderPagination();
+
+                repositoryList.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
             });
+
             paginationContainer.appendChild(pageButton);
         }
 
-        const nextButton = document.createElement("button");
+        const nextButton =
+            document.createElement("button");
+
         nextButton.textContent = "Next";
         nextButton.disabled = currentPage === totalPages;
+
         nextButton.addEventListener("click", () => {
             if (currentPage < totalPages) {
-                showRepositories(currentPage + 1, true);
+                currentPage++;
+
+                renderRepositories();
+                renderPagination();
+
+                repositoryList.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
             }
         });
-        
+
         paginationContainer.appendChild(nextButton);
     }
-    showRepositories(1);
+
+    searchInput.addEventListener(
+        "input",
+        updateRepositories
+    );
+
+    filterSelect.addEventListener(
+        "change",
+        updateRepositories
+    );
+
+    sortSelect.addEventListener(
+        "change",
+        updateRepositories
+    );
+
+    updateRepositories();
 </script>
 
 {% endif %}

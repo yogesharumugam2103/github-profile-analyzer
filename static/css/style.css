@@ -139,3 +139,18 @@ button {
         width: 100%;
     }
 }
+
+.compare-link {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 10px 16px;
+    background: #24292f;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.compare-link:hover {
+    background: #1f2328;
+}

@@ -709,7 +709,7 @@ def compare():
     username2 = request.args.get("username2", "").strip()
 
     if not username1 or not username2:
-        return "Please enter two GitHub usernames."
+        return render_template("compare.html")
 
     if not re.fullmatch(r"[A-Za-z0-9-]+", username1):
         return "Invalid first GitHub username."
