@@ -206,9 +206,9 @@ def analyze():
     query($username: String!) {
         user(login: $username) {
             contributionsCollection {
+                totalCommitContributions
                 contributionCalendar {
                     totalContributions
-                    totalCommitContributions
                     weeks {
                         contributionDays {
                             contributionCount
@@ -238,6 +238,9 @@ def analyze():
         )
     
         graphql_data = graphql_response.json()
+
+        print("GRAPHQL STATUS:", graphql_response.status_code)
+        print("GRAPHQL RESPONSE:", graphql_data)
 
         if rate_limit_message(graphql_response):
             graphql_data = {}
@@ -592,6 +595,9 @@ def contribution_metrics(username):
         data = response.json()
     except ValueError:
         return None
+
+    print("GRAPHQL STATUS:", response.status_code)
+    print("GRAPHQL RESPONSE:", data)
 
     if (
         "data" not in data
