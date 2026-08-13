@@ -15,11 +15,29 @@
 <header class="analyzer-header">
     <div class="header-content">
         <h1>GitHub Profile Analyzer</h1>
+
         <form action="/analyze" method="GET">
-            <input type="text" name="username" value="{{ user.login if user else '' }}" placeholder="Enter GitHub username" required>
+            <input
+                type="text"
+                name="username"
+                value="{{ user.login if user else '' }}"
+                placeholder="Enter GitHub username"
+                required
+            >
             <button type="submit">Analyze</button>
         </form>
     </div>
+
+    {% if user %}
+    <nav class="profile-nav">
+        <a href="#overview">Overview</a>
+        <a href="#analysis">Analysis</a>
+        <a href="#contributions">Contributions</a>
+        <a href="#languages">Languages</a>
+        <a href="#repositories">Repositories</a>
+        <a href="#activity">Activity</a>
+    </nav>
+    {% endif %}
 </header>
 
 {% if not user %}
@@ -30,7 +48,7 @@
 
 {% else %}
 <main class="profile-container">
-    <section class="profile-card">
+    <section class="profile-card" id="overview">
         <img class="avatar" src="{{ user.avatar_url }}" alt="{{ user.login }}">
         <div class="profile-info">
             <h1>{{ user.name or user.login }}</h1>
@@ -57,7 +75,7 @@
         </div>
     </section>
 
-    <section class="analysis">
+    <section class="analysis" id="analysis">
         <h2>Profile Analysis</h2>
         <div class="analysis-grid">
             <div class="analysis-card">
@@ -216,7 +234,7 @@
         {% endif %}
     </section>
 
-    <section class="contribution-section">
+    <section class="contribution-section" id="contributions">
         <h2>Contribution Activity</h2>
         {% if contributions_available %}
             <div class="contribution-heatmap">
@@ -307,7 +325,7 @@
         </div>
     {% endif %}
 
-    <section class="language-analysis">
+    <section class="language-analysis" id="languages">
         <h2>Language Distribution</h2>
         {% for language, percentage in language_percentages.items() %}
             <div class="language-row">
@@ -373,7 +391,7 @@
         {% endif %}
     </section>
 
-    <section class="commit-activity">
+    <section class="commit-activity" id="activity">
         <h2>Recent Commit Activity</h2>
         <p class="section-description">Commit activity during the last 30 days.</p>
         {% if active_repositories %}
@@ -420,7 +438,7 @@
         </div>
     </section>
 
-    <section class="repositories">
+    <section class="repositories" id="repositories">
         <h2>Repositories</h2>
         <div id="repositoryList">
             {% for repo in repos %}
