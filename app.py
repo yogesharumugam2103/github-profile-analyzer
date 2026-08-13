@@ -208,6 +208,7 @@ def analyze():
             contributionsCollection {
                 contributionCalendar {
                     totalContributions
+                    totalCommitContributions
                     weeks {
                         contributionDays {
                             contributionCount
@@ -549,6 +550,7 @@ def contribution_metrics(username):
     query($username: String!) {
         user(login: $username) {
             contributionsCollection {
+                totalCommitContributions
                 contributionCalendar {
                     totalContributions
                     weeks {
@@ -597,12 +599,12 @@ def contribution_metrics(username):
     ):
         return None
 
-    calendar = (
+    contributions_collection = (
         data["data"]["user"]
         ["contributionsCollection"]
-        ["contributionCalendar"]
     )
 
+    calendar = contributions_collection["contributionCalendar"]
     contribution_days = []
 
     for week in calendar["weeks"]:
@@ -610,6 +612,7 @@ def contribution_metrics(username):
             contribution_days.append(day)
 
     total_contributions = calendar["totalContributions"]
+    total_commits = contributions_collection["totalCommitContributions"]
 
     active_days = sum(
         1
@@ -685,6 +688,7 @@ def contribution_metrics(username):
 
     return {
         "total_contributions": total_contributions,
+        "total_commits": total_commits,
         "active_days": active_days,
         "longest_streak": longest_streak,
         "average_contributions": average_contributions,
@@ -813,6 +817,14 @@ def compare():
             repo["forks_count"]
             for repo in repositories
         )
+
+        average_stars = 0
+
+        if repositories:
+            average_stars = round(
+                total_stars / len(repositories),
+                2
+            )
     
         original_repos = sum(
             1 for repo in repositories
@@ -850,6 +862,7 @@ def compare():
         return {
             "total_stars": total_stars,
             "total_forks": total_forks,
+            "average_stars": average_stars,
             "original_repos": original_repos,
             "forked_repos": forked_repos,
             "archived_repos": archived_repos,
@@ -871,6 +884,11 @@ def compare():
             "name": "Total Forks",
             "value1": repo_metrics1["total_forks"],
             "value2": repo_metrics2["total_forks"]
+        },
+        {
+            "name": "Average Stars / Repository",
+            "value1": repo_metrics1["average_stars"],
+            "value2": repo_metrics2["average_stars"]
         },
         {
             "name": "Original Repositories",
@@ -902,6 +920,11 @@ def compare():
                 "value2": contribution_metrics2["total_contributions"]
             },
             {
+                "name": "Total Commits",
+                "value1": contribution_metrics1["total_commits"],
+                "value2": contribution_metrics2["total_commits"]
+            },
+            {
                 "name": "Active Contribution Days",
                 "value1": contribution_metrics1["active_days"],
                 "value2": contribution_metrics2["active_days"]
@@ -928,11 +951,148 @@ def compare():
             }
         ])
 
+    comparison_categories = {
+        "visibility": {
+            "label": "Visibility",
+            "metrics": [
+                {
+                    "name": "Followers",
+                    "value1": user1["followers"],
+                    "value2": user2["followers"]
+                }
+            ]
+        },
+    
+        "project_impact": {
+            "label": "Project Impact",
+            "metrics": [
+                {
+                    "name": "Total Stars",
+                    "value1": repo_metrics1["total_stars"],
+                    "value2": repo_metrics2["total_stars"]
+                },
+                {
+                    "name": "Total Forks",
+                    "value1": repo_metrics1["total_forks"],
+                    "value2": repo_metrics2["total_forks"]
+                },
+                {
+                    "name": "Average Stars / Repository",
+                    "value1": repo_metrics1["average_stars"],
+                    "value2": repo_metrics2["average_stars"]
+                }
+            ]
+        },
+    
+        "repository_portfolio": {
+            "label": "Repository Portfolio",
+            "metrics": [
+                {
+                    "name": "Original Repositories",
+                    "value1": repo_metrics1["original_repos"],
+                    "value2": repo_metrics2["original_repos"]
+                }
+            ]
+        }
+    }
+
+    if contribution_metrics1 and contribution_metrics2:
+        comparison_categories["development_activity"] = {
+            "label": "Development Activity",
+            "metrics": [
+                {
+                    "name": "Total Contributions",
+                    "value1": contribution_metrics1["total_contributions"],
+                    "value2": contribution_metrics2["total_contributions"]
+                },
+                {
+                    "name": "Total Commits",
+                    "value1": contribution_metrics1["total_commits"],
+                    "value2": contribution_metrics2["total_commits"]
+                },
+                {
+                    "name": "Active Contribution Days",
+                    "value1": contribution_metrics1["active_days"],
+                    "value2": contribution_metrics2["active_days"]
+                },
+                {
+                    "name": "Longest Contribution Streak",
+                    "value1": contribution_metrics1["longest_streak"],
+                    "value2": contribution_metrics2["longest_streak"]
+                },
+                {
+                    "name": "Average Contributions / Active Day",
+                    "value1": contribution_metrics1["average_contributions"],
+                    "value2": contribution_metrics2["average_contributions"]
+                }
+            ]
+        }
+
+    category_winners = {}
+
+    for category_key, category in comparison_categories.items():
+        score1 = 0
+        score2 = 0
+
+        for metric in category["metrics"]:
+            value1 = metric["value1"]
+            value2 = metric["value2"]
+
+            if isinstance(value1, (int, float)) and isinstance(value2, (int, float)):
+                if value1 > value2:
+                    score1 += 1
+                elif value2 > value1:
+                    score2 += 1
+    
+        if score1 > score2:
+            winner = user1["login"]
+        elif score2 > score1:
+            winner = user2["login"]
+        else:
+            winner = "Tie"
+    
+        category_winners[category_key] = {
+            "winner": winner,
+            "score1": score1,
+            "score2": score2
+        }
+
+    overall_score1 = 0
+    overall_score2 = 0
+    overall_tie_count = 0
+
+    for result in category_winners.values():
+
+        if result["winner"] == user1["login"]:
+            overall_score1 += 1
+
+        elif result["winner"] == user2["login"]:
+            overall_score2 += 1
+    
+        else:
+            overall_tie_count += 1
+    
+    
+    if overall_score1 > overall_score2:
+        overall_winner = user1["login"]
+
+    elif overall_score2 > overall_score1:
+        overall_winner = user2["login"]
+
+    else:
+        overall_winner = "Tie"
+
     return render_template(
         "compare.html",
         user1=user1,
         user2=user2,
-        comparison_metrics=comparison_metrics
+        comparison_metrics=comparison_metrics,
+        comparison_categories=comparison_categories,
+        category_winners=category_winners,
+        overall_score1=overall_score1,
+        overall_score2=overall_score2,
+        overall_tie_count=overall_tie_count,
+        overall_winner=overall_winner
     )
 
 if __name__ == "__main__":

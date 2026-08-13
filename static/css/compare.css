@@ -165,6 +165,10 @@ body {
     .comparison-header h1 {
         font-size: 28px;
     }
+
+    .category-winners {
+        grid-template-columns: 1fr;
+    }
 }
 
 .winner {
@@ -176,4 +180,83 @@ body {
 
 .loser {
     color: #6b7280;
+}
+
+.category-winners {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.category-winner-card {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+}
+
+.category-winner-card h3 {
+    margin: 0 0 10px;
+    font-size: 17px;
+}
+
+.winner-result {
+    margin: 8px 0;
+    color: #18794e;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.tie {
+    margin: 8px 0;
+    color: #6b7280;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.category-score {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.overall-result {
+    margin-bottom: 30px;
+}
+
+.overall-winner,
+.overall-tie {
+    text-align: center;
+    padding: 30px 20px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+}
+
+.overall-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.overall-winner h3,
+.overall-tie h3 {
+    margin: 5px 0;
+    font-size: 25px;
+}
+
+.overall-winner p,
+.overall-tie p {
+    margin: 5px 0 12px;
+    color: #6b7280;
+}
+
+.overall-winner strong {
+    color: #18794e;
+    font-size: 17px;
+}
+
+.overall-tie strong {
+    color: #374151;
 }
