@@ -307,8 +307,11 @@ def analyze():
             ["totalContributions"]
         )
 
-    if active_days > 0:
-        average_contributions = round(total_contributions / active_days, 2)
+    if contributions_available and total_contributions is not None and active_days > 0:
+        average_contributions = round(
+            total_contributions / active_days,
+            2
+        )
     else:
         average_contributions = 0
 
@@ -598,6 +601,9 @@ def contribution_metrics(username):
 
     print("GRAPHQL STATUS:", response.status_code)
     print("GRAPHQL RESPONSE:", data)
+
+    if data.get("errors"):
+        return None
 
     if (
         "data" not in data
@@ -1034,59 +1040,238 @@ def compare():
             ]
         }
 
-    category_winners = {}
+    # ============================================================
+# WEIGHTED NORMALIZED PROFILE SCORING
+# ============================================================
+
+    def normalized_metric_score(value, other_value, higher_is_better=True):
+        """
+        Converts two metric values into relative scores between 0 and 100.
+    
+        The score is based on the proportion of the combined value.
+        This means the actual magnitude of the difference matters.
+    
+        Example:
+            100 vs 50
+            -> 66.67 vs 33.33
+    
+            10 vs 9
+            -> 52.63 vs 47.37
+        """
+    
+        if not isinstance(value, (int, float)):
+            return None
+    
+        if not isinstance(other_value, (int, float)):
+            return None
+    
+        if value < 0 or other_value < 0:
+            return None
+    
+        total = value + other_value
+    
+        if total == 0:
+            return 50.0
+    
+        if higher_is_better:
+            score = (value / total) * 100
+        else:
+            score = (other_value / total) * 100
+    
+        return round(score, 2)
+    
+
+# ------------------------------------------------------------
+# Metric importance weights
+# ------------------------------------------------------------
+
+    metric_weights = {
+        "Followers": 0.75,
+
+        "Total Stars": 1.00,
+        "Total Forks": 0.85,
+        "Average Stars / Repository": 1.00,
+    
+        "Original Repositories": 0.90,
+    
+        "Total Contributions": 0.80,
+        "Total Commits": 0.85,
+        "Active Contribution Days": 0.75,
+        "Longest Contribution Streak": 0.65,
+        "Average Contributions / Active Day": 0.70
+    }
+
+    category_weights = {
+        "visibility": 0.75,
+        "project_impact": 1.00,
+        "repository_portfolio": 0.90,
+        "development_activity": 1.00
+    }
+
+
+# ------------------------------------------------------------
+# Calculate weighted scores for every metric
+# ------------------------------------------------------------
+
+    category_scores = {}
+
+    overall_weighted_score1 = 0
+    overall_weighted_score2 = 0
+    overall_weight = 0
 
     for category_key, category in comparison_categories.items():
-        score1 = 0
-        score2 = 0
 
+        category_score1 = 0
+        category_score2 = 0
+        category_weight_total = 0
+    
+        metric_results = []
+    
         for metric in category["metrics"]:
+    
+            name = metric["name"]
             value1 = metric["value1"]
             value2 = metric["value2"]
-
-            if isinstance(value1, (int, float)) and isinstance(value2, (int, float)):
-                if value1 > value2:
-                    score1 += 1
-                elif value2 > value1:
-                    score2 += 1
     
-        if score1 > score2:
-            winner = user1["login"]
-        elif score2 > score1:
-            winner = user2["login"]
+            weight = metric_weights.get(name, 1.0)
+    
+            score1 = normalized_metric_score(
+                value1,
+                value2,
+                higher_is_better=True
+            )
+    
+            score2 = normalized_metric_score(
+                value2,
+                value1,
+                higher_is_better=True
+            )
+    
+            # Ignore metrics that cannot be numerically compared
+            if score1 is None or score2 is None:
+                continue
+    
+            category_score1 += score1 * weight
+            category_score2 += score2 * weight
+            category_weight_total += weight
+    
+            metric_results.append({
+                "name": name,
+                "value1": value1,
+                "value2": value2,
+                "score1": round(score1, 2),
+                "score2": round(score2, 2),
+                "weight": weight
+            })
+    
+    # --------------------------------------------------------
+    # Normalize category score to 0–100
+        # --------------------------------------------------------
+    
+        if category_weight_total > 0:
+    
+            category_score1 = (
+                category_score1 / category_weight_total
+            )
+    
+            category_score2 = (
+                category_score2 / category_weight_total
+            )
+    
+            category_weight = category_weights.get(
+                category_key,
+                1.0
+            )
+    
+            overall_weighted_score1 += (
+                category_score1 * category_weight
+            )
+    
+            overall_weighted_score2 += (
+                category_score2 * category_weight
+            )
+    
+            overall_weight += category_weight
+    
+            if category_score1 > category_score2:
+                category_winner = user1["login"]
+    
+            elif category_score2 > category_score1:
+                category_winner = user2["login"]
+    
+            else:
+                category_winner = "Tie"
+    
         else:
-            winner = "Tie"
+            category_score1 = None
+            category_score2 = None
+            category_winner = "Insufficient Data"
     
-        category_winners[category_key] = {
-            "winner": winner,
-            "score1": score1,
-            "score2": score2
+        category_scores[category_key] = {
+            "label": category["label"],
+            "score1": (
+                round(category_score1, 2)
+                if category_score1 is not None
+                else None
+            ),
+            "score2": (
+                round(category_score2, 2)
+                if category_score2 is not None
+                else None
+            ),
+            "winner": category_winner,
+            "metrics": metric_results
         }
 
-    overall_score1 = 0
-    overall_score2 = 0
-    overall_tie_count = 0
 
-    for result in category_winners.values():
+# ------------------------------------------------------------
+# Final overall scores
+# ------------------------------------------------------------
 
-        if result["winner"] == user1["login"]:
-            overall_score1 += 1
+    if overall_weight > 0:
 
-        elif result["winner"] == user2["login"]:
-            overall_score2 += 1
-    
-        else:
-            overall_tie_count += 1
-    
-    
-    if overall_score1 > overall_score2:
-        overall_winner = user1["login"]
+        overall_score1 = round(
+            overall_weighted_score1 / overall_weight,
+            2
+        )
 
-    elif overall_score2 > overall_score1:
-        overall_winner = user2["login"]
+        overall_score2 = round(
+            overall_weighted_score2 / overall_weight,
+            2
+        )
 
     else:
+
+        overall_score1 = 0
+        overall_score2 = 0
+    
+
+# ------------------------------------------------------------
+# Determine overall result
+# ------------------------------------------------------------
+
+    score_difference = abs(
+        overall_score1 - overall_score2
+    )
+
+    if score_difference < 0.01:
+
         overall_winner = "Tie"
+
+    elif overall_score1 > overall_score2:
+
+        overall_winner = user1["login"]
+
+    else:
+
+        overall_winner = user2["login"]
+
+
+    overall_tie_count = sum(
+        1
+        for category in category_scores.values()
+        if category["winner"] == "Tie"
+    )
 
     return render_template(
         "compare.html",
@@ -1094,7 +1279,7 @@ def compare():
         user2=user2,
         comparison_metrics=comparison_metrics,
         comparison_categories=comparison_categories,
-        category_winners=category_winners,
+        category_scores=category_scores,
         overall_score1=overall_score1,
         overall_score2=overall_score2,
         overall_tie_count=overall_tie_count,

@@ -1,19 +1,49 @@
+```css
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
 * {
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f8;
-    color: #1f2937;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Helvetica,
+        Arial,
+        sans-serif;
+
+    background:
+        linear-gradient(180deg, #f6f8fa 0%, #ffffff 45%, #f6f8fa 100%);
+
+    color: #1f2328;
+    line-height: 1.5;
 }
+
+
+/* ============================================================
+   MAIN CONTAINER
+   ============================================================ */
 
 .comparison-container {
     width: 92%;
-    max-width: 1000px;
-    margin: 50px auto;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 45px 0 70px;
 }
+
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
 
 .comparison-header {
     text-align: center;
@@ -21,262 +51,49 @@ body {
 }
 
 .comparison-header h1 {
-    margin-bottom: 10px;
-    font-size: 34px;
+    margin: 0 0 10px;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+    color: #1f2328;
 }
 
 .comparison-header p {
-    margin: 0;
-    color: #6b7280;
+    max-width: 680px;
+    margin: 0 auto;
+    color: #656d76;
     font-size: 16px;
 }
 
-.comparison-profiles {
-    display: grid;
-    grid-template-columns: 1fr 100px 1fr;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 30px;
-}
 
-.comparison-profile {
-    background: white;
-    padding: 30px;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-}
-
-.comparison-profile img {
-    width: 130px;
-    height: 130px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-}
-
-.comparison-profile h2 {
-    margin: 5px 0;
-    font-size: 24px;
-}
-
-.comparison-profile p {
-    margin: 5px 0 0;
-    color: #6b7280;
-}
-
-.vs {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 70px;
-    height: 70px;
-    margin: auto;
-    border-radius: 50%;
-    background: #24292f;
-    color: white;
-    font-weight: bold;
-    font-size: 20px;
-}
-
-.comparison-section {
-    background: white;
-    margin-top: 25px;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-}
-
-.comparison-section h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 22px;
-}
-
-.comparison-table {
-    width: 100%;
-}
-
-.comparison-header-row,
-.comparison-row {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr;
-    align-items: center;
-    gap: 15px;
-    padding: 15px 10px;
-}
-
-.comparison-header-row {
-    background: #f4f6f8;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-.comparison-row {
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.comparison-row:last-child {
-    border-bottom: none;
-}
-
-.comparison-row span {
-    font-weight: 500;
-}
-
-.comparison-row strong {
-    text-align: center;
-    font-size: 17px;
-}
-
-.comparison-header-row strong {
-    text-align: center;
-}
-
-@media (max-width: 700px) {
-    .comparison-container {
-        width: 95%;
-        margin: 30px auto;
-    }
-
-    .comparison-profiles {
-        grid-template-columns: 1fr;
-    }
-
-    .vs {
-        width: 55px;
-        height: 55px;
-        font-size: 16px;
-    }
-
-    .comparison-profile {
-        padding: 25px;
-    }
-
-    .comparison-section {
-        padding: 18px;
-        overflow-x: auto;
-    }
-
-    .comparison-table {
-        min-width: 500px;
-    }
-
-    .comparison-header h1 {
-        font-size: 28px;
-    }
-
-    .category-winners {
-        grid-template-columns: 1fr;
-    }
-}
-
-.winner {
-    background: #e8f5e9;
-    color: #18794e;
-    border-radius: 8px;
-    padding: 6px 10px;
-}
-
-.loser {
-    color: #6b7280;
-}
-
-.category-winners {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.category-winner-card {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 18px;
-    text-align: center;
-}
-
-.category-winner-card h3 {
-    margin: 0 0 10px;
-    font-size: 17px;
-}
-
-.winner-result {
-    margin: 8px 0;
-    color: #18794e;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.tie {
-    margin: 8px 0;
-    color: #6b7280;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.category-score {
-    margin: 5px 0 0;
-    color: #6b7280;
-    font-size: 14px;
-}
-
-.overall-result {
-    margin-bottom: 30px;
-}
-
-.overall-winner,
-.overall-tie {
-    text-align: center;
-    padding: 30px 20px;
-    border-radius: 14px;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-}
-
-.overall-icon {
-    font-size: 42px;
-    margin-bottom: 10px;
-}
-
-.overall-winner h3,
-.overall-tie h3 {
-    margin: 5px 0;
-    font-size: 25px;
-}
-
-.overall-winner p,
-.overall-tie p {
-    margin: 5px 0 12px;
-    color: #6b7280;
-}
-
-.overall-winner strong {
-    color: #18794e;
-    font-size: 17px;
-}
-
-.overall-tie strong {
-    color: #374151;
-}
+/* ============================================================
+   COMPARE FORM
+   ============================================================ */
 
 .compare-form-section {
-    margin: 30px 0;
+    margin-bottom: 35px;
     padding: 30px;
-    background: white;
+    background: rgba(255, 255, 255, 0.96);
     border: 1px solid #d8dee4;
     border-radius: 16px;
+    box-shadow:
+        0 4px 12px rgba(31, 35, 40, 0.04),
+        0 1px 3px rgba(31, 35, 40, 0.04);
+
     text-align: center;
 }
 
 .compare-form-section h2 {
-    margin: 0 0 10px;
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 650;
+    color: #1f2328;
 }
 
 .compare-form-section p {
     margin: 0 0 25px;
     color: #656d76;
+    font-size: 14px;
 }
 
 .compare-form {
@@ -289,27 +106,952 @@ body {
 
 .compare-form input {
     width: 250px;
-    padding: 12px 14px;
+    height: 44px;
+    padding: 0 14px;
+
+    background: #ffffff;
     border: 1px solid #d0d7de;
     border-radius: 8px;
-    font-size: 15px;
+
+    color: #1f2328;
+    font-size: 14px;
+
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.compare-form input::placeholder {
+    color: #8c959f;
+}
+
+.compare-form input:focus {
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.12);
 }
 
 .compare-form button {
-    padding: 12px 20px;
-    border: none;
+    height: 44px;
+    padding: 0 20px;
+
+    border: 1px solid rgba(31, 35, 40, 0.15);
     border-radius: 8px;
+
     background: #24292f;
-    color: white;
+    color: #ffffff;
+
+    font-size: 14px;
     font-weight: 600;
+
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease,
+        box-shadow 0.2s ease;
 }
 
 .compare-form button:hover {
     background: #1f2328;
+    box-shadow: 0 4px 10px rgba(31, 35, 40, 0.12);
+}
+
+.compare-form button:active {
+    transform: translateY(1px);
 }
 
 .form-vs {
-    font-weight: bold;
+    color: #656d76;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   PROFILE CARDS
+   ============================================================ */
+
+.comparison-profiles {
+    display: grid;
+    grid-template-columns: 1fr 90px 1fr;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.comparison-profile {
+    position: relative;
+
+    padding: 30px 20px;
+
+    background: #ffffff;
+    border: 1px solid #d8dee4;
+    border-radius: 16px;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 16px rgba(31, 35, 40, 0.05),
+        0 1px 3px rgba(31, 35, 40, 0.04);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.comparison-profile:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 9px 24px rgba(31, 35, 40, 0.08),
+        0 2px 5px rgba(31, 35, 40, 0.04);
+}
+
+.comparison-profile img {
+    display: block;
+
+    width: 130px;
+    height: 130px;
+
+    margin: 0 auto 16px;
+
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 4px solid #ffffff;
+
+    box-shadow:
+        0 0 0 1px #d8dee4,
+        0 5px 15px rgba(31, 35, 40, 0.12);
+}
+
+.comparison-profile h2 {
+    margin: 5px 0;
+    font-size: 23px;
+    font-weight: 650;
+    color: #1f2328;
+}
+
+.comparison-profile p {
+    margin: 4px 0 0;
+    color: #656d76;
+    font-size: 14px;
+}
+
+.vs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 68px;
+    height: 68px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    background: #24292f;
+    color: #ffffff;
+
+    font-size: 17px;
+    font-weight: 700;
+
+    box-shadow: 0 5px 14px rgba(31, 35, 40, 0.14);
+}
+
+
+/* ============================================================
+   GENERAL COMPARISON SECTIONS
+   ============================================================ */
+
+.comparison-section {
+    margin-top: 25px;
+    padding: 28px;
+
+    background: #ffffff;
+
+    border: 1px solid #d8dee4;
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 14px rgba(31, 35, 40, 0.04),
+        0 1px 3px rgba(31, 35, 40, 0.03);
+}
+
+.comparison-section > h2 {
+    margin: 0 0 20px;
+
+    font-size: 21px;
+    font-weight: 650;
+    letter-spacing: -0.2px;
+
+    color: #1f2328;
+}
+
+
+/* ============================================================
+   COMPARISON TABLES
+   ============================================================ */
+
+.comparison-table {
+    width: 100%;
+}
+
+.comparison-header-row,
+.comparison-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(190px, 1.5fr)
+        minmax(120px, 1fr)
+        minmax(120px, 1fr);
+
+    align-items: center;
+
+    gap: 15px;
+    padding: 14px 12px;
+}
+
+.comparison-header-row {
+    background: #f6f8fa;
+
+    border: 1px solid #eaeef2;
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 650;
     color: #656d76;
 }
+
+.comparison-header-row strong {
+    text-align: center;
+    color: #1f2328;
+    overflow-wrap: anywhere;
+}
+
+.comparison-row {
+    min-height: 52px;
+    border-bottom: 1px solid #eaeef2;
+}
+
+.comparison-row:last-child {
+    border-bottom: none;
+}
+
+.comparison-row span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #424a53;
+}
+
+.comparison-row strong {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   METRIC WINNER / LOSER
+   ============================================================ */
+
+.comparison-row strong.winner {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    min-width: 52px;
+
+    padding: 6px 10px;
+
+    background: #dafbe1;
+    color: #116329;
+
+    border-radius: 7px;
+}
+
+.comparison-row strong.loser {
+    color: #8c959f;
+}
+
+
+/* ============================================================
+   PROFILE SCORING
+   ============================================================ */
+
+.profile-scoring {
+    margin-top: 25px;
+}
+
+.scoring-intro {
+    max-width: 760px;
+
+    margin: -8px 0 28px;
+
+    color: #656d76;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   OVERALL PROFILE SCORES
+   ============================================================ */
+
+.profile-score-container {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        70px
+        minmax(0, 1fr);
+
+    align-items: stretch;
+
+    gap: 15px;
+
+    margin-bottom: 30px;
+}
+
+.profile-score-card {
+    position: relative;
+
+    padding: 28px 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff 0%,
+            #f8fafc 100%
+        );
+
+    border: 1px solid #d8dee4;
+    border-radius: 14px;
+
+    text-align: center;
+
+    box-shadow:
+        0 5px 16px rgba(31, 35, 40, 0.04);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.profile-score-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 9px 24px rgba(31, 35, 40, 0.07);
+}
+
+.profile-score-card h3 {
+    margin: 0 0 12px;
+
+    color: #1f2328;
+
+    font-size: 16px;
+    font-weight: 650;
+
+    overflow-wrap: anywhere;
+}
+
+.profile-score {
+    margin: 0;
+
+    color: #1f2328;
+
+    font-size: 42px;
+    line-height: 1.1;
+    font-weight: 750;
+    letter-spacing: -1px;
+}
+
+.profile-score-label {
+    margin: 7px 0 0;
+
+    color: #656d76;
+
+    font-size: 13px;
+}
+
+.score-vs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: #656d76;
+
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   SCORE RESULT
+   ============================================================ */
+
+.score-winner,
+.score-tie {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 14px;
+
+    padding: 6px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.score-winner {
+    background: #dafbe1;
+    color: #116329;
+}
+
+.score-tie {
+    background: #f6f8fa;
+    color: #656d76;
+    border: 1px solid #d8dee4;
+}
+
+
+/* ============================================================
+   CATEGORY SCORE CARDS
+   ============================================================ */
+
+.category-score-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 32px;
+}
+
+.category-score-card {
+    padding: 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #d8dee4;
+    border-radius: 13px;
+
+    box-shadow:
+        0 3px 10px rgba(31, 35, 40, 0.035);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.category-score-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #c7ced6;
+
+    box-shadow:
+        0 7px 18px rgba(31, 35, 40, 0.06);
+}
+
+.category-score-card h3 {
+    margin: 0 0 18px;
+
+    font-size: 17px;
+    font-weight: 650;
+
+    color: #1f2328;
+}
+
+.category-score-values {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+.category-score-user {
+    padding: 14px 10px;
+
+    background: #f6f8fa;
+
+    border: 1px solid #eaeef2;
+    border-radius: 10px;
+
+    text-align: center;
+}
+
+.category-score-user-name {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #656d76;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    overflow-wrap: anywhere;
+}
+
+.category-score-value {
+    display: block;
+
+    color: #1f2328;
+
+    font-size: 25px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.category-score-winner {
+    color: #116329;
+}
+
+.category-score-loser {
+    color: #8c959f;
+}
+
+.category-result {
+    text-align: center;
+    margin: 15px 0 0;
+}
+
+
+/* ============================================================
+   CATEGORY RESULT LABELS
+   ============================================================ */
+
+.winner-result,
+.tie {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 0;
+
+    padding: 5px 11px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.winner-result {
+    background: #dafbe1;
+    color: #116329;
+}
+
+.tie {
+    background: #f6f8fa;
+    color: #656d76;
+    border: 1px solid #d8dee4;
+}
+
+
+/* ============================================================
+   SCORING BREAKDOWN
+   ============================================================ */
+
+.scoring-breakdown {
+    margin-top: 28px;
+}
+
+.scoring-breakdown > h3 {
+    margin: 0 0 22px;
+
+    color: #1f2328;
+
+    font-size: 20px;
+    font-weight: 650;
+}
+
+.scoring-category {
+    margin-bottom: 28px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #d8dee4;
+    border-radius: 13px;
+}
+
+.scoring-category:last-child {
+    margin-bottom: 0;
+}
+
+.scoring-category h3 {
+    margin: 0 0 14px;
+
+    color: #1f2328;
+
+    font-size: 17px;
+    font-weight: 650;
+}
+
+
+/* ============================================================
+   SCORING TABLE
+   ============================================================ */
+
+.scoring-table {
+    width: 100%;
+
+    overflow-x: auto;
+
+    border: 1px solid #eaeef2;
+    border-radius: 10px;
+}
+
+.scoring-header,
+.scoring-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(180px, 1.7fr)
+        minmax(100px, 1fr)
+        minmax(100px, 1fr)
+        minmax(75px, 0.7fr)
+        minmax(110px, 1fr)
+        minmax(110px, 1fr);
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 760px;
+
+    padding: 13px 12px;
+}
+
+.scoring-header {
+    background: #f6f8fa;
+
+    color: #656d76;
+
+    font-size: 12px;
+    font-weight: 650;
+
+    border-bottom: 1px solid #eaeef2;
+}
+
+.scoring-row {
+    min-height: 48px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #eaeef2;
+
+    font-size: 13px;
+}
+
+.scoring-row:last-child {
+    border-bottom: none;
+}
+
+.scoring-header span,
+.scoring-row span {
+    text-align: center;
+}
+
+.scoring-header span:first-child,
+.scoring-row span:first-child {
+    text-align: left;
+}
+
+.scoring-row:hover {
+    background: #fafbfc;
+}
+
+.metric-weight {
+    color: #656d76;
+}
+
+.metric-score {
+    color: #1f2328;
+    font-weight: 650;
+}
+
+
+/* ============================================================
+   SCORING EXPLANATION
+   ============================================================ */
+
+.scoring-explanation {
+    margin-top: 28px;
+
+    padding: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #f8fafc 0%,
+            #ffffff 100%
+        );
+
+    border: 1px solid #d8dee4;
+    border-radius: 12px;
+}
+
+.scoring-explanation h3 {
+    margin: 0 0 12px;
+
+    color: #1f2328;
+
+    font-size: 17px;
+    font-weight: 650;
+}
+
+.scoring-explanation p {
+    margin: 7px 0;
+
+    color: #656d76;
+
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+
+/* ============================================================
+   SUBTLE SECTION SEPARATION
+   ============================================================ */
+
+.profile-scoring::before {
+    content: "";
+
+    display: block;
+
+    width: 100%;
+    height: 1px;
+
+    margin-bottom: 24px;
+
+    background: #eaeef2;
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET
+   ============================================================ */
+
+@media (max-width: 850px) {
+
+    .comparison-container {
+        width: 94%;
+        padding-top: 35px;
+    }
+
+    .comparison-header h1 {
+        font-size: 32px;
+    }
+
+    .comparison-profiles {
+        grid-template-columns: 1fr 65px 1fr;
+        gap: 12px;
+    }
+
+    .comparison-profile {
+        padding: 25px 15px;
+    }
+
+    .comparison-profile img {
+        width: 110px;
+        height: 110px;
+    }
+
+    .profile-score-container {
+        grid-template-columns: 1fr 55px 1fr;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+    .comparison-container {
+        width: 94%;
+        padding: 28px 0 50px;
+    }
+
+    .comparison-header {
+        margin-bottom: 25px;
+    }
+
+    .comparison-header h1 {
+        font-size: 28px;
+        letter-spacing: -0.4px;
+    }
+
+    .comparison-header p {
+        font-size: 14px;
+    }
+
+
+    /* Form */
+
+    .compare-form-section {
+        padding: 22px 16px;
+    }
+
+    .compare-form {
+        flex-direction: column;
+    }
+
+    .compare-form input,
+    .compare-form button {
+        width: 100%;
+        max-width: 360px;
+    }
+
+    .form-vs {
+        margin: -3px 0;
+    }
+
+
+    /* Profiles */
+
+    .comparison-profiles {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .comparison-profile {
+        padding: 24px 18px;
+    }
+
+    .comparison-profile img {
+        width: 105px;
+        height: 105px;
+    }
+
+    .comparison-profile h2 {
+        font-size: 21px;
+    }
+
+    .vs {
+        width: 52px;
+        height: 52px;
+        font-size: 14px;
+    }
+
+
+    /* General sections */
+
+    .comparison-section {
+        padding: 20px 15px;
+        border-radius: 13px;
+    }
+
+    .comparison-section > h2 {
+        font-size: 19px;
+    }
+
+
+    /* Tables */
+
+    .comparison-table {
+        overflow-x: auto;
+    }
+
+    .comparison-header-row,
+    .comparison-row {
+        min-width: 520px;
+    }
+
+
+    /* Overall scoring */
+
+    .profile-score-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .score-vs {
+        height: 28px;
+    }
+
+    .profile-score {
+        font-size: 36px;
+    }
+
+
+    /* Category cards */
+
+    .category-score-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .category-score-card {
+        padding: 18px;
+    }
+
+
+    /* Scoring breakdown */
+
+    .scoring-category {
+        padding: 15px;
+    }
+
+    .scoring-table {
+        overflow-x: auto;
+    }
+
+    .scoring-header,
+    .scoring-row {
+        min-width: 760px;
+    }
+
+    .scoring-explanation {
+        padding: 18px;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE — SMALL PHONES
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+    .comparison-container {
+        width: 96%;
+    }
+
+    .comparison-header h1 {
+        font-size: 25px;
+    }
+
+    .compare-form-section h2 {
+        font-size: 19px;
+    }
+
+    .profile-score {
+        font-size: 34px;
+    }
+
+    .category-score-values {
+        gap: 8px;
+    }
+
+    .category-score-user {
+        padding: 12px 6px;
+    }
+
+    .category-score-value {
+        font-size: 22px;
+    }
+}
+```

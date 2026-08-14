@@ -1,29 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Compare GitHub Profiles</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/compare.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/compare.css') }}">
 </head>
 
 <body>
 
 <main class="comparison-container">
 
-    <!-- Page Header -->
+    <!-- =========================================================
+         PAGE HEADER
+         ========================================================= -->
+
     <header class="comparison-header">
+
         <h1>GitHub Profile Comparison</h1>
-        <p>Compare the GitHub activity and repository statistics of two profiles.</p>
+
+        <p>
+            Compare the GitHub activity and repository statistics
+            of two profiles.
+        </p>
+
     </header>
 
 
-    <!-- Compare Form -->
-    <section class="compare-form-section">
-        <h2>Compare Two GitHub Profiles</h2>
-        <p>Enter two GitHub usernames to compare their activity and repositories.</p>
+    <!-- =========================================================
+         COMPARE FORM
+         ========================================================= -->
 
-        <form action="/compare" method="GET" class="compare-form">
+    <section class="compare-form-section">
+
+        <h2>Compare Two GitHub Profiles</h2>
+
+        <p>
+            Enter two GitHub usernames to compare their activity
+            and repositories.
+        </p>
+
+        <form action="/compare"
+              method="GET"
+              class="compare-form">
 
             <input
                 type="text"
@@ -41,35 +64,71 @@
                 required
             >
 
-            <button type="submit">Compare Profiles</button>
+            <button type="submit">
+                Compare Profiles
+            </button>
 
         </form>
+
     </section>
 
 
     {% if user1 and user2 %}
 
-    <!-- Profile Cards -->
+
+    <!-- =========================================================
+         PROFILE CARDS
+         ========================================================= -->
+
     <section class="comparison-profiles">
 
         <div class="comparison-profile">
-            <img src="{{ user1.avatar_url }}" alt="{{ user1.login }}">
-            <h2>{{ user1.name or user1.login }}</h2>
-            <p>@{{ user1.login }}</p>
+
+            <img
+                src="{{ user1.avatar_url }}"
+                alt="{{ user1.login }}"
+            >
+
+            <h2>
+                {{ user1.name or user1.login }}
+            </h2>
+
+            <p>
+                @{{ user1.login }}
+            </p>
+
         </div>
 
-        <div class="vs">VS</div>
+
+        <div class="vs">
+            VS
+        </div>
+
 
         <div class="comparison-profile">
-            <img src="{{ user2.avatar_url }}" alt="{{ user2.login }}">
-            <h2>{{ user2.name or user2.login }}</h2>
-            <p>@{{ user2.login }}</p>
+
+            <img
+                src="{{ user2.avatar_url }}"
+                alt="{{ user2.login }}"
+            >
+
+            <h2>
+                {{ user2.name or user2.login }}
+            </h2>
+
+            <p>
+                @{{ user2.login }}
+            </p>
+
         </div>
 
     </section>
 
 
-    <!-- Profile Comparison -->
+    <!-- =========================================================
+         PROFILE COMPARISON
+         ========================================================= -->
+
     <section class="comparison-section">
 
         <h2>👤 Profile Comparison</h2>
@@ -77,22 +136,26 @@
         <div class="comparison-table">
 
             <div class="comparison-header-row">
+
                 <span>Metric</span>
+
                 <strong>{{ user1.login }}</strong>
+
                 <strong>{{ user2.login }}</strong>
+
             </div>
+
 
             {% for metric in comparison_metrics %}
 
-                {% if metric.name in [
-                    "Followers",
-                    "Following",
-                    "Public Repositories"
-                ] %}
+                {% if metric.name in ("Followers", "Following", "Public Repositories") %}
 
                 <div class="comparison-row">
 
-                    <span>{{ metric.name }}</span>
+                    <span>
+                        {{ metric.name }}
+                    </span>
+
 
                     <strong class="
                         {% if metric.value1 > metric.value2 %}
@@ -101,8 +164,11 @@
                             loser
                         {% endif %}
                     ">
+
                         {{ metric.value1 }}
+
                     </strong>
+
 
                     <strong class="
                         {% if metric.value2 > metric.value1 %}
@@ -111,7 +177,9 @@
                             loser
                         {% endif %}
                     ">
+
                         {{ metric.value2 }}
+
                     </strong>
 
                 </div>
@@ -125,7 +193,10 @@
     </section>
 
 
-    <!-- Repository Analysis -->
+    <!-- =========================================================
+         REPOSITORY ANALYSIS
+         ========================================================= -->
+
     <section class="comparison-section">
 
         <h2>📦 Repository Analysis</h2>
@@ -133,24 +204,30 @@
         <div class="comparison-table">
 
             <div class="comparison-header-row">
+
                 <span>Metric</span>
+
                 <strong>{{ user1.login }}</strong>
+
                 <strong>{{ user2.login }}</strong>
+
             </div>
+
 
             {% for metric in comparison_metrics %}
 
-                {% if metric.name in [
-                    "Total Stars",
-                    "Total Forks",
-                    "Original Repositories",
-                    "Forked Repositories",
-                    "Archived Repositories"
-                ] %}
+                {% if metric.name == "Total Stars"
+                   or metric.name == "Total Forks"
+                   or metric.name == "Original Repositories"
+                   or metric.name == "Forked Repositories"
+                   or metric.name == "Archived Repositories" %}
 
                 <div class="comparison-row">
 
-                    <span>{{ metric.name }}</span>
+                    <span>
+                        {{ metric.name }}
+                    </span>
+
 
                     <strong class="
                         {% if metric.value1 > metric.value2 %}
@@ -159,8 +236,11 @@
                             loser
                         {% endif %}
                     ">
+
                         {{ metric.value1 }}
+
                     </strong>
+
 
                     <strong class="
                         {% if metric.value2 > metric.value1 %}
@@ -169,7 +249,9 @@
                             loser
                         {% endif %}
                     ">
+
                         {{ metric.value2 }}
+
                     </strong>
 
                 </div>
@@ -180,72 +262,22 @@
 
 
             <!-- Most Used Language -->
+
             {% for metric in comparison_metrics %}
 
                 {% if metric.name == "Most Used Language" %}
 
                 <div class="comparison-row">
 
-                    <span>{{ metric.name }}</span>
+                    <span>
+                        {{ metric.name }}
+                    </span>
 
-                    <strong>{{ metric.value1 }}</strong>
-                    <strong>{{ metric.value2 }}</strong>
-
-                </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-        </div>
-
-    </section>
-
-
-    <!-- Contribution Activity -->
-    <section class="comparison-section">
-
-        <h2>🔥 Contribution Activity</h2>
-
-        <div class="comparison-table">
-
-            <div class="comparison-header-row">
-                <span>Metric</span>
-                <strong>{{ user1.login }}</strong>
-                <strong>{{ user2.login }}</strong>
-            </div>
-
-            {% for metric in comparison_metrics %}
-
-                {% if metric.name in [
-                    "Total Contributions",
-                    "Total Commits",
-                    "Active Contribution Days",
-                    "Longest Contribution Streak",
-                    "Average Contributions / Active Day"
-                ] %}
-
-                <div class="comparison-row">
-
-                    <span>{{ metric.name }}</span>
-
-                    <strong class="
-                        {% if metric.value1 > metric.value2 %}
-                            winner
-                        {% elif metric.value2 > metric.value1 %}
-                            loser
-                        {% endif %}
-                    ">
+                    <strong>
                         {{ metric.value1 }}
                     </strong>
 
-                    <strong class="
-                        {% if metric.value2 > metric.value1 %}
-                            winner
-                        {% elif metric.value1 > metric.value2 %}
-                            loser
-                        {% endif %}
-                    ">
+                    <strong>
                         {{ metric.value2 }}
                     </strong>
 
@@ -255,21 +287,98 @@
 
             {% endfor %}
 
+        </div>
 
-            <!-- Non-numeric Contribution Metrics -->
+    </section>
+
+
+    <!-- =========================================================
+         CONTRIBUTION ACTIVITY
+         ========================================================= -->
+
+    <section class="comparison-section">
+
+        <h2>🔥 Contribution Activity</h2>
+
+        <div class="comparison-table">
+
+            <div class="comparison-header-row">
+
+                <span>Metric</span>
+
+                <strong>{{ user1.login }}</strong>
+
+                <strong>{{ user2.login }}</strong>
+
+            </div>
+
+
             {% for metric in comparison_metrics %}
 
-                {% if metric.name in [
-                    "Most Active Month",
-                    "Contribution Trend"
-                ] %}
+                {% if metric.name == "Total Contributions"
+                    or metric.name == "Total Commits"
+                    or metric.name == "Active Contribution Days"
+                    or metric.name == "Longest Contribution Streak"
+                    or metric.name == "Average Contributions / Active Day" %}
 
                 <div class="comparison-row">
 
-                    <span>{{ metric.name }}</span>
+                    <span>
+                        {{ metric.name }}
+                    </span>
 
-                    <strong>{{ metric.value1 }}</strong>
-                    <strong>{{ metric.value2 }}</strong>
+
+                    <strong class="
+                        {% if metric.value1 > metric.value2 %}
+                            winner
+                        {% elif metric.value2 > metric.value1 %}
+                            loser
+                        {% endif %}
+                    ">
+
+                        {{ metric.value1 }}
+
+                    </strong>
+
+
+                    <strong class="
+                        {% if metric.value2 > metric.value1 %}
+                            winner
+                        {% elif metric.value1 > metric.value2 %}
+                            loser
+                        {% endif %}
+                    ">
+
+                        {{ metric.value2 }}
+
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+
+            <!-- Non-numeric metrics -->
+
+            {% for metric in comparison_metrics %}
+
+                {% if metric.name in ("Most Active Month", "Contribution Trend") %}
+
+                <div class="comparison-row">
+
+                    <span>
+                        {{ metric.name }}
+                    </span>
+
+                    <strong>
+                        {{ metric.value1 }}
+                    </strong>
+
+                    <strong>
+                        {{ metric.value2 }}
+                    </strong>
 
                 </div>
 
@@ -282,100 +391,197 @@
     </section>
 
 
-    <!-- Overall Comparison -->
-    <section class="comparison-section">
+    <!-- =========================================================
+         PROFILE SCORING
+         ========================================================= -->
 
-        <h2>📊 Overall Comparison</h2>
+    <section class="comparison-section profile-scoring">
+
+        <h2>📊 Profile Scoring</h2>
+
+        <p class="scoring-intro">
+            Weighted scores based on visibility, project impact,
+            repository portfolio, and development activity.
+        </p>
 
 
-        <!-- Overall Winner -->
-        <div class="overall-result">
+        <!-- =====================================================
+             OVERALL SCORES
+             ===================================================== -->
 
-            {% if overall_winner == "Tie" %}
+        <div class="profile-score-container">
 
-                <div class="overall-tie">
 
-                    <div class="overall-icon">🤝</div>
+            <!-- USER 1 -->
 
-                    <h3>It's a Tie!</h3>
+            <div class="profile-score-card">
 
-                    <p>
-                        Both profiles won
-                        <strong>{{ overall_score1 }}</strong>
-                        categories.
-                    </p>
+                <h3>
+                    {{ user1.login }}
+                </h3>
 
-                </div>
+                <p class="profile-score">
+                    {{ overall_score1 }}
+                </p>
 
-            {% elif overall_winner == user1.login %}
+                <p class="profile-score-label">
+                    Overall Profile Score / 100
+                </p>
 
-                <div class="overall-winner">
 
-                    <div class="overall-icon">🏆</div>
+                {% if overall_winner == user1.login %}
 
-                    <h3>{{ user1.login }}</h3>
+                    <span class="score-winner">
+                        🏆 Overall Winner
+                    </span>
 
-                    <p>Overall Winner</p>
+                {% elif overall_winner == "Tie" %}
 
-                    <strong>
-                        {{ overall_score1 }} category wins
-                    </strong>
+                    <span class="score-tie">
+                        🤝 Tie
+                    </span>
 
-                </div>
+                {% endif %}
 
-            {% else %}
+            </div>
 
-                <div class="overall-winner">
 
-                    <div class="overall-icon">🏆</div>
+            <!-- VS -->
 
-                    <h3>{{ user2.login }}</h3>
+            <div class="score-vs">
+                VS
+            </div>
 
-                    <p>Overall Winner</p>
 
-                    <strong>
-                        {{ overall_score2 }} category wins
-                    </strong>
+            <!-- USER 2 -->
 
-                </div>
+            <div class="profile-score-card">
 
-            {% endif %}
+                <h3>
+                    {{ user2.login }}
+                </h3>
+
+                <p class="profile-score">
+                    {{ overall_score2 }}
+                </p>
+
+                <p class="profile-score-label">
+                    Overall Profile Score / 100
+                </p>
+
+
+                {% if overall_winner == user2.login %}
+
+                    <span class="score-winner">
+                        🏆 Overall Winner
+                    </span>
+
+                {% elif overall_winner == "Tie" %}
+
+                    <span class="score-tie">
+                        🤝 Tie
+                    </span>
+
+                {% endif %}
+
+            </div>
 
         </div>
 
 
-        <!-- Category Winners -->
-        <div class="category-winners">
+        <!-- =====================================================
+             CATEGORY SCORES
+             ===================================================== -->
 
-            {% for category_key, category in comparison_categories.items() %}
+        <div class="category-score-grid">
 
-                {% set result = category_winners[category_key] %}
+            {% for category_key, category in category_scores.items() %}
 
-                <div class="category-winner-card">
+                <div class="category-score-card">
 
-                    <h3>{{ category.label }}</h3>
+                    <h3>
+                        {{ category.label }}
+                    </h3>
 
-                    {% if result.winner == "Tie" %}
 
-                        <p class="tie">🤝 Tie</p>
+                    <div class="category-score-values">
 
-                    {% elif result.winner == user1.login %}
 
-                        <p class="winner-result">
+                        <!-- USER 1 -->
+
+                        <div class="category-score-user">
+
+                            <span class="category-score-user-name">
+                                {{ user1.login }}
+                            </span>
+
+                            <span class="
+                                category-score-value
+
+                                {% if category.score1 > category.score2 %}
+                                    category-score-winner
+
+                                {% elif category.score1 < category.score2 %}
+                                    category-score-loser
+                                {% endif %}
+                            ">
+
+                                {{ category.score1 }}
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- USER 2 -->
+
+                        <div class="category-score-user">
+
+                            <span class="category-score-user-name">
+                                {{ user2.login }}
+                            </span>
+
+                            <span class="
+                                category-score-value
+
+                                {% if category.score2 > category.score1 %}
+                                    category-score-winner
+
+                                {% elif category.score2 < category.score1 %}
+                                    category-score-loser
+                                {% endif %}
+                            ">
+
+                                {{ category.score2 }}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CATEGORY RESULT -->
+
+                    {% if category.winner == "Tie" %}
+
+                        <p class="category-result tie">
+                            🤝 Tie
+                        </p>
+
+                    {% elif category.winner == user1.login %}
+
+                        <p class="category-result winner-result">
                             🏆 {{ user1.login }}
                         </p>
 
                     {% else %}
 
-                        <p class="winner-result">
+                        <p class="category-result winner-result">
                             🏆 {{ user2.login }}
                         </p>
 
                     {% endif %}
-
-                    <p class="category-score">
-                        {{ result.score1 }} - {{ result.score2 }}
-                    </p>
 
                 </div>
 
@@ -383,7 +589,121 @@
 
         </div>
 
+
+        <!-- =====================================================
+             SCORING BREAKDOWN
+             ===================================================== -->
+
+        <div class="scoring-breakdown">
+
+            <h3>
+                Scoring Breakdown
+            </h3>
+
+
+            {% for category_key, category in category_scores.items() %}
+
+                <div class="scoring-category">
+
+                    <h3>
+                        {{ category.label }}
+                    </h3>
+
+
+                    <div class="scoring-table">
+
+
+                        <!-- Header -->
+
+                        <div class="scoring-header">
+
+                            <span>Metric</span>
+
+                            <span>{{ user1.login }}</span>
+
+                            <span>{{ user2.login }}</span>
+
+                            <span>Weight</span>
+
+                            <span>{{ user1.login }} Score</span>
+
+                            <span>{{ user2.login }} Score</span>
+
+                        </div>
+
+
+                        <!-- Metrics -->
+
+                        {% for metric in category.metrics %}
+
+                        <div class="scoring-row">
+
+                            <span>
+                                {{ metric.name }}
+                            </span>
+
+                            <span>
+                                {{ metric.value1 }}
+                            </span>
+
+                            <span>
+                                {{ metric.value2 }}
+                            </span>
+
+                            <span class="metric-weight">
+                                {{ metric.weight }}
+                            </span>
+
+                            <span class="metric-score">
+                                {{ metric.score1 }}
+                            </span>
+
+                            <span class="metric-score">
+                                {{ metric.score2 }}
+                            </span>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- =====================================================
+             SCORING EXPLANATION
+             ===================================================== -->
+
+        <div class="scoring-explanation">
+
+            <h3>
+                How the score is calculated
+            </h3>
+
+            <p>
+                Each numerical metric is converted into a relative
+                score between the two profiles.
+            </p>
+
+            <p>
+                Metrics are then weighted according to their
+                importance within each category.
+            </p>
+
+            <p>
+                Category scores are combined using category weights
+                to produce the final profile score out of 100.
+            </p>
+
+        </div>
+
     </section>
+
 
     {% endif %}
 
