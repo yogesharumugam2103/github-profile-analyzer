@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {{ user.login }} - GitHub Profile Analyzer
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/profile.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+
+<body class="profile-page">
+
+
+<header class="main-header">
+
+    <div class="header-content">
+
+        <a href="/" class="brand">
+
+            <span class="brand-icon">◉</span>
+
+            <span>
+                <strong>GitHub</strong> Profile Analyzer
+            </span>
+
+        </a>
+
+
+        <form action="/analyze"
+              method="GET"
+              class="header-search">
+
+            <input
+                type="text"
+                name="username"
+                value="{{ user.login }}"
+                placeholder="Enter GitHub username"
+                required
+            >
+
+            <button type="submit">
+                Analyze
+            </button>
+
+        </form>
+
+
+        <a href="/compare" class="compare-link">
+            ⚖ Compare Profiles
+        </a>
+
+    </div>
+
+</header>
+
+<main class="profile-dashboard">
+
+
+    <!-- =====================================================
+         PROFILE BANNER
+    ====================================================== -->
+
+    <section class="profile-banner">
+
+        <div class="profile-identity">
+
+            <div class="avatar-wrapper">
+
+                <img
+                    class="profile-avatar"
+                    src="{{ user.avatar_url }}"
+                    alt="{{ user.login }}"
+                >
+
+                <span class="avatar-status">
+                    ●
+                </span>
+
+            </div>
+
+
+            <div class="identity-details">
+
+                <h1>
+                    {{ user.name or user.login }}
+                </h1>
+
+                <a
+                    class="profile-username"
+                    href="{{ user.html_url }}"
+                    target="_blank"
+                >
+                    @{{ user.login }}
+                </a>
+
+
+                <div class="identity-meta">
+
+                    <span>
+                        ◉
+                        {{ user.bio or "No bio available" }}
+                    </span>
+
+                    <span>
+                        ⌖
+                        {{ user.location or "Location not available" }}
+                    </span>
+
+                    {% if user.created_at %}
+                    <span>
+                        ▣
+                        Joined GitHub {{ user.created_at[:10] }}
+                    </span>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Profile summary cards -->
+
+        <div class="profile-summary">
+
+            <div class="profile-summary-card">
+
+                <div>
+                    <span class="summary-label">
+                        Followers
+                    </span>
+
+                    <strong>
+                        {{ user.followers }}
+                    </strong>
+                </div>
+
+                <span class="summary-icon">
+                    👥
+                </span>
+
+            </div>
+
+
+            <div class="profile-summary-card">
+
+                <div>
+                    <span class="summary-label">
+                        Following
+                    </span>
+
+                    <strong>
+                        {{ user.following }}
+                    </strong>
+                </div>
+
+                <span class="summary-icon">
+                    👤
+                </span>
+
+            </div>
+
+
+            <div class="profile-summary-card">
+
+                <div>
+                    <span class="summary-label">
+                        Repositories
+                    </span>
+
+                    <strong>
+                        {{ user.public_repos }}
+                    </strong>
+                </div>
+
+                <span class="summary-icon">
+                    📁
+                </span>
+
+            </div>
+
+
+            <div class="profile-summary-card score-summary">
+
+                <div>
+
+                    <span class="summary-label">
+                        Profile Score
+                    </span>
+
+                    <strong>
+                        {{ profile_completeness }}%
+                    </strong>
+
+                </div>
+
+                <div
+                    class="score-ring"
+                    style="--score: {{ profile_completeness }}%;"
+                >
+                    <span></span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         KEY METRICS
+    ====================================================== -->
+
+    <section class="metric-strip">
+
+        <div class="metric-item">
+
+            <span class="metric-icon gold">
+                ★
+            </span>
+
+            <div>
+                <span>Total Stars</span>
+                <strong>{{ total_stars }}</strong>
+            </div>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span class="metric-icon purple">
+                ⑂
+            </span>
+
+            <div>
+                <span>Total Forks</span>
+                <strong>{{ total_forks }}</strong>
+            </div>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span class="metric-icon blue" style="font-size: 12px;">
+                &lt;/&gt;
+            </span>
+
+            <div>
+                <span>Most Used Language</span>
+                <strong>{{ most_used_language }}</strong>
+            </div>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span class="metric-icon blue">
+                ≈
+            </span>
+
+            <div>
+                <span>Avg Stars / Repo</span>
+                <strong>{{ average_stars }}</strong>
+            </div>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span class="metric-icon red">
+                🔥
+            </span>
+
+            <div>
+
+                <span>Contributions</span>
+
+                <strong>
+                    {% if contributions_available %}
+                        {{ total_contributions }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="metric-item">
+
+            <span class="metric-icon purple">
+                ⚡
+            </span>
+
+            <div>
+
+                <span>Longest Streak</span>
+
+                <strong>
+                    {% if contributions_available %}
+                        {{ longest_streak }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         OVERVIEW + COMPLETENESS
+    ====================================================== -->
+
+    <section class="dashboard-grid overview-grid">
+
+
+        <!-- PROFILE OVERVIEW -->
+
+        <div class="dashboard-card overview-card">
+
+            <div class="section-title">
+
+                <div class="section-title-mark blue-mark"></div>
+
+                <div>
+
+                    <h2>Profile Overview</h2>
+
+                    <p>
+                        Detailed highlights from this GitHub activity.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="overview-stat-grid">
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon purple">
+                        📁
+                    </span>
+
+                    <div>
+                        <strong>{{ original_repos }}</strong>
+                        <span>Original Repositories</span>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon blue">
+                        ⑂
+                    </span>
+
+                    <div>
+                        <strong>{{ forked_repos }}</strong>
+                        <span>Forked Repositories</span>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon blue">
+                        🗄
+                    </span>
+
+                    <div>
+                        <strong>{{ archived_repos }}</strong>
+                        <span>Archived Repositories</span>
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon red">
+                        🔥
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available %}
+                                {{ total_contributions }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Total Contributions</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon purple">
+                        📅
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available %}
+                                {{ active_days }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Active Contribution Days</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon orange">
+                        🔥
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available %}
+                                {{ longest_streak }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Longest Contribution Streak</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon gold">
+                        📊
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available %}
+                                {{ average_contributions }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Avg Contributions / Active Day</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon blue">
+                        🎯
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available and most_active_day %}
+                                {{ most_active_day.contributionCount }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Most Contributions in One Day</span>
+
+                        {% if contributions_available and most_active_day %}
+                            <small>
+                                {{ most_active_day.date }}
+                            </small>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon purple">
+                        🗓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available and most_active_month %}
+                                {{ most_active_month_display }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Most Active Month</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon blue">
+                        🔁
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available %}
+                                {{ contribution_frequency }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Contribution Frequency</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon green">
+                        ↗
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {% if contributions_available %}
+                                {{ contribution_trend }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                        <span>Contribution Trend</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="overview-stat">
+
+                    <span class="overview-icon purple">
+                        ✓
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            {{ profile_completeness }}%
+                        </strong>
+
+                        <span>Profile Completeness</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PROFILE COMPLETENESS -->
+
+        <div class="dashboard-card completeness-card">
+
+            <div class="section-title">
+
+                <div class="section-title-mark purple-mark"></div>
+
+                <div>
+
+                    <h2>Profile Completeness</h2>
+
+                    <p>
+                        How complete is this GitHub profile?
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="completeness-content">
+
+                <div
+                    class="large-score-ring"
+                    style="--score: {{ profile_completeness }}%;"
+                >
+
+                    <div>
+
+                        <strong>
+                            {{ profile_completeness }}%
+                        </strong>
+
+                        <span>
+                            Complete
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <p class="completion-count">
+
+                    {{ completed_profile_fields }}
+                    of
+                    {{ total_profile_fields }}
+                    fields completed
+
+                </p>
+
+
+                {% if missing_profile_fields %}
+
+                    <div class="missing-fields">
+
+                        <h3>
+                            ⚠ Missing Information
+                        </h3>
+
+                        <ul>
+
+                            {% for field in missing_profile_fields %}
+
+                                <li>
+                                    {{ field }}
+                                </li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="complete-message">
+
+                        ✓ All profile fields are completed.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CONTRIBUTIONS + LANGUAGES
+    ====================================================== -->
+
+    <section class="dashboard-grid activity-grid">
+
+
+        <!-- CONTRIBUTIONS -->
+
+        <div class="dashboard-card contribution-card">
+
+            <div class="section-title">
+
+                <div class="section-title-mark blue-mark"></div>
+
+                <div>
+
+                    <h2>Contribution Activity</h2>
+
+                    <p>
+                        Contribution consistency and monthly activity.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if contributions_available %}
+
+                <div class="heatmap-wrapper">
+
+                    <div class="contribution-heatmap">
+
+                        {% for week in contribution_heatmap %}
+
+                            <div class="contribution-week">
+
+                                {% for day in week %}
+
+                                    <div
+                                        class="contribution-day level-{{ day.level }}"
+                                        title="{{ day.date }}: {{ day.count }} contributions"
+                                    ></div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+
+                    <div class="contribution-legend">
+
+                        <span>Less</span>
+
+                        <span class="legend-box level-0"></span>
+                        <span class="legend-box level-1"></span>
+                        <span class="legend-box level-2"></span>
+                        <span class="legend-box level-3"></span>
+                        <span class="legend-box level-4"></span>
+
+                        <span>More</span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chart-heading">
+                    Monthly Contributions
+                </div>
+
+                <div class="contribution-chart">
+
+                    <canvas id="contributionTrendChart"></canvas>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    Contribution data unavailable.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- LANGUAGE DISTRIBUTION -->
+
+        <div class="dashboard-card language-card">
+
+            <div class="section-title">
+
+                <div class="section-title-mark purple-mark"></div>
+
+                <div>
+
+                    <h2>Language Distribution</h2>
+
+                    <p>
+                        Languages used across repositories.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if language_percentages %}
+
+                <div class="language-bars">
+
+                    {% for language, percentage in language_percentages.items() %}
+
+                        <div class="language-row">
+
+                            <div class="language-row-header">
+
+                                <span>
+                                    {{ language }}
+                                </span>
+
+                                <strong>
+                                    {{ percentage }}%
+                                </strong>
+
+                            </div>
+
+                            <div class="language-track">
+
+                                <div
+                                    class="language-progress"
+                                    style="width: {{ percentage }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <div class="language-chart">
+
+                    <canvas id="languageChart"></canvas>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    No language information available.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         REPOSITORY SIZE + COMMIT ACTIVITY
+    ====================================================== -->
+
+    <section class="dashboard-grid repository-summary-grid">
+
+
+        <!-- REPOSITORY SIZE -->
+
+        <div class="dashboard-card">
+
+            <div class="section-title">
+
+                <div class="section-title-mark blue-mark"></div>
+
+                <div>
+
+                    <h2>Repository Size Distribution</h2>
+
+                    <p>
+                        Distribution by repository size.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="repo-size-grid">
+
+                <div class="repo-size-card small-size">
+
+                    <span>Small</span>
+
+                    <strong>
+                        {{ repo_size_distribution["Small"] }}
+                    </strong>
+
+                    <small>
+                        &lt; 1 MB
+                    </small>
+
+                </div>
+
+
+                <div class="repo-size-card medium-size">
+
+                    <span>Medium</span>
+
+                    <strong>
+                        {{ repo_size_distribution["Medium"] }}
+                    </strong>
+
+                    <small>
+                        1 MB – 10 MB
+                    </small>
+
+                </div>
+
+
+                <div class="repo-size-card large-size">
+
+                    <span>Large</span>
+
+                    <strong>
+                        {{ repo_size_distribution["Large"] }}
+                    </strong>
+
+                    <small>
+                        &gt; 10 MB
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RECENT COMMIT ACTIVITY -->
+
+        <div class="dashboard-card">
+
+            <div class="section-title">
+
+                <div class="section-title-mark purple-mark"></div>
+
+                <div>
+
+                    <h2>Recent Commit Activity</h2>
+
+                    <p>
+                        Last 30 days summary.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            {% if active_repositories %}
+
+                <div class="commit-grid">
+
+                    {% for repo in active_repositories %}
+
+                        <div class="commit-card">
+
+                            <strong>
+                                {{ repo.name }}
+                            </strong>
+
+                            <span class="commit-number">
+                                {{ repo.commit_count }}
+                            </span>
+
+                            <small>
+                                Commits
+                            </small>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+                    No recent commit activity available.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         RECENTLY UPDATED REPOSITORIES
+    ====================================================== -->
+
+    <section class="dashboard-card recent-section">
+
+        <div class="section-title section-title-with-action">
+
+            <div class="section-title-left">
+
+                <div class="section-title-mark blue-mark"></div>
+
+                <div>
+
+                    <h2>Recently Updated Repositories</h2>
+
+                    <p>
+                        Repositories with the latest activity.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="view-all-button"
+                onclick="document.getElementById('all-repositories').scrollIntoView({behavior:'smooth'})"
+            >
+                View All Repositories
+            </button>
+
+        </div>
+
+
+        {% if recent_repos %}
+
+            <div class="recent-repository-grid">
+
+                {% for repo in recent_repos[:4] %}
+
+                    <article class="recent-repository-card">
+
+                        <a
+                            href="{{ repo.html_url }}"
+                            target="_blank"
+                            class="repo-name"
+                        >
+                            {{ repo.name }}
+                        </a>
+
+
+                        <div class="repo-language">
+
+                            <span
+                                class="language-dot language-{{ (repo.language or 'unknown')|lower|replace(' ', '-') }}"
+                            ></span>
+
+                            {{ repo.language or "Unknown" }}
+
+                        </div>
+
+
+                        <p>
+                            {{ repo.description or
+                            "No description available." }}
+                        </p>
+
+
+                        <div class="recent-repo-footer">
+
+                            <span>
+                                ☆ {{ repo.stargazers_count }}
+                            </span>
+
+                            <span>
+                                ♧ {{ repo.forks_count }}
+                            </span>
+
+                            <span class="updated-date">
+                                Updated:
+                                {{ repo.updated_at[:10] }}
+                            </span>
+
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                No repositories available.
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <!-- =====================================================
+         ALL REPOSITORIES
+    ====================================================== -->
+
+    <section
+        class="dashboard-card all-repositories-section"
+        id="all-repositories"
+    >
+
+        <div class="section-title section-title-with-action">
+
+            <div class="section-title-left">
+
+                <div class="section-title-mark blue-mark"></div>
+
+                <div>
+
+                    <h2>All Repositories</h2>
+
+                    <p>
+                        Browse all repositories in this profile.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FILTER TOOLBAR -->
+
+        <div class="repository-toolbar">
+
+            <div class="repository-search">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    id="repositorySearch"
+                    placeholder="Search repositories..."
+                >
+
+            </div>
+
+
+            <div class="repository-filter">
+
+                <label for="languageFilter">
+                    Filter by Language
+                </label>
+
+                <select id="languageFilter">
+
+                    <option value="all">
+                        All Languages
+                    </option>
+
+                    {% set available_languages = [] %}
+
+                    {% for repo in repos %}
+
+                        {% if repo.language and repo.language not in available_languages %}
+
+                            {% set _ = available_languages.append(repo.language) %}
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                    {% for language in available_languages|sort %}
+
+                        <option value="{{ language|lower }}">
+                            {{ language }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="repository-filter">
+
+                <label for="sortRepositories">
+                    Sort by
+                </label>
+
+                <select id="sortRepositories">
+
+                    <option value="updated">
+                        Recently Updated
+                    </option>
+
+                    <option value="stars">
+                        Most Stars
+                    </option>
+
+                    <option value="forks">
+                        Most Forks
+                    </option>
+
+                    <option value="name">
+                        Name
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="view-switcher">
+
+                <button
+                    type="button"
+                    class="view-switch active"
+                    id="tableViewButton"
+                    title="Table view"
+                >
+                    ☷
+                </button>
+
+                <button
+                    type="button"
+                    class="view-switch"
+                    id="gridViewButton"
+                    title="Grid view"
+                >
+                    ▦
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE VIEW -->
+
+        <div
+            class="repository-table-wrapper"
+            id="repositoryTableView"
+        >
+
+            <table class="repository-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Repository</th>
+                        <th>Language</th>
+                        <th>Stars</th>
+                        <th>Forks</th>
+                        <th>Size</th>
+                        <th>Updated</th>
+                        <th></th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="repositoryList">
+
+                    {% for repo in repos %}
+
+                        <tr
+                            class="repository-row"
+                            data-name="{{ repo.name|lower }}"
+                            data-language="{{ (repo.language or 'unknown')|lower }}"
+                            data-stars="{{ repo.stargazers_count }}"
+                            data-forks="{{ repo.forks_count }}"
+                            data-updated="{{ repo.updated_at }}"
+                        >
+
+                            <td>
+
+                                <div class="table-repository">
+
+                                    <a
+                                        href="{{ repo.html_url }}"
+                                        target="_blank"
+                                        class="repo-name"
+                                    >
+                                        {{ repo.name }}
+                                    </a>
+
+                                    <p>
+                                        {{ repo.description or
+                                        "No description available." }}
+                                    </p>
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="table-language">
+
+                                    <span class="language-dot"></span>
+
+                                    {{ repo.language or "Unknown" }}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+                                {{ repo.stargazers_count }}
+                            </td>
+
+
+                            <td>
+                                {{ repo.forks_count }}
+                            </td>
+
+
+                            <td>
+                                —
+                            </td>
+
+
+                            <td>
+                                {{ repo.updated_at[:10] }}
+                            </td>
+
+
+                            <td>
+
+                                <a
+                                    href="{{ repo.html_url }}"
+                                    target="_blank"
+                                    class="repo-view-button"
+                                >
+                                    View Repo
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- GRID VIEW -->
+
+        <div
+            class="repository-grid-view"
+            id="repositoryGridView"
+        >
+
+            {% for repo in repos %}
+
+                <article
+                    class="repository-grid-card repository-row"
+                    data-name="{{ repo.name|lower }}"
+                    data-language="{{ (repo.language or 'unknown')|lower }}"
+                    data-stars="{{ repo.stargazers_count }}"
+                    data-forks="{{ repo.forks_count }}"
+                    data-updated="{{ repo.updated_at }}"
+                >
+
+                    <a
+                        href="{{ repo.html_url }}"
+                        target="_blank"
+                        class="repo-name"
+                    >
+                        {{ repo.name }}
+                    </a>
+
+
+                    <span class="table-language">
+
+                        <span class="language-dot"></span>
+
+                        {{ repo.language or "Unknown" }}
+
+                    </span>
+
+
+                    <p>
+                        {{ repo.description or
+                        "No description available." }}
+                    </p>
+
+
+                    <div class="grid-repo-meta">
+
+                        <span>
+                            ☆ {{ repo.stargazers_count }}
+                        </span>
+
+                        <span>
+                            ♧ {{ repo.forks_count }}
+                        </span>
+
+                        <span>
+                            {{ repo.updated_at[:10] }}
+                        </span>
+
+                    </div>
+
+
+                    <a
+                        href="{{ repo.html_url }}"
+                        target="_blank"
+                        class="repo-view-button"
+                    >
+                        View Repo
+                    </a>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        <div
+            id="repositoryPagination"
+            class="repository-pagination"
+        ></div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================================
+     CHART SCRIPTS
+========================================================= -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* =====================================================
+       CONTRIBUTION BAR CHART
+    ===================================================== */
+
+    {% if contributions_available %}
+
+    const contributionMonths = [
+        {% for month in monthly_contributions.keys() %}
+            "{{ month }}"
+            {% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const contributionTotals = [
+        {% for total in monthly_contributions.values() %}
+            {{ total }}
+            {% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    const contributionCanvas =
+        document.getElementById("contributionTrendChart");
+
+
+    if (contributionCanvas) {
+
+        new Chart(contributionCanvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels: contributionMonths,
+
+                datasets: [{
+
+                    label: "Contributions",
+
+                    data: contributionTotals,
+
+                    backgroundColor:
+                        "rgba(77, 139, 236, 0.55)",
+
+                    borderColor:
+                        "rgba(77, 139, 236, 0.85)",
+
+                    borderWidth: 1,
+
+                    borderRadius: 5
+
+                }]
+
+            },
+
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        display: true,
+
+                        position: "top",
+
+                        labels: {
+                            boxWidth: 28
+                        }
+
+                    }
+
+                },
+
+
+                scales: {
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        title: {
+
+                            display: true,
+
+                            text: "Month"
+
+                        }
+
+                    },
+
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        title: {
+
+                            display: true,
+
+                            text: "Contributions"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+    {% endif %}
+
+
+    /* =====================================================
+       LANGUAGE DOUGHNUT CHART
+    ===================================================== */
+
+    const languageCanvas =
+        document.getElementById("languageChart");
+
+
+    if (languageCanvas) {
+
+        const languageLabels =
+            {{ language_percentages.keys() | list | tojson }};
+
+        const languageValues =
+            {{ language_percentages.values() | list | tojson }};
+
+
+        new Chart(languageCanvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: languageLabels,
+
+                datasets: [{
+
+                    data: languageValues,
+
+                    backgroundColor: [
+
+                        "#5b5ce2",
+                        "#4385e5",
+                        "#ee5d83",
+                        "#f2a74b",
+                        "#48b88a",
+                        "#9a67d5",
+                        "#45a5c7",
+                        "#e07145"
+                    ],
+
+                    borderWidth: 0
+
+                }]
+
+            },
+
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: "62%",
+
+                plugins: {
+
+                    legend: {
+
+                        position: "right",
+
+                        labels: {
+
+                            usePointStyle: true,
+
+                            pointStyle: "circle",
+
+                            padding: 16
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =====================================================
+       REPOSITORY FILTER / SEARCH / SORT
+    ===================================================== */
+
+    const searchInput =
+        document.getElementById("repositorySearch");
+
+    const languageFilter =
+        document.getElementById("languageFilter");
+    
+    const sortSelect =
+        document.getElementById("sortRepositories");
+    
+    const pagination =
+        document.getElementById("repositoryPagination");
+    
+    const tableView =
+        document.getElementById("repositoryTableView");
+    
+    const gridView =
+        document.getElementById("repositoryGridView");
+    
+    const tableButton =
+        document.getElementById("tableViewButton");
+    
+    const gridButton =
+        document.getElementById("gridViewButton");
+    
+    const tableRows = Array.from(
+        document.querySelectorAll(
+            "#repositoryList .repository-row"
+        )
+    );
+    
+    const gridCards = Array.from(
+        document.querySelectorAll(
+            "#repositoryGridView .repository-row"
+        )
+    );
+    
+    const repositoriesPerPage = 5;
+    
+    let currentPage = 1;
+    let currentView = "table";
+    
+    
+    /*
+     * Create a common repository list.
+     *
+     * The table row and grid card at the same index
+     * represent the same repository.
+     */
+    const repositories = tableRows.map(function (row, index) {
+    
+        return {
+            tableRow: row,
+            gridCard: gridCards[index],
+    
+            name: row.dataset.name || "",
+    
+            language:
+                row.dataset.language || "unknown",
+    
+            stars:
+                Number(row.dataset.stars || 0),
+    
+            forks:
+                Number(row.dataset.forks || 0),
+    
+            updated:
+                row.dataset.updated || ""
+        };
+    
+    });
+    
+    
+    /* =====================================================
+       FILTER + SORT
+    ===================================================== */
+    
+    function getFilteredRepositories() {
+    
+        const searchValue =
+            searchInput.value.trim().toLowerCase();
+    
+        const languageValue =
+            languageFilter.value.toLowerCase();
+    
+        let filtered =
+            repositories.filter(function (repo) {
+    
+                const matchesSearch =
+                    repo.name.includes(searchValue);
+    
+                const matchesLanguage =
+                    languageValue === "all" ||
+                    repo.language === languageValue;
+    
+                return (
+                    matchesSearch &&
+                    matchesLanguage
+                );
+    
+            });
+    
+    
+        /* =================================================
+           SORT
+        ================================================= */
+    
+        const sortValue =
+            sortSelect.value;
+    
+    
+        filtered.sort(function (a, b) {
+    
+            if (sortValue === "name") {
+        
+                return a.name.localeCompare(
+                    b.name
+                );
+    
+            }
+    
+    
+            if (sortValue === "stars") {
+    
+                return b.stars - a.stars;
+    
+            }
+    
+    
+            if (sortValue === "forks") {
+    
+                return b.forks - a.forks;
+    
+            }
+    
+    
+            /* Default: recently updated */
+    
+            return b.updated.localeCompare(
+                a.updated
+            );
+    
+        });
+    
+    
+        return filtered;
+    
+    }
+    
+    
+    /* =====================================================
+       RENDER REPOSITORIES
+    ===================================================== */
+    
+    function renderRepositories() {
+    
+        const filtered =
+            getFilteredRepositories();
+    
+    
+        /*
+         * Hide every repository first.
+         */
+        repositories.forEach(function (repo) {
+    
+            repo.tableRow.style.display = "none";
+    
+            if (repo.gridCard) {
+    
+                repo.gridCard.style.display = "none";
+    
+            }
+    
+        });
+    
+    
+        /*
+         * Calculate total pages.
+         */
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    filtered.length /
+                    repositoriesPerPage
+                )
+            );
+    
+    
+        /*
+         * Prevent current page from becoming invalid
+         * after filtering.
+         */
+        if (currentPage > totalPages) {
+    
+            currentPage = totalPages;
+    
+        }
+    
+    
+        /*
+         * Calculate which repositories should be shown.
+         */
+        const start =
+            (currentPage - 1) *
+            repositoriesPerPage;
+    
+    
+        const visibleRepositories =
+            filtered.slice(
+                start,
+                start + repositoriesPerPage
+            );
+    
+    
+        /*
+         * Show repositories in the currently
+         * selected view.
+         */
+        visibleRepositories.forEach(
+            function (repo) {
+    
+                if (currentView === "table") {
+    
+                    repo.tableRow.style.display =
+                        "table-row";
+    
+                } else {
+    
+                    if (repo.gridCard) {
+    
+                        repo.gridCard.style.display =
+                            "flex";
+    
+                    }
+    
+                }
+    
+            }
+        );
+    
+    
+        renderPagination(totalPages);
+    
+    }
+    
+    
+    /* =====================================================
+       PAGINATION
+    ===================================================== */
+    
+    function renderPagination(totalPages) {
+    
+        pagination.innerHTML = "";
+    
+    
+        if (totalPages <= 1) {
+    
+                return;
+    
+        }
+    
+    
+        /* Previous button */
+    
+        const previous =
+            document.createElement("button");
+    
+        previous.textContent =
+            "Previous";
+    
+        previous.disabled =
+            currentPage === 1;
+    
+    
+        previous.addEventListener(
+            "click",
+            function () {
+    
+                if (currentPage > 1) {
+    
+                    currentPage--;
+    
+                    renderRepositories();
+    
+                    scrollToRepositories();
+    
+                }
+    
+            }
+        );
+    
+    
+        pagination.appendChild(previous);
+    
+    
+        /* Page buttons */
+    
+        for (
+            let page = 1;
+            page <= totalPages;
+            page++
+        ) {
+    
+            const button =
+                document.createElement("button");
+    
+            button.textContent =
+                page;
+        
+    
+            if (page === currentPage) {
+    
+                button.classList.add("active");
+    
+            }
+    
+
+            button.addEventListener(
+                "click",
+                function () {
+    
+                    currentPage =
+                        page;
+    
+                    renderRepositories();
+    
+                    scrollToRepositories();
+        
+                }
+            );
+        
+    
+            pagination.appendChild(button);
+    
+        }
+    
+    
+        /* Next button */
+    
+        const next =
+            document.createElement("button");
+    
+        next.textContent =
+            "Next";
+    
+        next.disabled =
+            currentPage === totalPages;
+    
+    
+        next.addEventListener(
+            "click",
+            function () {
+    
+                if (currentPage < totalPages) {
+    
+                    currentPage++;
+    
+                    renderRepositories();
+    
+                    scrollToRepositories();
+    
+                }
+    
+            }
+        );
+    
+    
+        pagination.appendChild(next);
+    
+    }
+    
+    
+    /* =====================================================
+       SCROLL TO REPOSITORIES
+    ===================================================== */
+    
+    function scrollToRepositories() {
+    
+            const repositorySection =
+            document.getElementById(
+                "all-repositories"
+            );
+    
+    
+    if (repositorySection) {
+
+            repositorySection.scrollIntoView({
+    
+                behavior: "smooth",
+    
+                block: "start"
+    
+            });
+    
+        }
+    
+    }
+    
+    
+    /* =====================================================
+       TABLE / GRID VIEW
+    ===================================================== */
+    
+    function setView(view) {
+    
+        currentView =
+            view;
+    
+        currentPage =
+            1;
+    
+    
+        if (view === "table") {
+    
+            tableView.style.display =
+                "block";
+    
+            gridView.style.display =
+                "none";
+    
+            tableButton.classList.add(
+                "active"
+            );
+    
+            gridButton.classList.remove(
+                "active"
+            );
+    
+        } else {
+    
+            tableView.style.display =
+                "none";
+    
+            gridView.style.display =
+                "grid";
+    
+            tableButton.classList.remove(
+                "active"
+            );
+    
+            gridButton.classList.add(
+                "active"
+            );
+    
+        }
+    
+    
+        renderRepositories();
+    
+    }
+    
+    
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+    
+    searchInput.addEventListener(
+        "input",
+            function () {
+    
+            currentPage = 1;
+    
+        renderRepositories();
+    
+        }
+    );
+    
+    
+    /* =====================================================
+       LANGUAGE FILTER
+    ===================================================== */
+    
+    languageFilter.addEventListener(
+        "change",
+        function () {
+    
+            currentPage = 1;
+    
+            renderRepositories();
+    
+        }
+    );
+    
+    
+    /* =====================================================
+       SORT
+    ===================================================== */
+    
+    sortSelect.addEventListener(
+        "change",
+        function () {
+    
+            currentPage = 1;
+    
+            renderRepositories();
+    
+        }
+    );
+    
+    
+    /* =====================================================
+       TABLE VIEW BUTTON
+    ===================================================== */
+    
+    tableButton.addEventListener(
+        "click",
+        function () {
+    
+            setView("table");
+    
+        }
+    );
+    
+    
+    /* =====================================================
+       GRID VIEW BUTTON
+    ===================================================== */
+    
+    gridButton.addEventListener(
+        "click",
+        function () {
+    
+            setView("grid");
+    
+        }
+    );
+    
+    
+    /* =====================================================
+       INITIAL VIEW
+    ===================================================== */
+    
+    setView("table");
+    
+});
+
+</script>
+
+
+
+</body>
+</html>
