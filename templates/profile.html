@@ -556,74 +556,131 @@
         {% set medium = repo_size_distribution['Medium'] %}
         {% set large = repo_size_distribution['Large'] %}
 
-        <div class="dashboard-card repo-size-distribution-card">
+        <div class="repo-analysis-bottom-row">
 
-            <h3 class="card-title">Repository Size Distribution</h3>
-            <p class="card-subtitle">Breakdown of repositories by codebase size</p>
+            <div class="dashboard-card repo-size-distribution-card">
 
-            <div class="size-distribution-grid">
+                <h3 class="card-title">Repository Size Distribution</h3>
+                <p class="card-subtitle">Breakdown of repositories by codebase size</p>
 
-                <div class="size-distribution-card size-small">
+                <div class="size-distribution-grid">
 
-                    <div class="size-card-header">
-                        <span class="size-icon">📦</span>
-                        <span class="size-percent">{{ ((small / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                    <div class="size-distribution-card size-small">
+
+                        <div class="size-card-header">
+                            <span class="size-icon">📦</span>
+                            <span class="size-percent">{{ ((small / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                        </div>
+
+                        <strong class="size-count">{{ small }}</strong>
+
+                        <span class="size-label">Small Repositories</span>
+                        <span class="size-range">Under 1 MB</span>
+
+                        <div class="size-progress-track">
+                            <span
+                                class="size-progress-fill"
+                                style="width: {{ (small / size_total * 100) if size_total else 0 }}%;"
+                            ></span>
+                        </div>
+
                     </div>
 
-                    <strong class="size-count">{{ small }}</strong>
 
-                    <span class="size-label">Small Repositories</span>
-                    <span class="size-range">Under 1 MB</span>
+                    <div class="size-distribution-card size-medium">
 
-                    <div class="size-progress-track">
-                        <span
-                            class="size-progress-fill"
-                            style="width: {{ (small / size_total * 100) if size_total else 0 }}%;"
-                        ></span>
+                        <div class="size-card-header">
+                            <span class="size-icon">🗂</span>
+                            <span class="size-percent">{{ ((medium / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                        </div>
+
+                        <strong class="size-count">{{ medium }}</strong>
+
+                        <span class="size-label">Medium Repositories</span>
+                        <span class="size-range">1 - 10 MB</span>
+
+                        <div class="size-progress-track">
+                            <span
+                                class="size-progress-fill"
+                                style="width: {{ (medium / size_total * 100) if size_total else 0 }}%;"
+                            ></span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="size-distribution-card size-large">
+
+                        <div class="size-card-header">
+                            <span class="size-icon">🗃</span>
+                            <span class="size-percent">{{ ((large / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                        </div>
+
+                        <strong class="size-count">{{ large }}</strong>
+
+                        <span class="size-label">Large Repositories</span>
+                        <span class="size-range">Over 10 MB</span>
+
+                        <div class="size-progress-track">
+                            <span
+                                class="size-progress-fill"
+                                style="width: {{ (large / size_total * 100) if size_total else 0 }}%;"
+                            ></span>
+                        </div>
+
                     </div>
 
                 </div>
 
+            </div>
 
-                <div class="size-distribution-card size-medium">
 
-                    <div class="size-card-header">
-                        <span class="size-icon">🗂</span>
-                        <span class="size-percent">{{ ((medium / size_total * 100) | round | int) if size_total else 0 }}%</span>
+            <div class="dashboard-card profile-completeness-card">
+
+                <h3 class="card-title">Profile Completeness</h3>
+                <p class="card-subtitle">How complete your public GitHub profile is</p>
+
+                <div class="completeness-card-body">
+
+                    <div class="completeness-ring-col">
+
+                        <div class="health-score-ring" style="--score: {{ profile_completeness }}%;">
+                            <div><strong>{{ profile_completeness }}%</strong></div>
+                        </div>
+
+                        <p class="health-fields-count">{{ completed_profile_fields }} / {{ total_profile_fields }} Fields Completed</p>
+                        <p class="health-fields-hint">Complete more fields to improve your visibility.</p>
+
                     </div>
 
-                    <strong class="size-count">{{ medium }}</strong>
 
-                    <span class="size-label">Medium Repositories</span>
-                    <span class="size-range">1 - 10 MB</span>
+                    <div class="completeness-fields-col">
 
-                    <div class="size-progress-track">
-                        <span
-                            class="size-progress-fill"
-                            style="width: {{ (medium / size_total * 100) if size_total else 0 }}%;"
-                        ></span>
+                        <span class="health-col-title">Completed Fields</span>
+
+                        <ul class="health-field-list completed">
+                            {% for field_name, field_value in profile_field_names %}
+                                {% if field_value %}
+                                    <li>✓ {{ field_name }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+
                     </div>
 
-                </div>
 
+                    <div class="completeness-fields-col">
 
-                <div class="size-distribution-card size-large">
+                        <span class="health-col-title missing">Missing Fields</span>
 
-                    <div class="size-card-header">
-                        <span class="size-icon">🗃</span>
-                        <span class="size-percent">{{ ((large / size_total * 100) | round | int) if size_total else 0 }}%</span>
-                    </div>
+                        <ul class="health-field-list missing">
+                            {% for field in missing_profile_fields %}
+                                <li>✕ {{ field }}</li>
+                            {% else %}
+                                <li class="all-complete">Nothing missing 🎉</li>
+                            {% endfor %}
+                        </ul>
 
-                    <strong class="size-count">{{ large }}</strong>
-
-                    <span class="size-label">Large Repositories</span>
-                    <span class="size-range">Over 10 MB</span>
-
-                    <div class="size-progress-track">
-                        <span
-                            class="size-progress-fill"
-                            style="width: {{ (large / size_total * 100) if size_total else 0 }}%;"
-                        ></span>
                     </div>
 
                 </div>
@@ -646,97 +703,94 @@
             <h2>Language Analysis</h2>
         </div>
 
-        <div class="dashboard-grid language-analysis-grid">
+        <div class="dashboard-card language-distribution-card">
 
-            <div class="dashboard-card">
-
-                <h3 class="card-title">Language Distribution</h3>
-
-                {% if language_percentages %}
-
-                    <div class="language-distribution-body">
-
-                        <div class="language-donut-wrapper">
-                            <canvas id="languageChart"></canvas>
-                            <div class="donut-center-label">
-                                <strong>{{ language_percentages|length }}</strong>
-                                <span>Total Languages</span>
-                            </div>
-                        </div>
-
-                        <div class="language-legend">
-
-                            {% set language_colors = ['#ee5d83', '#4385e5', '#9a67d5', '#f2a74b', '#48b88a', '#45a5c7', '#e07145', '#5b5ce2'] %}
-
-                            {% for language, percentage in language_percentages.items() %}
-
-                                {% set repo_count = repos | selectattr('language', 'equalto', language) | list | length %}
-
-                                <div class="language-legend-row">
-                                    <span class="legend-dot" style="background:{{ language_colors[loop.index0 % language_colors|length] }};"></span>
-                                    <span class="legend-name">{{ language }}</span>
-                                    <span class="legend-stats">
-                                        <span class="legend-percentage">{{ percentage }}%</span>
-                                        <span class="legend-repo-count">{{ repo_count }} repo{{ 's' if repo_count != 1 else '' }}</span>
-                                    </span>
-                                </div>
-
-                            {% endfor %}
-
-                        </div>
-
-                    </div>
-
-                    <a href="#all-repositories" class="view-all-languages-button">
-                        View All Languages →
-                    </a>
-
-                {% else %}
-
-                    <div class="empty-state">
-                        No language information available.
-                    </div>
-
-                {% endif %}
-
-            </div>
-
-
-            <div class="language-analysis-side">
-
-                <div class="dashboard-card primary-language-card">
-                    <span class="info-icon icon-red">&lt;/&gt;</span>
-                    <div>
-                        <span class="info-title">Primary Language</span>
-                        <strong>{{ most_used_language }}</strong>
-                        <span class="info-sub">Most used in your repositories</span>
-                    </div>
+            <div class="language-card-header">
+                <div>
+                    <h3 class="card-title">Language Distribution</h3>
+                    <p class="card-subtitle">Breakdown of languages used across repositories</p>
                 </div>
 
-                <div class="info-card-row two-col">
+                <a href="#all-repositories" class="view-all-languages-button">
+                    View All Languages →
+                </a>
+            </div>
 
-                    <div class="info-card">
-                        <div class="info-text">
-                            <span class="info-title">Language Diversity</span>
+            {% if language_percentages %}
+
+                <div class="language-distribution-body">
+
+                    <div class="language-legend">
+
+                        {% set language_colors = ['#ee5d83', '#4385e5', '#9a67d5', '#f2a74b', '#48b88a', '#45a5c7', '#e07145', '#5b5ce2'] %}
+
+                        {% for language, percentage in language_percentages.items() %}
+
+                            {% set repo_count = repos | selectattr('language', 'equalto', language) | list | length %}
+
+                            <div class="language-legend-row">
+                                <span class="legend-name-group">
+                                    <span class="legend-dot" style="background:{{ language_colors[loop.index0 % language_colors|length] }};"></span>
+                                    <span class="legend-name">{{ language }}</span>
+                                </span>
+                                <span class="legend-stats">
+                                    <span class="legend-percentage">{{ percentage }}%</span>
+                                    <span class="legend-repo-count">{{ repo_count }} repo{{ 's' if repo_count != 1 else '' }}</span>
+                                </span>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <div class="language-donut-wrapper">
+                        <canvas id="languageChart"></canvas>
+                        <div class="donut-center-label">
                             <strong>{{ language_percentages|length }}</strong>
-                            <span class="info-sub">Different languages used</span>
+                            <span>Total Languages</span>
                         </div>
                     </div>
 
                     {% set repos_with_language = repos | selectattr('language') | list | length %}
                     {% set repo_coverage = ((repos_with_language / repo_total * 100) | round | int) if repo_total else 0 %}
 
-                    <div class="info-card">
-                        <div class="info-text">
-                            <span class="info-title">Repository Coverage</span>
-                            <strong>{{ repo_coverage }}%</strong>
-                            <span class="info-sub">Repositories use detected languages</span>
+                    <div class="language-mini-stats">
+
+                        <div class="language-mini-stat">
+                            <span class="info-icon icon-red">&lt;/&gt;</span>
+                            <div class="language-mini-stat-text">
+                                <small>Primary Language</small>
+                                <strong>{{ most_used_language }}</strong>
+                            </div>
                         </div>
+
+                        <div class="language-mini-stat">
+                            <span class="info-icon icon-blue">◆</span>
+                            <div class="language-mini-stat-text">
+                                <small>Language Diversity</small>
+                                <strong>{{ language_percentages|length }} languages</strong>
+                            </div>
+                        </div>
+
+                        <div class="language-mini-stat">
+                            <span class="info-icon icon-green">✓</span>
+                            <div class="language-mini-stat-text">
+                                <small>Repository Coverage</small>
+                                <strong>{{ repo_coverage }}%</strong>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
 
-            </div>
+            {% else %}
+
+                <div class="empty-state">
+                    No language information available.
+                </div>
+
+            {% endif %}
 
         </div>
 
@@ -794,6 +848,7 @@
                                         data-seed="{{ repo.name }}"
                                         data-commits="{{ repo.commit_count }}"
                                         data-daily="{{ repo.daily_commits | default([]) | tojson }}"
+                                        data-updated="{{ details.updated_at[:10] if details and details.updated_at else '' }}"
                                     ></canvas>
                                 </div>
 
@@ -830,100 +885,190 @@
 
 
     <!-- =====================================================
-         7. PROFILE HEALTH
+         7. PROFILE SCORE
     ====================================================== -->
 
-    <section class="page-section" id="profile-health">
+    <section class="page-section" id="profile-score">
+
+        {% set score_total = profile_score.total %}
+        {% set needle_angle = -90 + (score_total / 100 * 180) %}
+
+        {% if score_total < 40 %}
+            {% set score_bucket_label = "Poor" %}
+            {% set score_bucket_class = "poor" %}
+            {% set score_bucket_message = "Let's build some momentum — every contribution counts." %}
+        {% elif score_total < 60 %}
+            {% set score_bucket_label = "Fair" %}
+            {% set score_bucket_class = "fair" %}
+            {% set score_bucket_message = "You're building steady progress — keep going." %}
+        {% elif score_total < 80 %}
+            {% set score_bucket_label = "Good" %}
+            {% set score_bucket_class = "good" %}
+            {% set score_bucket_message = "You're doing great! Keep up the consistency." %}
+        {% else %}
+            {% set score_bucket_label = "Excellent" %}
+            {% set score_bucket_class = "excellent" %}
+            {% set score_bucket_message = "Outstanding work! Your profile stands out." %}
+        {% endif %}
 
         <div class="section-header">
             <span class="section-badge">7</span>
-            <h2>Profile Health</h2>
+            <h2>Profile Score</h2>
         </div>
 
-        <div class="dashboard-card profile-health-card">
+        <div class="dashboard-card profile-score-card">
 
-            <div class="profile-health-col">
+            <h3 class="card-title">Profile Score</h3>
+            <p class="card-subtitle">Overall assessment of your GitHub profile</p>
 
-                <span class="health-col-title">Profile Completeness</span>
+            <div class="profile-score-body">
 
-                <div class="health-score-ring" style="--score: {{ profile_completeness }}%;">
-                    <div><strong>{{ profile_completeness }}%</strong></div>
+                <!-- GAUGE -->
+                <div class="score-gauge-col">
+
+                    <div class="gauge-wrap">
+
+                        <div class="gauge-arc"></div>
+                        <div class="gauge-hole"></div>
+                        <div class="gauge-needle" style="--angle: {{ needle_angle }};"></div>
+
+                        <span class="gauge-zone-label gauge-zone-poor">Poor</span>
+                        <span class="gauge-zone-label gauge-zone-fair">Fair</span>
+                        <span class="gauge-zone-label gauge-zone-good">Good</span>
+                        <span class="gauge-zone-label gauge-zone-excellent">Excellent</span>
+
+                    </div>
+
+                    <div class="gauge-score-text">
+                        <strong>{{ score_total | round | int }}</strong>
+                        <span>/ 100</span>
+                    </div>
+
+                    <span class="gauge-rating rating-{{ score_bucket_class }}">{{ score_bucket_label }}</span>
+
+                    <p class="gauge-hint">{{ score_bucket_message }}</p>
+
                 </div>
 
-                <p class="health-fields-count">{{ completed_profile_fields }} / {{ total_profile_fields }} Fields</p>
-                <p class="health-fields-hint">Complete more fields to improve your visibility.</p>
 
-                <a href="#" class="hero-improve-button light">Improve Profile +</a>
+                <!-- BREAKDOWN -->
+                <div class="score-breakdown-col">
 
-            </div>
+                    <h4 class="score-breakdown-title">Score Breakdown</h4>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-green">📁</span>
+                        <span class="score-breakdown-name">Original Repositories</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-green" style="width: {{ (profile_score.repositories / 15 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.repositories | round(1) }} / 15</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-blue">📈</span>
+                        <span class="score-breakdown-name">Total Contributions</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-blue" style="width: {{ (profile_score.contributions / 20 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.contributions | round(1) }} / 20</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-indigo">&lt;/&gt;</span>
+                        <span class="score-breakdown-name">Total Commits</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-indigo" style="width: {{ (profile_score.commits / 20 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.commits | round(1) }} / 20</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-teal">📅</span>
+                        <span class="score-breakdown-name">Active Contribution Days</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-teal" style="width: {{ (profile_score.active_days / 10 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.active_days | round(1) }} / 10</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-orange">🔥</span>
+                        <span class="score-breakdown-name">Longest Streak</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-orange" style="width: {{ (profile_score.longest_streak / 5 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.longest_streak | round(1) }} / 5</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-purple">◆</span>
+                        <span class="score-breakdown-name">Languages</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-purple" style="width: {{ (profile_score.languages / 8 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.languages | round(1) }} / 8</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-pink">✓</span>
+                        <span class="score-breakdown-name">Profile Completeness</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-pink" style="width: {{ (profile_score.profile_completeness / 7 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.profile_completeness | round(1) }} / 7</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-amber">★</span>
+                        <span class="score-breakdown-name">Total Stars</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-amber" style="width: {{ (profile_score.stars / 5 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.stars | round(1) }} / 5</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-gray">👥</span>
+                        <span class="score-breakdown-name">Followers</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-gray" style="width: {{ (profile_score.followers / 5 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.followers | round(1) }} / 5</span>
+                    </div>
+
+                    <div class="score-breakdown-row">
+                        <span class="score-breakdown-icon icon-cyan">⑂</span>
+                        <span class="score-breakdown-name">Forks</span>
+                        <span class="score-breakdown-track">
+                            <span class="score-breakdown-fill fill-cyan" style="width: {{ (profile_score.forks / 5 * 100) }}%;"></span>
+                        </span>
+                        <span class="score-breakdown-value">{{ profile_score.forks | round(1) }} / 5</span>
+                    </div>
+
+                </div>
 
 
-            <div class="profile-health-col">
+                <!-- INFO -->
+                <div class="score-info-col">
 
-                <span class="health-col-title">Completed Fields ({{ completed_profile_fields }}/{{ total_profile_fields }})</span>
+                    <h4>What does this mean?</h4>
 
-                <ul class="health-field-list completed">
-                    {% for field in completed_profile_field_names or ["Profile Picture", "Public Email"] %}
-                        <li>✓ {{ field }}</li>
-                    {% endfor %}
-                </ul>
+                    <p>
+                        Your Profile Score is calculated based on measurable
+                        factors that reflect your activity, contribution
+                        consistency, project impact, technical diversity, and
+                        profile strength on GitHub.
+                    </p>
 
-            </div>
+                    <ul class="score-info-checklist">
+                        <li>✓ Keep contributing consistently</li>
+                        <li>✓ Build quality repositories</li>
+                        <li>✓ Improve profile completeness</li>
+                        <li>✓ Engage with the community</li>
+                    </ul>
 
-
-            <div class="profile-health-col">
-
-                <span class="health-col-title missing">Missing Fields ({{ missing_profile_fields|length }}/{{ total_profile_fields }})</span>
-
-                <ul class="health-field-list missing">
-                    {% for field in missing_profile_fields %}
-                        <li>✕ {{ field }}</li>
-                    {% endfor %}
-                </ul>
-
-            </div>
-
-
-            <div class="profile-health-col">
-
-                <span class="health-col-title">Account Summary</span>
-
-                <ul class="account-summary-list">
-
-                    {% if user.created_at %}
-                    {% set months_abbr = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                    {% set acd = user.created_at[:10].split('-') %}
-                    <li>
-                        <span>📅 Account Created</span>
-                        <strong>{{ months_abbr[acd[1]|int] }} {{ acd[2]|int }}, {{ acd[0] }}</strong>
-                    </li>
-                    {% endif %}
-
-                    {% if account_age_display %}
-                    <li>
-                        <span>⏱ Account Age</span>
-                        <strong>{{ account_age_display }}</strong>
-                    </li>
-                    {% endif %}
-
-                    <li>
-                        <span>📁 Public Repositories</span>
-                        <strong>{{ user.public_repos }}</strong>
-                    </li>
-
-                    <li>
-                        <span>📈 Total Contributions</span>
-                        <strong>{% if contributions_available %}{{ total_contributions }}{% else %}—{% endif %}</strong>
-                    </li>
-
-                    {% if recent_repos %}
-                    <li>
-                        <span>🕓 Last Updated</span>
-                        <strong>{{ recent_repos[0].updated_at[:10] }}</strong>
-                    </li>
-                    {% endif %}
-
-                </ul>
+                </div>
 
             </div>
 
@@ -1456,12 +1601,24 @@ document.addEventListener("DOMContentLoaded", function () {
     /* =====================================================
        COMMIT ACTIVITY SPARKLINES
 
-       Uses repo.daily_commits from the backend if provided
-       (list of last-7-days integer commit counts, oldest
-       first). If not provided, falls back to a deterministic
-       distribution of the repo's total commit_count across
-       the last 7 days, so the numbers shown on hover always
-       sum to the real total rather than being random noise.
+       Date labels are real calendar dates, not always "today
+       minus N days". Two supported shapes for repo.daily_commits:
+
+         1. Preferred — a list of 7 {date, count} objects
+            (oldest first), e.g. {"date": "2026-08-09", "count": 3}.
+            The exact date + count the backend recorded is used
+            directly, so the chart always matches when the
+            commits actually happened.
+
+         2. Legacy — a plain list of 7 numbers with no dates.
+            In that case there's no real date to show, so dates
+            are anchored to the repo's actual last-updated date
+            (data-updated, i.e. its most recent commit) counting
+            backward, rather than to today — today only lines up
+            with reality if the repo was updated today. If no
+            daily data or updated date is available at all, this
+            falls back to a deterministic distribution of the
+            total commit_count, still anchored the same way.
     ===================================================== */
 
     function hashSeed(str) {
@@ -1509,18 +1666,51 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
-    function last7DayLabels() {
+    function formatDateLabel(date) {
+
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+        return dayNames[date.getDay()] + " " + (date.getMonth() + 1) + "/" + date.getDate();
+
+    }
+
+    function parseISODate(str) {
+
+        if (!str) {
+            return null;
+        }
+
+        // Parse "YYYY-MM-DD" (optionally with a time/offset suffix)
+        // as a local calendar date, not UTC, so the weekday shown
+        // can't shift by a day depending on the viewer's timezone.
+        const datePart = String(str).slice(0, 10);
+        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
+
+        if (!match) {
+            return null;
+        }
+
+        const parsed = new Date(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3])
+        );
+
+        return isNaN(parsed.getTime()) ? null : parsed;
+
+    }
+
+    function last7DayLabels(anchorDate) {
 
         const labels = [];
-        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const today = new Date();
+        const anchor = anchorDate || new Date();
 
         for (let i = 6; i >= 0; i--) {
 
-            const d = new Date(today);
-            d.setDate(today.getDate() - i);
+            const d = new Date(anchor);
+            d.setDate(anchor.getDate() - i);
 
-            labels.push(dayNames[d.getDay()] + " " + (d.getMonth() + 1) + "/" + d.getDate());
+            labels.push(formatDateLabel(d));
 
         }
 
@@ -1532,6 +1722,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const seed = canvas.dataset.seed || "repo";
         const commits = Number(canvas.dataset.commits || 0);
+        const anchorDate = parseISODate(canvas.dataset.updated);
 
         let dailyRaw = [];
 
@@ -1541,11 +1732,41 @@ document.addEventListener("DOMContentLoaded", function () {
             dailyRaw = [];
         }
 
-        const data = (Array.isArray(dailyRaw) && dailyRaw.length === 7)
-            ? dailyRaw
-            : distributeCommits(seed, commits, 7);
+        const hasDailyDates =
+            Array.isArray(dailyRaw) &&
+            dailyRaw.length === 7 &&
+            dailyRaw.every(entry => entry && typeof entry === "object" && "date" in entry);
 
-        const labels = last7DayLabels();
+        let data;
+        let labels;
+
+        if (hasDailyDates) {
+
+            // Real per-day dates + counts straight from the backend.
+            data = dailyRaw.map(entry => Number(entry.count || 0));
+            labels = dailyRaw.map(entry => {
+                const parsed = parseISODate(entry.date);
+                return parsed ? formatDateLabel(parsed) : entry.date;
+            });
+
+        } else {
+
+            const hasDailyCounts =
+                Array.isArray(dailyRaw) &&
+                dailyRaw.length === 7 &&
+                dailyRaw.every(entry => typeof entry === "number");
+
+            data = hasDailyCounts
+                ? dailyRaw
+                : distributeCommits(seed, commits, 7);
+
+            // No real per-day dates to show, so anchor the 7-day
+            // window to the repo's actual last-updated date
+            // instead of today, so at least the dates line up
+            // with when the repo was truly last active.
+            labels = last7DayLabels(anchorDate);
+
+        }
 
         new Chart(canvas, {
 

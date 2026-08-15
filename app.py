@@ -5,6 +5,12 @@ from datetime import datetime, timedelta
 import os
 import re
 from collections import defaultdict
+import math
+
+
+# ============================================================
+# CONFIGURATION
+# ============================================================
 
 load_dotenv()
 
@@ -22,26 +28,19 @@ GITHUB_HEADERS = {
 
 app = Flask(__name__)
 
+
+# ============================================================
+# GITHUB API HELPERS
+# ============================================================
+
 def rate_limit_message(response):
     return (
         response.status_code == 403
         and response.headers.get("X-RateLimit-Remaining") == "0"
     )
 
-@app.route("/")
-def home():
-    return render_template("index.html")
 
-@app.route("/analyze")
-def analyze():
-    username = request.args.get("username", "").strip()
-
-    if not username:
-        return "Please enter a GitHub username."
-
-    if not re.fullmatch(r"[A-Za-z0-9-]+", username):
-        return "Invalid GitHub username. Please use only letters, numbers, and hyphens."
-
+def get_user(username):
     try:
         response = requests.get(
             f"https://api.github.com/users/{username}",
@@ -50,68 +49,33 @@ def analyze():
         )
 
     except requests.exceptions.Timeout:
-        return "GitHub took too long to respond. Please try again."
+        return None, "GitHub took too long to respond. Please try again."
 
     except requests.exceptions.RequestException:
-        return "Unable to connect to GitHub. Please check your internet connection and try again."
+        return (
+            None,
+            "Unable to connect to GitHub. Please check your internet connection and try again."
+        )
 
     if response.status_code == 404:
-        return "GitHub user not found."
+        return None, f"GitHub user '{username}' not found."
 
     if rate_limit_message(response):
-        return "GitHub API rate limit reached. Please try again later."
+        return None, "GitHub API rate limit reached. Please try again later."
 
     if response.status_code != 200:
-        return "Something went wrong while contacting GitHub."
+        return None, "Something went wrong while contacting GitHub."
 
-    user_data = response.json()
+    return response.json(), None
 
-    profile_fields = [
-        user_data.get("name"),
-        user_data.get("bio"),
-        user_data.get("location"),
-        user_data.get("company"),
-        user_data.get("blog"),
-        user_data.get("twitter_username"),
-        user_data.get("avatar_url"),
-        user_data.get("email")
-    ]
-    
-    completed_profile_fields = sum(
-        1 for field in profile_fields
-        if field
-    )
 
-    total_profile_fields = len(profile_fields)
-
-    profile_completeness = round(
-        (completed_profile_fields / total_profile_fields) * 100
-    )
-
-    profile_field_names = [
-        ("Name", user_data.get("name")),
-        ("Bio", user_data.get("bio")),
-        ("Location", user_data.get("location")),
-        ("Company", user_data.get("company")),
-        ("Website", user_data.get("blog")),
-        ("Twitter/X", user_data.get("twitter_username")),
-        ("Profile Picture", user_data.get("avatar_url")),
-        ("Public Email", user_data.get("email"))
-    ]
-
-    missing_profile_fields = [
-        name
-        for name, value in profile_field_names
-        if not value
-    ]
-
-    repos = []
-
+def get_repositories(username):
+    repositories = []
     page = 1
 
     while True:
         try:
-            repos_response = requests.get(
+            response = requests.get(
                 f"https://api.github.com/users/{username}/repos",
                 params={
                     "per_page": 100,
@@ -122,337 +86,131 @@ def analyze():
             )
 
         except requests.exceptions.Timeout:
-            return "GitHub took too long to respond while fetching repositories."
+            return None, (
+                "GitHub took too long to respond while fetching repositories."
+            )
 
         except requests.exceptions.RequestException:
-            return "Unable to fetch repositories from GitHub. Please try again."
+            return None, (
+                "Unable to fetch repositories from GitHub. Please try again."
+            )
 
-        if rate_limit_message(repos_response):
-            return "GitHub API rate limit reached. Please try again later."
-        
-        if repos_response.status_code != 200:
-            return "Unable to fetch repositories from GitHub."
-    
-        page_repos = repos_response.json()
-    
-        if not page_repos:
+        if rate_limit_message(response):
+            return None, "GitHub API rate limit reached. Please try again later."
+
+        if response.status_code != 200:
+            return None, "Unable to fetch repositories from GitHub."
+
+        page_repositories = response.json()
+
+        if not page_repositories:
             break
-    
-        repos.extend(page_repos)
-    
-        if len(page_repos) < 100:
+
+        repositories.extend(page_repositories)
+
+        if len(page_repositories) < 100:
             break
-    
+
         page += 1
 
-    recent_repos = sorted(
-        repos,
-        key=lambda repo: repo["updated_at"],
-        reverse=True
-    )[:3]
+    return repositories, None
 
-    active_repositories = []
 
-    for repo in recent_repos:
-        commit_count = 0
-        page = 1
+# ============================================================
+# PROFILE COMPLETENESS
+# ============================================================
 
-        while True:
-            try:
-                commits_response = requests.get(
-                    f"https://api.github.com/repos/{username}/{repo['name']}/commits",
-                    params={
-                        "since": (
-                            datetime.utcnow() - timedelta(days=30)
-                        ).isoformat() + "Z",
-                        "per_page": 100,
-                        "page": page
-                    },
-                    headers=GITHUB_HEADERS,
-                    timeout=10
-                )
-            except requests.exceptions.Timeout:
-                commit_count = None
-                break
-            except requests.exceptions.RequestException:
-                commit_count = None
-                break
-    
-            if rate_limit_message(commits_response):
-                commit_count = None
-                break
-    
-            if commits_response.status_code != 200:
-                commit_count = None
-                break
-    
-            commits = commits_response.json()
-    
-            commit_count += len(commits)
-    
-            if len(commits) < 100:
-                break
-    
-            page += 1
-    
-        if commit_count is not None:
-            active_repositories.append({
-                "name": repo["name"],
-                "html_url": repo["html_url"],
-                "commit_count": commit_count
-            })
-  
-    graphql_query = """
-    query($username: String!) {
-        user(login: $username) {
-            contributionsCollection {
-                totalCommitContributions
-                contributionCalendar {
-                    totalContributions
-                    weeks {
-                        contributionDays {
-                            contributionCount
-                            date
-                        }
-                    }
-                }
-            }
-        }
+PROFILE_FIELDS = [
+    ("Name", "name"),
+    ("Bio", "bio"),
+    ("Location", "location"),
+    ("Company", "company"),
+    ("Website", "blog"),
+    ("Twitter/X", "twitter_username"),
+    ("Profile Picture", "avatar_url"),
+    ("Public Email", "email")
+]
+
+
+def calculate_profile_completeness(user):
+    completed_fields = 0
+    missing_fields = []
+
+    for field_name, field_key in PROFILE_FIELDS:
+        value = user.get(field_key)
+
+        if value:
+            completed_fields += 1
+        else:
+            missing_fields.append(field_name)
+
+    total_fields = len(PROFILE_FIELDS)
+
+    if total_fields > 0:
+        completeness = round(
+            (completed_fields / total_fields) * 100
+        )
+    else:
+        completeness = 0
+
+    return {
+        "completed_fields": completed_fields,
+        "total_fields": total_fields,
+        "percentage": completeness,
+        "missing_fields": missing_fields
     }
-    """
 
-    try:
-        graphql_response = requests.post(
-            "https://api.github.com/graphql",
-            json={
-                "query": graphql_query,
-                "variables": {
-                    "username": username
-                }
-            },
-            headers={
-                "Authorization": f"Bearer {GITHUB_TOKEN}",
-                "X-GitHub-Api-Version": "2022-11-28"
-            },
-            timeout=10
-        )
-    
-        graphql_data = graphql_response.json()
 
-        print("GRAPHQL STATUS:", graphql_response.status_code)
-        print("GRAPHQL RESPONSE:", graphql_data)
+# ============================================================
+# REPOSITORY METRICS
+# ============================================================
 
-        if rate_limit_message(graphql_response):
-            graphql_data = {}
-
-    except requests.exceptions.Timeout:
-        graphql_data = {}
-
-    except requests.exceptions.RequestException:
-        graphql_data = {}
-
-    contributions_available = False
-    total_contributions = None
-
-    contribution_days = []
-
-    if (
-        "data" in graphql_data
-        and graphql_data["data"].get("user")
-        and "contributionsCollection" in graphql_data["data"]["user"]
-    ):
-        contributions_available = True
-    
-        weeks = (
-            graphql_data["data"]["user"]
-            ["contributionsCollection"]
-            ["contributionCalendar"]
-            ["weeks"]
-        )
-    
-        for week in weeks:
-            for day in week["contributionDays"]:
-                contribution_days.append(day)
-
-    active_days = sum(
-        1 for day in contribution_days
-        if day["contributionCount"] > 0
+def repository_metrics(repositories):
+    total_stars = sum(
+        repo.get("stargazers_count", 0)
+        for repo in repositories
     )
 
-    total_days = len(contribution_days)
+    total_forks = sum(
+        repo.get("forks_count", 0)
+        for repo in repositories
+    )
 
-    if total_days > 0:
-        contribution_frequency = round(
-            (active_days / total_days) * 100,
+    average_stars = 0
+
+    if repositories:
+        average_stars = round(
+            total_stars / len(repositories),
             2
         )
-    else:
-        contribution_frequency = 0
-    
-    longest_streak = 0
-    current_streak = 0
 
-    for day in contribution_days:
-        if day["contributionCount"] > 0:
-            current_streak += 1
-            longest_streak = max(longest_streak, current_streak)
-        else:
-            current_streak = 0
-    
-    if contributions_available:
-        total_contributions = (
-            graphql_data["data"]["user"]
-            ["contributionsCollection"]
-            ["contributionCalendar"]
-            ["totalContributions"]
-        )
+    original_repos = sum(
+        1
+        for repo in repositories
+        if not repo.get("fork", False)
+    )
 
-    if contributions_available and total_contributions is not None and active_days > 0:
-        average_contributions = round(
-            total_contributions / active_days,
-            2
-        )
-    else:
-        average_contributions = 0
+    forked_repos = sum(
+        1
+        for repo in repositories
+        if repo.get("fork", False)
+    )
 
-    most_active_day = None
-
-    if contribution_days:
-        most_active_day = max(
-            contribution_days,
-            key=lambda day: day["contributionCount"]
-        )
-
-    monthly_contributions = defaultdict(int)
-
-    for day in contribution_days:
-        month = day["date"][:7]
-        monthly_contributions[month] += day["contributionCount"]
-    
-    if contribution_days:
-        first_month = datetime.strptime(
-            contribution_days[0]["date"],
-            "%Y-%m-%d"
-        ).replace(day=1)
-    
-        last_month = datetime.strptime(
-            contribution_days[-1]["date"],
-            "%Y-%m-%d"
-        ).replace(day=1)
-    
-        current_month = first_month
-    
-        while current_month <= last_month:
-            month_key = current_month.strftime("%Y-%m")
-    
-            if month_key not in monthly_contributions:
-                monthly_contributions[month_key] = 0
-    
-            if current_month.month == 12:
-                current_month = current_month.replace(
-                    year=current_month.year + 1,
-                    month=1
-                )
-            else:
-                current_month = current_month.replace(
-                    month=current_month.month + 1
-                )
-
-    most_active_month = None
-
-    if monthly_contributions:
-        most_active_month = max(
-            monthly_contributions,
-            key=monthly_contributions.get
-        )
-
-    most_active_month_count = (
-        monthly_contributions[most_active_month]
-        if most_active_month
-        else 0
-    )    
-
-    if most_active_month:
-        most_active_month_display = datetime.strptime(
-            most_active_month,
-            "%Y-%m"
-        ).strftime("%B %Y")
-    else:
-        most_active_month_display = "—"
-
-
-    contribution_heatmap = []
-
-    if "data" in graphql_data and graphql_data["data"].get("user"):
-        weeks = (
-            graphql_data["data"]["user"]
-            ["contributionsCollection"]
-            ["contributionCalendar"]
-            ["weeks"]
-        )
-    
-        for week in weeks:
-            week_data = []
-    
-            for day in week["contributionDays"]:
-                count = day["contributionCount"]
-    
-                if count == 0:
-                    level = 0
-                elif count <= 2:
-                    level = 1
-                elif count <= 5:
-                    level = 2
-                elif count <= 10:
-                    level = 3
-                else:
-                    level = 4
-    
-                week_data.append({
-                    "date": day["date"],
-                    "count": count,
-                    "level": level
-                })
-    
-            contribution_heatmap.append(week_data)
-
-
-    if contributions_available and monthly_contributions:
-        sorted_months = sorted(monthly_contributions.keys())
-
-        recent_months = sorted_months[-3:]
-        previous_months = sorted_months[-6:-3]
-    
-        recent_total = sum(
-            monthly_contributions[month]
-            for month in recent_months
-        )
-    
-        previous_total = sum(
-            monthly_contributions[month]
-            for month in previous_months
-        )
-    
-        if recent_total > previous_total:
-            contribution_trend = "Increasing"
-        elif recent_total < previous_total:
-            contribution_trend = "Decreasing"
-        else:
-            contribution_trend = "Stable"
-    else:
-        contribution_trend = None
-
-
-    total_stars = sum(repo["stargazers_count"] for repo in repos)
-    total_forks = sum(repo["forks_count"] for repo in repos)
+    archived_repos = sum(
+        1
+        for repo in repositories
+        if repo.get("archived", False)
+    )
 
     language_counts = {}
 
-    for repo in repos:
-        language = repo["language"]
+    for repo in repositories:
+        language = repo.get("language")
 
         if language:
-            language_counts[language] = language_counts.get(language, 0) + 1
+            language_counts[language] = (
+                language_counts.get(language, 0) + 1
+            )
 
     most_used_language = "Not available"
 
@@ -464,101 +222,112 @@ def analyze():
 
     most_starred_repo = None
 
-    if repos:
+    if repositories:
         most_starred_repo = max(
-            repos,
-            key=lambda repo: repo["stargazers_count"]
-        )    
-    most_forked_repo = None
-
-    if repos:
-        most_forked_repo = max(
-            repos,
-            key=lambda repo: repo["forks_count"]
+            repositories,
+            key=lambda repo: repo.get("stargazers_count", 0)
         )
 
-    average_stars = 0
+    most_forked_repo = None
 
-    if repos:
-        average_stars = round(total_stars / len(repos), 2)
-
-    original_repos = sum(1 for repo in repos if not repo["fork"])
-    forked_repos = sum(1 for repo in repos if repo["fork"]) 
-
-    archived_repos = sum(
-        1 for repo in repos
-        if repo["archived"]
-    )
+    if repositories:
+        most_forked_repo = max(
+            repositories,
+            key=lambda repo: repo.get("forks_count", 0)
+        )
 
     repo_size_distribution = {
         "Small": 0,
         "Medium": 0,
         "Large": 0
     }
-    
-    for repo in repos:
+
+    for repo in repositories:
         size = repo.get("size", 0)
-    
+
         if size < 1000:
             repo_size_distribution["Small"] += 1
+
         elif size < 10000:
             repo_size_distribution["Medium"] += 1
+
         else:
             repo_size_distribution["Large"] += 1
 
-    total_language_repos = sum(language_counts.values())
+    total_language_repos = sum(
+        language_counts.values()
+    )
 
     language_percentages = {}
 
-    for language, count in language_counts.items():
-        percentage = round((count / total_language_repos) * 100, 1)
-        language_percentages[language] = percentage
-    
-    return render_template(
-        "profile.html",
-        user=user_data,
-        repos=repos,
-        total_stars=total_stars,
-        total_forks=total_forks,
-        most_used_language=most_used_language,
-        language_percentages=language_percentages,
-        most_starred_repo=most_starred_repo,
-        most_forked_repo=most_forked_repo,
-        average_stars=average_stars,
-        original_repos=original_repos,
-        forked_repos=forked_repos,
-        total_contributions=total_contributions,
-        contribution_days=contribution_days,
-        active_days=active_days,
-        longest_streak=longest_streak,
-        contribution_heatmap=contribution_heatmap,
-        average_contributions=average_contributions,
-        most_active_day=most_active_day,
-        most_active_month=most_active_month,
-        most_active_month_count=most_active_month_count,
-        most_active_month_display=most_active_month_display,
-        contribution_frequency=contribution_frequency,
-        contribution_trend=contribution_trend,
-        archived_repos=archived_repos,
-        repo_size_distribution=repo_size_distribution,
-        completed_profile_fields=completed_profile_fields,
-        total_profile_fields=total_profile_fields,
-        profile_completeness=profile_completeness,
-        missing_profile_fields=missing_profile_fields,
-        monthly_contributions=monthly_contributions,
-        contributions_available=contributions_available,
-        recent_repos=recent_repos,
-        active_repositories=active_repositories
-    )
+    if total_language_repos > 0:
+        for language, count in language_counts.items():
+            percentage = round(
+                (count / total_language_repos) * 100,
+                1
+            )
 
-def contribution_metrics(username):
+            language_percentages[language] = percentage
+
+    return {
+        "total_stars": total_stars,
+        "total_forks": total_forks,
+        "average_stars": average_stars,
+        "original_repos": original_repos,
+        "forked_repos": forked_repos,
+        "archived_repos": archived_repos,
+        "most_used_language": most_used_language,
+        "language_counts": language_counts,
+        "language_count": len(language_counts),
+        "language_percentages": language_percentages,
+        "most_starred_repo": most_starred_repo,
+        "most_forked_repo": most_forked_repo,
+        "repo_size_distribution": repo_size_distribution
+    }
+
+
+# ============================================================
+# CONTRIBUTION METRICS
+# ============================================================
+
+def contribution_metrics(username, user_created_at=None):
+    """
+    Fetch lifetime contribution metrics by querying GitHub
+    year-by-year, while keeping the graph data limited to
+    the most recent 12 months.
+
+    Lifetime metrics:
+        - Total contributions
+        - Total commits
+        - Active contribution days
+        - Longest streak
+        - Average contributions / active day
+        - Most active month
+
+    Graph metrics:
+        - Last 12 months of contribution days
+        - Last 12 months of monthly contributions
+        - Last 12 months contribution trend
+    """
+
     graphql_query = """
-    query($username: String!) {
+    query(
+        $username: String!,
+        $from: DateTime!,
+        $to: DateTime!
+    ) {
         user(login: $username) {
-            contributionsCollection {
+
+            contributionsCollection(
+                from: $from,
+                to: $to
+            ) {
+
                 totalCommitContributions
+
                 contributionCalendar {
                     totalContributions
+
                     weeks {
                         contributionDays {
                             contributionCount
@@ -571,202 +340,1762 @@ def contribution_metrics(username):
     }
     """
 
-    try:
-        response = requests.post(
-            "https://api.github.com/graphql",
-            json={
-                "query": graphql_query,
-                "variables": {
-                    "username": username
-                }
-            },
-            headers=GITHUB_HEADERS,
-            timeout=10
+    # --------------------------------------------------------
+    # Determine account start date
+    # --------------------------------------------------------
+
+    if user_created_at:
+
+        try:
+            account_created = datetime.strptime(
+                user_created_at,
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+
+        except ValueError:
+
+            try:
+                account_created = datetime.fromisoformat(
+                    user_created_at.replace("Z", "+00:00")
+                ).replace(tzinfo=None)
+
+            except ValueError:
+                account_created = datetime.utcnow() - timedelta(days=365)
+
+    else:
+
+        # Fallback.
+        # The caller should normally provide created_at.
+        account_created = datetime.utcnow() - timedelta(days=365)
+
+    now = datetime.utcnow()
+
+    # --------------------------------------------------------
+    # Store lifetime contribution data
+    # --------------------------------------------------------
+
+    lifetime_contribution_days = []
+
+    lifetime_total_contributions = 0
+    lifetime_total_commits = 0
+
+    # --------------------------------------------------------
+    # Query GitHub year-by-year
+    # --------------------------------------------------------
+    #
+    # GitHub's contribution collection is queried in chunks
+    # rather than relying on its default recent-year window.
+    #
+    # Each request covers at most one year.
+    # --------------------------------------------------------
+
+    current_start = account_created
+
+    while current_start < now:
+
+        current_end = min(
+            current_start + timedelta(days=365),
+            now
         )
-    except requests.exceptions.Timeout:
-        return None
-    except requests.exceptions.RequestException:
-        return None
 
-    if rate_limit_message(response):
-        return None
+        # GitHub DateTime values are UTC ISO timestamps.
+        from_value = (
+            current_start.strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+        )
 
-    if response.status_code != 200:
-        return None
+        to_value = (
+            current_end.strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            )
+        )
 
-    try:
-        data = response.json()
-    except ValueError:
-        return None
+        try:
 
-    print("GRAPHQL STATUS:", response.status_code)
-    print("GRAPHQL RESPONSE:", data)
+            response = requests.post(
 
-    if data.get("errors"):
-        return None
+                "https://api.github.com/graphql",
 
-    if (
-        "data" not in data
-        or not data["data"].get("user")
-    ):
-        return None
+                json={
+                    "query": graphql_query,
 
-    contributions_collection = (
-        data["data"]["user"]
-        ["contributionsCollection"]
-    )
+                    "variables": {
+                        "username": username,
+                        "from": from_value,
+                        "to": to_value
+                    }
+                },
 
-    calendar = contributions_collection.get("contributionCalendar", {})
-    contribution_days = []
+                headers=GITHUB_HEADERS,
 
-    for week in calendar["weeks"]:
-        for day in week["contributionDays"]:
-            contribution_days.append(day)
+                timeout=15
+            )
 
-    total_contributions = calendar.get("totalContributions", 0)
-    total_commits = contributions_collection.get("totalCommitContributions", 0)
+        except requests.exceptions.Timeout:
 
-    active_days = sum(
+            return None
+
+        except requests.exceptions.RequestException:
+
+            return None
+
+        if rate_limit_message(response):
+            return None
+
+        if response.status_code != 200:
+            return None
+
+        try:
+
+            data = response.json()
+
+        except ValueError:
+
+            return None
+
+        if data.get("errors"):
+            return None
+
+        if (
+            "data" not in data
+            or not data["data"].get("user")
+        ):
+            return None
+
+        contributions_collection = (
+            data["data"]["user"]
+            .get(
+                "contributionsCollection",
+                {}
+            )
+        )
+
+        # ----------------------------------------------------
+        # Lifetime totals
+        # ----------------------------------------------------
+
+        lifetime_total_contributions += (
+            contributions_collection.get(
+                "contributionCalendar",
+                {}
+            ).get(
+                "totalContributions",
+                0
+            )
+        )
+
+        lifetime_total_commits += (
+            contributions_collection.get(
+                "totalCommitContributions",
+                0
+            )
+        )
+
+        # ----------------------------------------------------
+        # Lifetime daily data
+        # ----------------------------------------------------
+
+        calendar = contributions_collection.get(
+            "contributionCalendar",
+            {}
+        )
+
+        for week in calendar.get("weeks", []):
+
+            for day in week.get(
+                "contributionDays",
+                []
+            ):
+
+                lifetime_contribution_days.append(
+                    day
+                )
+
+        # Move to next period.
+        current_start = current_end
+
+        # Prevent an accidental infinite loop.
+        if current_start >= now:
+            break
+
+    # --------------------------------------------------------
+    # Remove duplicate dates
+    # --------------------------------------------------------
+    #
+    # This protects against boundary overlap between yearly
+    # queries.
+    # --------------------------------------------------------
+
+    unique_days = {}
+
+    for day in lifetime_contribution_days:
+
+        unique_days[
+            day["date"]
+        ] = day
+
+    lifetime_contribution_days = [
+        unique_days[date]
+        for date in sorted(unique_days)
+    ]
+
+    # ========================================================
+    # LIFETIME METRICS
+    # ========================================================
+
+    lifetime_active_days = sum(
         1
-        for day in contribution_days
+        for day in lifetime_contribution_days
         if day["contributionCount"] > 0
     )
 
-    longest_streak = 0
+    # --------------------------------------------------------
+    # Lifetime longest streak
+    # --------------------------------------------------------
+
+    lifetime_longest_streak = 0
     current_streak = 0
 
-    for day in contribution_days:
+    for day in lifetime_contribution_days:
+
         if day["contributionCount"] > 0:
+
             current_streak += 1
-            longest_streak = max(
-                longest_streak,
+
+            lifetime_longest_streak = max(
+                lifetime_longest_streak,
                 current_streak
             )
+
         else:
+
             current_streak = 0
 
-    if active_days > 0:
-        average_contributions = round(
-            total_contributions / active_days,
+    # --------------------------------------------------------
+    # Lifetime average
+    # --------------------------------------------------------
+
+    if lifetime_active_days > 0:
+
+        lifetime_average_contributions = round(
+            lifetime_total_contributions
+            / lifetime_active_days,
             2
         )
+
     else:
-        average_contributions = 0
 
-    monthly_contributions = defaultdict(int)
+        lifetime_average_contributions = 0
 
-    for day in contribution_days:
+    # --------------------------------------------------------
+    # Lifetime monthly contributions
+    # --------------------------------------------------------
+
+    lifetime_monthly_contributions = defaultdict(int)
+
+    for day in lifetime_contribution_days:
+
         month = day["date"][:7]
-        monthly_contributions[month] += day["contributionCount"]
 
-    most_active_month = None
+        lifetime_monthly_contributions[
+            month
+        ] += day["contributionCount"]
+
+    # --------------------------------------------------------
+    # Lifetime most active month
+    # --------------------------------------------------------
+
+    if lifetime_monthly_contributions:
+
+        lifetime_most_active_month = max(
+            lifetime_monthly_contributions,
+            key=lifetime_monthly_contributions.get
+        )
+
+        lifetime_most_active_month_count = (
+            lifetime_monthly_contributions[
+                lifetime_most_active_month
+            ]
+        )
+
+    else:
+
+        lifetime_most_active_month = None
+        lifetime_most_active_month_count = 0
+
+    # ========================================================
+    # LAST 12 MONTHS — GRAPH DATA ONLY
+    # ========================================================
+
+    graph_start_date = (
+        now - timedelta(days=365)
+    ).date()
+
+    graph_contribution_days = [
+
+        day
+
+        for day in lifetime_contribution_days
+
+        if datetime.strptime(
+            day["date"],
+            "%Y-%m-%d"
+        ).date() >= graph_start_date
+    ]
+
+    # --------------------------------------------------------
+    # Last 12 months monthly contributions
+    # --------------------------------------------------------
+
+    graph_monthly_contributions = defaultdict(int)
+
+    for day in graph_contribution_days:
+
+        month = day["date"][:7]
+
+        graph_monthly_contributions[
+            month
+        ] += day["contributionCount"]
+
+    # --------------------------------------------------------
+    # Fill missing months
+    # --------------------------------------------------------
+
+    graph_start_month = (
+        datetime(
+            graph_start_date.year,
+            graph_start_date.month,
+            1
+        )
+    )
+
+    graph_end_month = datetime(
+        now.year,
+        now.month,
+        1
+    )
+
+    current_month = graph_start_month
+
+    while current_month <= graph_end_month:
+
+        month_key = current_month.strftime(
+            "%Y-%m"
+        )
+
+        if month_key not in graph_monthly_contributions:
+
+            graph_monthly_contributions[
+                month_key
+            ] = 0
+
+        if current_month.month == 12:
+
+            current_month = current_month.replace(
+                year=current_month.year + 1,
+                month=1
+            )
+
+        else:
+
+            current_month = current_month.replace(
+                month=current_month.month + 1
+            )
+
+    # --------------------------------------------------------
+    # Last 12 months contribution trend
+    # --------------------------------------------------------
+
+    sorted_graph_months = sorted(
+        graph_monthly_contributions.keys()
+    )
+
+    if len(sorted_graph_months) >= 6:
+
+        recent_months = sorted_graph_months[-3:]
+
+        previous_months = sorted_graph_months[-6:-3]
+
+        recent_total = sum(
+            graph_monthly_contributions[month]
+            for month in recent_months
+        )
+
+        previous_total = sum(
+            graph_monthly_contributions[month]
+            for month in previous_months
+        )
+
+        if recent_total > previous_total:
+
+            contribution_trend = "Increasing"
+
+        elif recent_total < previous_total:
+
+            contribution_trend = "Decreasing"
+
+        else:
+
+            contribution_trend = "Stable"
+
+    else:
+
+        contribution_trend = "Not enough data"
+
+    # ========================================================
+    # RETURN
+    # ========================================================
+
+    return {
+
+        # ----------------------------------------------------
+        # LIFETIME
+        # ----------------------------------------------------
+
+        "total_contributions":
+            lifetime_total_contributions,
+
+        "total_commits":
+            lifetime_total_commits,
+
+        "active_days":
+            lifetime_active_days,
+
+        "longest_streak":
+            lifetime_longest_streak,
+
+        "average_contributions":
+            lifetime_average_contributions,
+
+        "most_active_month":
+            lifetime_most_active_month,
+
+        "most_active_month_count":
+            lifetime_most_active_month_count,
+
+        "most_active_day":
+            max(
+                lifetime_contribution_days,
+                key=lambda day: day["contributionCount"]
+            )
+            if lifetime_contribution_days
+            else None,        
+
+        "lifetime_monthly_contributions":
+            lifetime_monthly_contributions,
+
+        "lifetime_total_days":
+            len(lifetime_contribution_days),
+
+        # ----------------------------------------------------
+        # LAST 12 MONTHS — GRAPH DATA
+        # ----------------------------------------------------
+
+        "contribution_days":
+            graph_contribution_days,
+
+        "monthly_contributions":
+            graph_monthly_contributions,
+
+        "contribution_trend":
+            contribution_trend
+    }
+
+# ============================================================
+# PROFILE SCORING SYSTEM
+# ============================================================
+
+# The weights always add up to 100.
+#
+# Higher weights are assigned to actual development activity.
+#
+# Core:
+#   Original repositories  -> 15
+#   Contributions           -> 20
+#   Commits                 -> 20
+#
+# Secondary:
+#   Active contribution days -> 10
+#   Contribution streak      -> 5
+#   Languages                -> 8
+#   Profile completeness     -> 7
+#
+# Lower importance:
+#   Stars                    -> 5
+#   Followers                -> 5
+#   Forks                    -> 5
+#
+# TOTAL = 100
+
+PROFILE_SCORE_WEIGHTS = {
+    "original_repositories": 15,
+    "total_contributions": 20,
+    "total_commits": 20,
+    "active_days": 10,
+    "longest_streak": 5,
+    "languages": 8,
+    "profile_completeness": 7,
+    "stars": 5,
+    "followers": 5,
+    "forks": 5
+}
+
+
+# ------------------------------------------------------------
+# Scoring targets
+# ------------------------------------------------------------
+#
+# These are common fixed benchmarks.
+#
+# They are NOT calculated from the other profile.
+# Therefore every profile is scored independently.
+#
+# Logarithmic scaling provides diminishing returns.
+#
+# Example:
+#   Going from 0 -> 10 commits matters more than
+#   going from 1000 -> 1010 commits.
+#
+# Once a profile reaches the target, that metric receives
+# its maximum available points.
+# ------------------------------------------------------------
+
+PROFILE_SCORE_TARGETS = {
+    "original_repositories": 20,
+    "total_contributions": 1000,
+    "total_commits": 500,
+    "active_days": 150,
+    "longest_streak": 30,
+    "languages": 5,
+    "stars": 100,
+    "followers": 100,
+    "forks": 20
+}
+
+
+def logarithmic_metric_score(value, target, weight):
+    """
+    Converts a metric into weighted points using logarithmic
+    diminishing returns.
+
+    The result is always between 0 and the supplied weight.
+
+    Importantly, this function uses ONLY:
+        - the profile's own value
+        - a fixed project benchmark
+        - the metric weight
+
+    It never uses another user's value.
+    """
+
+    if value is None:
+        return 0
+
+    try:
+        value = float(value)
+        target = float(target)
+        weight = float(weight)
+
+    except (TypeError, ValueError):
+        return 0
+
+    if value <= 0:
+        return 0
+
+    if target <= 0 or weight <= 0:
+        return 0
+
+    normalized = (
+        math.log1p(value)
+        / math.log1p(target)
+    )
+
+    normalized = min(
+        max(normalized, 0),
+        1
+    )
+
+    return round(
+        normalized * weight,
+        2
+    )
+
+
+def percentage_metric_score(
+    percentage,
+    weight
+):
+    """
+    Converts a 0-100 percentage directly into weighted points.
+    """
+
+    if percentage is None:
+        return 0
+
+    try:
+        percentage = float(percentage)
+        weight = float(weight)
+
+    except (TypeError, ValueError):
+        return 0
+
+    percentage = min(
+        max(percentage, 0),
+        100
+    )
+
+    return round(
+        (percentage / 100) * weight,
+        2
+    )
+
+
+def calculate_profile_score(
+    original_repositories,
+    total_contributions,
+    total_commits,
+    active_days,
+    longest_streak,
+    language_count,
+    profile_completeness,
+    total_stars,
+    followers,
+    total_forks
+):
+    """
+    Calculates ONE independent Profile Score out of 100.
+
+    This function NEVER compares two users.
+
+    Therefore:
+
+        User A -> 72.35
+
+    remains:
+
+        User A -> 72.35
+
+    regardless of which other profile is being compared.
+    """
+
+    scores = {}
+
+    # --------------------------------------------------------
+    # 1. Original repositories - 15 points
+    # --------------------------------------------------------
+
+    scores["repositories"] = logarithmic_metric_score(
+        original_repositories,
+        PROFILE_SCORE_TARGETS["original_repositories"],
+        PROFILE_SCORE_WEIGHTS["original_repositories"]
+    )
+
+    # --------------------------------------------------------
+    # 2. Total contributions - 20 points
+    # --------------------------------------------------------
+
+    scores["contributions"] = logarithmic_metric_score(
+        total_contributions,
+        PROFILE_SCORE_TARGETS["total_contributions"],
+        PROFILE_SCORE_WEIGHTS["total_contributions"]
+    )
+
+    # --------------------------------------------------------
+    # 3. Total commits - 20 points
+    # --------------------------------------------------------
+
+    scores["commits"] = logarithmic_metric_score(
+        total_commits,
+        PROFILE_SCORE_TARGETS["total_commits"],
+        PROFILE_SCORE_WEIGHTS["total_commits"]
+    )
+
+    # --------------------------------------------------------
+    # 4. Active contribution days - 10 points
+    # --------------------------------------------------------
+
+    scores["active_days"] = logarithmic_metric_score(
+        active_days,
+        PROFILE_SCORE_TARGETS["active_days"],
+        PROFILE_SCORE_WEIGHTS["active_days"]
+    )
+
+    # --------------------------------------------------------
+    # 5. Longest contribution streak - 5 points
+    # --------------------------------------------------------
+
+    scores["longest_streak"] = logarithmic_metric_score(
+        longest_streak,
+        PROFILE_SCORE_TARGETS["longest_streak"],
+        PROFILE_SCORE_WEIGHTS["longest_streak"]
+    )
+
+    # --------------------------------------------------------
+    # 6. Languages - 8 points
+    # --------------------------------------------------------
+
+    scores["languages"] = logarithmic_metric_score(
+        language_count,
+        PROFILE_SCORE_TARGETS["languages"],
+        PROFILE_SCORE_WEIGHTS["languages"]
+    )
+
+    # --------------------------------------------------------
+    # 7. Profile completeness - 7 points
+    # --------------------------------------------------------
+
+    scores["profile_completeness"] = (
+        percentage_metric_score(
+            profile_completeness,
+            PROFILE_SCORE_WEIGHTS["profile_completeness"]
+        )
+    )
+
+    # --------------------------------------------------------
+    # 8. Stars - 5 points
+    # --------------------------------------------------------
+
+    scores["stars"] = logarithmic_metric_score(
+        total_stars,
+        PROFILE_SCORE_TARGETS["stars"],
+        PROFILE_SCORE_WEIGHTS["stars"]
+    )
+
+    # --------------------------------------------------------
+    # 9. Followers - 5 points
+    # --------------------------------------------------------
+
+    scores["followers"] = logarithmic_metric_score(
+        followers,
+        PROFILE_SCORE_TARGETS["followers"],
+        PROFILE_SCORE_WEIGHTS["followers"]
+    )
+
+    # --------------------------------------------------------
+    # 10. Forks - 3 points
+    # --------------------------------------------------------
+
+    scores["forks"] = logarithmic_metric_score(
+        total_forks,
+        PROFILE_SCORE_TARGETS["forks"],
+        PROFILE_SCORE_WEIGHTS["forks"]
+    )
+
+
+    # --------------------------------------------------------
+    # Final score
+    # --------------------------------------------------------
+
+    total_score = round(
+        sum(scores.values()),
+        2
+    )
+
+    # Floating point protection.
+    total_score = min(
+        max(total_score, 0),
+        100
+    )
+
+    scores["total"] = total_score
+
+    return scores
+
+
+# ============================================================
+# ANALYZE ROUTE
+# ============================================================
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
+@app.route("/analyze")
+def analyze():
+
+    username = request.args.get(
+        "username",
+        ""
+    ).strip()
+
+    if not username:
+        return "Please enter a GitHub username."
+
+    if not re.fullmatch(
+        r"[A-Za-z0-9-]+",
+        username
+    ):
+        return (
+            "Invalid GitHub username. "
+            "Please use only letters, numbers, and hyphens."
+        )
+
+    # --------------------------------------------------------
+    # Fetch user
+    # --------------------------------------------------------
+
+    user_data, error = get_user(username)
+
+    if error:
+        return error
+
+    # --------------------------------------------------------
+    # Profile completeness
+    # --------------------------------------------------------
+
+    completeness_data = calculate_profile_completeness(
+        user_data
+    )
+
+    completed_profile_fields = (
+        completeness_data["completed_fields"]
+    )
+
+    total_profile_fields = (
+        completeness_data["total_fields"]
+    )
+
+    profile_completeness = (
+        completeness_data["percentage"]
+    )
+
+    missing_profile_fields = (
+        completeness_data["missing_fields"]
+    )
+
+    profile_field_names = []
+
+    for field_name, field_key in PROFILE_FIELDS:
+        profile_field_names.append(
+            (
+                field_name,
+                user_data.get(field_key)
+            )
+        )
+
+    # --------------------------------------------------------
+    # Fetch repositories
+    # --------------------------------------------------------
+
+    repos, error = get_repositories(username)
+
+    if error:
+        return error
+
+    # --------------------------------------------------------
+    # Recent repositories
+    # --------------------------------------------------------
+
+    recent_repos = sorted(
+        repos,
+        key=lambda repo: repo.get(
+            "updated_at",
+            ""
+        ),
+        reverse=True
+    )[:3]
+
+    # --------------------------------------------------------
+    # Active repositories
+    #
+    # Counts commits made during the last 30 days for the
+    # three most recently updated repositories.
+    # --------------------------------------------------------
+
+    # --------------------------------------------------------
+    # Recent repository commit activity
+    #
+    # Fetches commits from the last 30 days for the
+    # three most recently updated repositories and groups
+    # them by day.
+    # --------------------------------------------------------
+
+    active_repositories = []
+
+    activity_start = datetime.utcnow() - timedelta(days=30)
+
+    for repo in recent_repos:
+
+        daily_commits = defaultdict(int)
+
+        page = 1
+
+        while True:
+
+            try:
+
+                commits_response = requests.get(
+                    f"https://api.github.com/repos/"
+                    f"{username}/{repo['name']}/commits",
+    
+                    params={
+                        "since": (
+                            activity_start.isoformat()
+                            + "Z"
+                        ),
+                        "until": (
+                            datetime.utcnow().isoformat()
+                            + "Z"
+                        ),
+                        "per_page": 100,
+                        "page": page
+                    },
+    
+                    headers=GITHUB_HEADERS,
+                    timeout=10
+                )
+    
+            except requests.exceptions.Timeout:
+                daily_commits = None
+                break
+        
+            except requests.exceptions.RequestException:
+                daily_commits = None
+                break
+    
+            if rate_limit_message(commits_response):
+                daily_commits = None
+                break
+    
+            if commits_response.status_code != 200:
+                daily_commits = None
+                break
+    
+            commits = commits_response.json()
+    
+            if not commits:
+                break
+    
+            # --------------------------------------------
+            # Group commits by calendar date
+            # --------------------------------------------
+    
+            for commit in commits:
+
+                commit_data = commit.get(
+                    "commit",
+                    {}
+                )
+    
+                author_data = commit_data.get(
+                    "author",
+                    {}
+                )
+    
+                commit_date = author_data.get(
+                    "date"
+                )
+    
+                if commit_date:
+    
+                    date_key = commit_date[:10]
+    
+                    daily_commits[date_key] += 1
+    
+            if len(commits) < 100:
+                break
+    
+            page += 1
+    
+        # --------------------------------------------
+        # Build complete 30-day timeline
+        # --------------------------------------------
+    
+        if daily_commits is not None:
+    
+            complete_daily_commits = {}
+        
+            current_date = activity_start.date()
+            end_date = datetime.utcnow().date()
+        
+            while current_date <= end_date:
+        
+                date_key = current_date.isoformat()
+    
+                complete_daily_commits[date_key] = (
+                    daily_commits.get(
+                        date_key,
+                        0
+                    )
+                )
+    
+                current_date += timedelta(days=1)
+    
+            total_commit_count = sum(
+                complete_daily_commits.values()
+            )
+    
+            active_repositories.append({
+    
+                "name": repo["name"],
+    
+                "html_url": repo["html_url"],
+    
+                "commit_count": total_commit_count,
+    
+                "daily_commits": (
+                    complete_daily_commits
+                )
+            })
+
+    # --------------------------------------------------------
+    # Contribution data
+    # --------------------------------------------------------
+
+    contribution_data = contribution_metrics(
+        username,
+        user_data.get("created_at")
+    )
+
+    contributions_available = (
+        contribution_data is not None
+    )
+
+    if contributions_available:
+
+        total_contributions = (
+            contribution_data["total_contributions"]
+        )
+
+        total_commits = (
+            contribution_data["total_commits"]
+        )
+
+        active_days = (
+            contribution_data["active_days"]
+        )
+
+        longest_streak = (
+            contribution_data["longest_streak"]
+        )
+
+        average_contributions = (
+            contribution_data["average_contributions"]
+        )
+
+        most_active_month = (
+            contribution_data["most_active_month"]
+        )
+
+        most_active_month_count = (
+            contribution_data["most_active_month_count"]
+        )
+
+        contribution_trend = (
+            contribution_data["contribution_trend"]
+        )
+
+        contribution_days = (
+            contribution_data["contribution_days"]
+        )
+
+    else:
+
+        total_contributions = None
+        total_commits = None
+        active_days = 0
+        longest_streak = 0
+        average_contributions = 0
+        most_active_month = None
+        most_active_month_count = 0
+        contribution_trend = None
+        contribution_days = []
+
+    # --------------------------------------------------------
+    # Contribution frequency
+    # --------------------------------------------------------
+
+    if contribution_data:
+
+        total_days = contribution_data[
+            "lifetime_total_days"
+        ]
+
+    else:
+
+        total_days = 0
+
+    if total_days > 0:
+
+        contribution_frequency = round(
+            (
+                active_days
+                / total_days
+            ) * 100,
+            2
+        )
+
+    else:
+        contribution_frequency = 0
+
+    # --------------------------------------------------------
+    # Most active day
+    # --------------------------------------------------------
+
+    if contribution_data:
+
+        most_active_day = contribution_data[
+           "most_active_day"
+        ]
+
+    else:
+
+        most_active_day = None
+
+    # --------------------------------------------------------
+    # Monthly contributions — LAST 12 MONTHS ONLY
+    # --------------------------------------------------------
+
+    if contribution_data:
+
+        monthly_contributions = (
+            contribution_data[
+                "monthly_contributions"
+            ]
+        )
+
+    else:
+
+        monthly_contributions = defaultdict(int)
+
+    if contribution_days:
+
+        first_month = datetime.strptime(
+            contribution_days[0]["date"],
+            "%Y-%m-%d"
+        ).replace(day=1)
+
+        last_month = datetime.strptime(
+            contribution_days[-1]["date"],
+            "%Y-%m-%d"
+        ).replace(day=1)
+
+        current_month = first_month
+
+        while current_month <= last_month:
+
+            month_key = current_month.strftime(
+                "%Y-%m"
+            )
+
+            if month_key not in monthly_contributions:
+                monthly_contributions[
+                    month_key
+                ] = 0
+
+            if current_month.month == 12:
+
+                current_month = current_month.replace(
+                    year=current_month.year + 1,
+                    month=1
+                )
+
+            else:
+
+                current_month = current_month.replace(
+                    month=current_month.month + 1
+                )
+
+    # --------------------------------------------------------
+    # Most active month display
+    # --------------------------------------------------------
 
     if monthly_contributions:
+
         most_active_month = max(
             monthly_contributions,
             key=monthly_contributions.get
         )
 
-    most_active_month_count = (
-        monthly_contributions[most_active_month]
-        if most_active_month
-        else 0
+        most_active_month_count = (
+            monthly_contributions[
+                most_active_month
+            ]
+        )
+
+        most_active_month_display = (
+            datetime.strptime(
+                most_active_month,
+                "%Y-%m"
+            ).strftime("%B %Y")
+        )
+
+    else:
+
+        most_active_month = None
+        most_active_month_count = 0
+        most_active_month_display = "—"
+
+    # --------------------------------------------------------
+    # Contribution heatmap
+    # --------------------------------------------------------
+
+    contribution_heatmap = []
+
+    if contribution_data:
+
+        # Reconstruct weeks from contribution days.
+        current_week = []
+
+        for day in contribution_days:
+
+            count = day["contributionCount"]
+
+            if count == 0:
+                level = 0
+
+            elif count <= 2:
+                level = 1
+
+            elif count <= 5:
+                level = 2
+
+            elif count <= 10:
+                level = 3
+
+            else:
+                level = 4
+
+            current_week.append({
+                "date": day["date"],
+                "count": count,
+                "level": level
+            })
+
+            # GitHub contribution calendars normally contain
+            # seven days per week.
+            if len(current_week) == 7:
+                contribution_heatmap.append(
+                    current_week
+                )
+                current_week = []
+
+        if current_week:
+            contribution_heatmap.append(
+                current_week
+            )
+
+    # --------------------------------------------------------
+    # Repository metrics
+    # --------------------------------------------------------
+
+    repo_data = repository_metrics(
+        repos
     )
 
-    sorted_months = sorted(monthly_contributions.keys())
+    total_stars = repo_data["total_stars"]
+    total_forks = repo_data["total_forks"]
+    average_stars = repo_data["average_stars"]
 
-    if len(sorted_months) >= 6:
-        recent_months = sorted_months[-3:]
-        previous_months = sorted_months[-6:-3]
+    original_repos = repo_data["original_repos"]
+    forked_repos = repo_data["forked_repos"]
+    archived_repos = repo_data["archived_repos"]
 
-        recent_total = sum(
-            monthly_contributions[month]
-            for month in recent_months
+    language_counts = repo_data[
+        "language_counts"
+    ]
+
+    language_count = repo_data[
+        "language_count"
+    ]
+
+    most_used_language = repo_data[
+        "most_used_language"
+    ]
+
+    language_percentages = repo_data[
+        "language_percentages"
+    ]
+
+    most_starred_repo = repo_data[
+        "most_starred_repo"
+    ]
+
+    most_forked_repo = repo_data[
+        "most_forked_repo"
+    ]
+
+    repo_size_distribution = repo_data[
+        "repo_size_distribution"
+    ]
+
+    # --------------------------------------------------------
+    # PROFILE SCORE
+    # --------------------------------------------------------
+    #
+    # This score is completely independent.
+    # It does NOT use another profile.
+    # --------------------------------------------------------
+
+    profile_score = calculate_profile_score(
+
+        original_repositories=original_repos,
+
+        total_contributions=(
+            total_contributions or 0
+        ),
+
+        total_commits=(
+            total_commits or 0
+        ),
+
+        active_days=active_days,
+
+        longest_streak=longest_streak,
+
+        language_count=language_count,
+
+        profile_completeness=(
+            profile_completeness
+        ),
+
+        total_stars=total_stars,
+
+        followers=user_data.get(
+            "followers",
+            0
+        ),
+
+        total_forks=total_forks,
+
+    )
+
+    return render_template(
+
+        "profile.html",
+
+        user=user_data,
+
+        repos=repos,
+
+        # ----------------------------------------------------
+        # Repository data
+        # ----------------------------------------------------
+
+        total_stars=total_stars,
+
+        total_forks=total_forks,
+
+        most_used_language=(
+            most_used_language
+        ),
+
+        language_percentages=(
+            language_percentages
+        ),
+
+        most_starred_repo=(
+            most_starred_repo
+        ),
+
+        most_forked_repo=(
+            most_forked_repo
+        ),
+
+        average_stars=average_stars,
+
+        original_repos=(
+            original_repos
+        ),
+
+        forked_repos=(
+            forked_repos
+        ),
+
+        archived_repos=(
+            archived_repos
+        ),
+
+        repo_size_distribution=(
+            repo_size_distribution
+        ),
+
+        # ----------------------------------------------------
+        # Contribution data
+        # ----------------------------------------------------
+
+        total_contributions=(
+            total_contributions
+        ),
+
+        total_commits=(
+            total_commits
+        ),
+
+        contribution_days=(
+            contribution_days
+        ),
+
+        active_days=(
+            active_days
+        ),
+
+        longest_streak=(
+            longest_streak
+        ),
+
+        contribution_heatmap=(
+            contribution_heatmap
+        ),
+
+        average_contributions=(
+            average_contributions
+        ),
+
+        most_active_day=(
+            most_active_day
+        ),
+
+        most_active_month=(
+            most_active_month
+        ),
+
+        most_active_month_count=(
+            most_active_month_count
+        ),
+
+        most_active_month_display=(
+            most_active_month_display
+        ),
+
+        contribution_frequency=(
+            contribution_frequency
+        ),
+
+        contribution_trend=(
+            contribution_trend
+        ),
+
+        contributions_available=(
+            contributions_available
+        ),
+
+        monthly_contributions=(
+            monthly_contributions
+        ),
+
+        # ----------------------------------------------------
+        # Profile completeness
+        # ----------------------------------------------------
+
+        profile_field_names=(
+            profile_field_names
+        ),
+
+        completed_profile_fields=(
+            completed_profile_fields
+        ),
+
+        total_profile_fields=(
+            total_profile_fields
+        ),
+
+        profile_completeness=(
+            profile_completeness
+        ),
+
+        missing_profile_fields=(
+            missing_profile_fields
+        ),
+
+        # ----------------------------------------------------
+        # Recent / active repositories
+        # ----------------------------------------------------
+
+        recent_repos=(
+            recent_repos
+        ),
+
+        active_repositories=(
+            active_repositories
+        ),
+
+        # ----------------------------------------------------
+        # PROFILE SCORE
+        # ----------------------------------------------------
+
+        profile_score=(
+            profile_score
         )
+    )
 
-        previous_total = sum(
-            monthly_contributions[month]
-            for month in previous_months
-        )
 
-        if recent_total > previous_total:
-            contribution_trend = "Increasing"
-        elif recent_total < previous_total:
-            contribution_trend = "Decreasing"
-        else:
-            contribution_trend = "Stable"
-    else:
-        contribution_trend = "Not enough data"
-
-    return {
-        "total_contributions": total_contributions,
-        "total_commits": total_commits,
-        "active_days": active_days,
-        "longest_streak": longest_streak,
-        "average_contributions": average_contributions,
-        "most_active_month": most_active_month,
-        "most_active_month_count": most_active_month_count,
-        "contribution_trend": contribution_trend
-    }
+# ============================================================
+# COMPARE ROUTE
+# ============================================================
 
 @app.route("/compare")
 def compare():
-    username1 = request.args.get("username1", "").strip()
-    username2 = request.args.get("username2", "").strip()
+
+    username1 = request.args.get(
+        "username1",
+        ""
+    ).strip()
+
+    username2 = request.args.get(
+        "username2",
+        ""
+    ).strip()
 
     if not username1 or not username2:
-        return render_template("compare.html")
+        return render_template(
+            "compare.html"
+        )
 
-    if not re.fullmatch(r"[A-Za-z0-9-]+", username1):
+    # --------------------------------------------------------
+    # Validate usernames
+    # --------------------------------------------------------
+
+    if not re.fullmatch(
+        r"[A-Za-z0-9-]+",
+        username1
+    ):
         return "Invalid first GitHub username."
 
-    if not re.fullmatch(r"[A-Za-z0-9-]+", username2):
+    if not re.fullmatch(
+        r"[A-Za-z0-9-]+",
+        username2
+    ):
         return "Invalid second GitHub username."
 
     if username1.lower() == username2.lower():
-        return "Please enter two different GitHub usernames."
+        return (
+            "Please enter two different GitHub usernames."
+        )
 
-    users = []
+    # --------------------------------------------------------
+    # Fetch both users
+    # --------------------------------------------------------
 
-    for username in [username1, username2]:
-        try:
-            response = requests.get(
-                f"https://api.github.com/users/{username}",
-                headers=GITHUB_HEADERS,
-                timeout=10
-            )
+    user1, error = get_user(
+        username1
+    )
 
-        except requests.exceptions.Timeout:
-            return "GitHub took too long to respond. Please try again."
+    if error:
+        return error
 
-        except requests.exceptions.RequestException:
-            return "Unable to connect to GitHub. Please check your internet connection and try again."
+    user2, error = get_user(
+        username2
+    )
 
-        if response.status_code == 404:
-            return f"GitHub user '{username}' not found."
+    if error:
+        return error
 
-        if rate_limit_message(response):
-            return "GitHub API rate limit reached. Please try again later."
+    # --------------------------------------------------------
+    # Fetch repositories
+    # --------------------------------------------------------
 
-        if response.status_code != 200:
-            return "Something went wrong while contacting GitHub."
+    repos1, error = get_repositories(
+        username1
+    )
 
-        users.append(response.json())
+    if error:
+        return error
 
-    user1 = users[0]
-    user2 = users[1]
+    repos2, error = get_repositories(
+        username2
+    )
+
+    if error:
+        return error
+
+    # --------------------------------------------------------
+    # Repository metrics
+    # --------------------------------------------------------
+
+    repo_metrics1 = repository_metrics(
+        repos1
+    )
+
+    repo_metrics2 = repository_metrics(
+        repos2
+    )
+
+    # --------------------------------------------------------
+    # Contribution metrics
+    # --------------------------------------------------------
+
+    contribution_metrics1 = contribution_metrics(
+        username1,
+        user1.get("created_at")
+    )
+
+    contribution_metrics2 = contribution_metrics(
+        username2,
+        user2.get("created_at")
+    )
+
+    # --------------------------------------------------------
+    # Profile completeness
+    # --------------------------------------------------------
+
+    completeness1 = calculate_profile_completeness(
+        user1
+    )
+
+    completeness2 = calculate_profile_completeness(
+        user2
+    )
+
+    # ========================================================
+    # INDEPENDENT PROFILE SCORES
+    # ========================================================
+    #
+    # IMPORTANT:
+    #
+    # There is NO comparison between user1 and user2 here.
+    #
+    # Each score uses fixed project benchmarks.
+    #
+    # Therefore:
+    #
+    # User A = 72.50
+    #
+    # remains 72.50 regardless of the opponent.
+    # ========================================================
+
+    profile_score1 = calculate_profile_score(
+
+        original_repositories=(
+            repo_metrics1["original_repos"]
+        ),
+
+        total_contributions=(
+            contribution_metrics1[
+                "total_contributions"
+            ]
+            if contribution_metrics1
+            else 0
+        ),
+
+        total_commits=(
+            contribution_metrics1[
+                "total_commits"
+            ]
+            if contribution_metrics1
+            else 0
+        ),
+
+        active_days=(
+            contribution_metrics1[
+                "active_days"
+            ]
+            if contribution_metrics1
+            else 0
+        ),
+
+        longest_streak=(
+            contribution_metrics1[
+                "longest_streak"
+            ]
+            if contribution_metrics1
+            else 0
+        ),
+
+        language_count=(
+            repo_metrics1["language_count"]
+        ),
+
+        profile_completeness=(
+            completeness1["percentage"]
+        ),
+
+        total_stars=(
+            repo_metrics1["total_stars"]
+        ),
+
+        followers=user1.get(
+            "followers",
+            0
+        ),
+
+        total_forks=(
+            repo_metrics1["total_forks"]
+        ),
+
+    )
+
+    profile_score2 = calculate_profile_score(
+
+        original_repositories=(
+            repo_metrics2["original_repos"]
+        ),
+
+        total_contributions=(
+            contribution_metrics2[
+                "total_contributions"
+            ]
+            if contribution_metrics2
+            else 0
+        ),
+
+        total_commits=(
+            contribution_metrics2[
+                "total_commits"
+            ]
+            if contribution_metrics2
+            else 0
+        ),
+
+        active_days=(
+            contribution_metrics2[
+                "active_days"
+            ]
+            if contribution_metrics2
+            else 0
+        ),
+
+        longest_streak=(
+            contribution_metrics2[
+                "longest_streak"
+            ]
+            if contribution_metrics2
+            else 0
+        ),
+
+        language_count=(
+            repo_metrics2["language_count"]
+        ),
+
+        profile_completeness=(
+            completeness2["percentage"]
+        ),
+
+        total_stars=(
+            repo_metrics2["total_stars"]
+        ),
+
+        followers=user2.get(
+            "followers",
+            0
+        ),
+
+        total_forks=(
+            repo_metrics2["total_forks"]
+        ),
+
+    )
+
+    # --------------------------------------------------------
+    # Basic comparison metrics
+    # --------------------------------------------------------
 
     comparison_metrics = [
+
         {
             "name": "Followers",
             "value1": user1["followers"],
             "value2": user2["followers"]
         },
+
         {
             "name": "Following",
             "value1": user1["following"],
             "value2": user2["following"]
         },
+
         {
             "name": "Public Repositories",
             "value1": user1["public_repos"],
@@ -774,484 +2103,535 @@ def compare():
         }
     ]
 
-    user_repositories = []
-
-    for username in [username1, username2]:
-        repositories = []
-        page = 1
-
-        while True:
-            try:
-                repos_response = requests.get(
-                    f"https://api.github.com/users/{username}/repos",
-                    params={
-                        "per_page": 100,
-                        "page": page
-                    },
-                    headers=GITHUB_HEADERS,
-                    timeout=10
-                )
-            except requests.exceptions.Timeout:
-                return "GitHub took too long to respond while fetching repositories."
-            except requests.exceptions.RequestException:
-                return "Unable to fetch repositories from GitHub."
-    
-            if rate_limit_message(repos_response):
-                return "GitHub API rate limit reached. Please try again later."
-    
-            if repos_response.status_code != 200:
-                return "Unable to fetch repositories from GitHub."
-    
-            page_repositories = repos_response.json()
-    
-            if not page_repositories:
-                break
-    
-            repositories.extend(page_repositories)
-    
-            if len(page_repositories) < 100:
-                break
-    
-            page += 1
-    
-        user_repositories.append(repositories)
-
-    repos1 = user_repositories[0]
-    repos2 = user_repositories[1]
-
-    def repository_metrics(repositories):
-        total_stars = sum(
-            repo["stargazers_count"]
-            for repo in repositories
-        )
-    
-        total_forks = sum(
-            repo["forks_count"]
-            for repo in repositories
-        )
-
-        average_stars = 0
-
-        if repositories:
-            average_stars = round(
-                total_stars / len(repositories),
-                2
-            )
-    
-        original_repos = sum(
-            1 for repo in repositories
-            if not repo["fork"]
-        )
-
-        forked_repos = sum(
-            1 for repo in repositories
-            if repo["fork"]
-        )
-    
-        archived_repos = sum(
-            1 for repo in repositories
-            if repo["archived"]
-        )
-    
-        language_counts = {}
-    
-        for repo in repositories:
-            language = repo["language"]
-    
-            if language:
-                language_counts[language] = (
-                    language_counts.get(language, 0) + 1
-                )
-    
-        most_used_language = "Not available"
-    
-        if language_counts:
-            most_used_language = max(
-                language_counts,
-                key=language_counts.get
-            )
-    
-        return {
-            "total_stars": total_stars,
-            "total_forks": total_forks,
-            "average_stars": average_stars,
-            "original_repos": original_repos,
-            "forked_repos": forked_repos,
-            "archived_repos": archived_repos,
-            "most_used_language": most_used_language
-        }
-
-    repo_metrics1 = repository_metrics(repos1)
-    repo_metrics2 = repository_metrics(repos2)
-    contribution_metrics1 = contribution_metrics(username1)
-    contribution_metrics2 = contribution_metrics(username2)
-
     comparison_metrics.extend([
+
         {
             "name": "Total Stars",
-            "value1": repo_metrics1["total_stars"],
-            "value2": repo_metrics2["total_stars"]
+            "value1": repo_metrics1[
+                "total_stars"
+            ],
+            "value2": repo_metrics2[
+                "total_stars"
+            ]
         },
+
         {
             "name": "Total Forks",
-            "value1": repo_metrics1["total_forks"],
-            "value2": repo_metrics2["total_forks"]
+            "value1": repo_metrics1[
+                "total_forks"
+            ],
+            "value2": repo_metrics2[
+                "total_forks"
+            ]
         },
+
         {
             "name": "Average Stars / Repository",
-            "value1": repo_metrics1["average_stars"],
-            "value2": repo_metrics2["average_stars"]
+            "value1": repo_metrics1[
+                "average_stars"
+            ],
+            "value2": repo_metrics2[
+                "average_stars"
+            ]
         },
+
         {
             "name": "Original Repositories",
-            "value1": repo_metrics1["original_repos"],
-            "value2": repo_metrics2["original_repos"]
+            "value1": repo_metrics1[
+                "original_repos"
+            ],
+            "value2": repo_metrics2[
+                "original_repos"
+            ]
         },
+
         {
             "name": "Forked Repositories",
-            "value1": repo_metrics1["forked_repos"],
-            "value2": repo_metrics2["forked_repos"]
+            "value1": repo_metrics1[
+                "forked_repos"
+            ],
+            "value2": repo_metrics2[
+                "forked_repos"
+            ]
         },
+
         {
             "name": "Archived Repositories",
-            "value1": repo_metrics1["archived_repos"],
-            "value2": repo_metrics2["archived_repos"]
+            "value1": repo_metrics1[
+                "archived_repos"
+            ],
+            "value2": repo_metrics2[
+                "archived_repos"
+            ]
         },
+
         {
             "name": "Most Used Language",
-            "value1": repo_metrics1["most_used_language"],
-            "value2": repo_metrics2["most_used_language"]
+            "value1": repo_metrics1[
+                "most_used_language"
+            ],
+            "value2": repo_metrics2[
+                "most_used_language"
+            ]
+        },
+
+        {
+            "name": "Languages",
+            "value1": repo_metrics1[
+                "language_count"
+            ],
+            "value2": repo_metrics2[
+                "language_count"
+            ]
+        },
+
+        {
+            "name": "Profile Completeness",
+            "value1": completeness1[
+                "percentage"
+            ],
+            "value2": completeness2[
+                "percentage"
+            ]
         }
     ])
 
-    if contribution_metrics1 and contribution_metrics2:
+    # --------------------------------------------------------
+    # Contribution comparison
+    # --------------------------------------------------------
+
+    if (
+        contribution_metrics1
+        and contribution_metrics2
+    ):
+
         comparison_metrics.extend([
+
             {
                 "name": "Total Contributions",
-                "value1": contribution_metrics1["total_contributions"],
-                "value2": contribution_metrics2["total_contributions"]
+                "value1": contribution_metrics1[
+                    "total_contributions"
+                ],
+                "value2": contribution_metrics2[
+                    "total_contributions"
+                ]
             },
+
             {
                 "name": "Total Commits",
-                "value1": contribution_metrics1["total_commits"],
-                "value2": contribution_metrics2["total_commits"]
+                "value1": contribution_metrics1[
+                    "total_commits"
+                ],
+                "value2": contribution_metrics2[
+                    "total_commits"
+                ]
             },
+
             {
                 "name": "Active Contribution Days",
-                "value1": contribution_metrics1["active_days"],
-                "value2": contribution_metrics2["active_days"]
+                "value1": contribution_metrics1[
+                    "active_days"
+                ],
+                "value2": contribution_metrics2[
+                    "active_days"
+                ]
             },
+
             {
                 "name": "Longest Contribution Streak",
-                "value1": contribution_metrics1["longest_streak"],
-                "value2": contribution_metrics2["longest_streak"]
+                "value1": contribution_metrics1[
+                    "longest_streak"
+                ],
+                "value2": contribution_metrics2[
+                    "longest_streak"
+                ]
             },
+
             {
                 "name": "Average Contributions / Active Day",
-                "value1": contribution_metrics1["average_contributions"],
-                "value2": contribution_metrics2["average_contributions"]
+                "value1": contribution_metrics1[
+                    "average_contributions"
+                ],
+                "value2": contribution_metrics2[
+                    "average_contributions"
+                ]
             },
+
             {
                 "name": "Most Active Month",
-                "value1": contribution_metrics1["most_active_month"],
-                "value2": contribution_metrics2["most_active_month"]
+                "value1": contribution_metrics1[
+                    "most_active_month"
+                ],
+                "value2": contribution_metrics2[
+                    "most_active_month"
+                ]
             },
+
             {
                 "name": "Contribution Trend",
-                "value1": contribution_metrics1["contribution_trend"],
-                "value2": contribution_metrics2["contribution_trend"]
+                "value1": contribution_metrics1[
+                    "contribution_trend"
+                ],
+                "value2": contribution_metrics2[
+                    "contribution_trend"
+                ]
             }
         ])
 
+    # ========================================================
+    # COMPARISON CATEGORIES
+    # ========================================================
+
     comparison_categories = {
+
         "visibility": {
+
             "label": "Visibility",
+
             "metrics": [
+
                 {
                     "name": "Followers",
                     "value1": user1["followers"],
                     "value2": user2["followers"]
+                },
+
+                {
+                    "name": "Following",
+                    "value1": user1["following"],
+                    "value2": user2["following"]
                 }
             ]
         },
-    
+
         "project_impact": {
+
             "label": "Project Impact",
+
             "metrics": [
+
                 {
                     "name": "Total Stars",
-                    "value1": repo_metrics1["total_stars"],
-                    "value2": repo_metrics2["total_stars"]
+                    "value1": repo_metrics1[
+                        "total_stars"
+                    ],
+                    "value2": repo_metrics2[
+                        "total_stars"
+                    ]
                 },
+
                 {
                     "name": "Total Forks",
-                    "value1": repo_metrics1["total_forks"],
-                    "value2": repo_metrics2["total_forks"]
+                    "value1": repo_metrics1[
+                        "total_forks"
+                    ],
+                    "value2": repo_metrics2[
+                        "total_forks"
+                    ]
                 },
+
                 {
                     "name": "Average Stars / Repository",
-                    "value1": repo_metrics1["average_stars"],
-                    "value2": repo_metrics2["average_stars"]
+                    "value1": repo_metrics1[
+                        "average_stars"
+                    ],
+                    "value2": repo_metrics2[
+                        "average_stars"
+                    ]
                 }
             ]
         },
-    
+
         "repository_portfolio": {
+
             "label": "Repository Portfolio",
+
             "metrics": [
+
+                {
+                    "name": "Public Repositories",
+                    "value1": user1[
+                        "public_repos"
+                    ],
+                    "value2": user2[
+                        "public_repos"
+                    ]
+                },
+
                 {
                     "name": "Original Repositories",
-                    "value1": repo_metrics1["original_repos"],
-                    "value2": repo_metrics2["original_repos"]
+                    "value1": repo_metrics1[
+                        "original_repos"
+                    ],
+                    "value2": repo_metrics2[
+                        "original_repos"
+                    ]
+                },
+
+                {
+                    "name": "Forked Repositories",
+                    "value1": repo_metrics1[
+                        "forked_repos"
+                    ],
+                    "value2": repo_metrics2[
+                        "forked_repos"
+                    ]
+                },
+
+                {
+                    "name": "Archived Repositories",
+                    "value1": repo_metrics1[
+                        "archived_repos"
+                    ],
+                    "value2": repo_metrics2[
+                        "archived_repos"
+                    ]
+                }
+            ]
+        },
+
+        "technical_profile": {
+
+            "label": "Technical Profile",
+
+            "metrics": [
+
+                {
+                    "name": "Languages",
+                    "value1": repo_metrics1[
+                        "language_count"
+                    ],
+                    "value2": repo_metrics2[
+                        "language_count"
+                    ]
+                },
+
+                {
+                    "name": "Most Used Language",
+                    "value1": repo_metrics1[
+                        "most_used_language"
+                    ],
+                    "value2": repo_metrics2[
+                        "most_used_language"
+                    ]
+                },
+
+                {
+                    "name": "Profile Completeness",
+                    "value1": completeness1[
+                        "percentage"
+                    ],
+                    "value2": completeness2[
+                        "percentage"
+                    ]
                 }
             ]
         }
     }
 
-    if contribution_metrics1 and contribution_metrics2:
-        comparison_categories["development_activity"] = {
+    # --------------------------------------------------------
+    # Development activity category
+    # --------------------------------------------------------
+
+    if (
+        contribution_metrics1
+        and contribution_metrics2
+    ):
+
+        comparison_categories[
+            "development_activity"
+        ] = {
+
             "label": "Development Activity",
+
             "metrics": [
+
                 {
                     "name": "Total Contributions",
-                    "value1": contribution_metrics1["total_contributions"],
-                    "value2": contribution_metrics2["total_contributions"]
+                    "value1": contribution_metrics1[
+                        "total_contributions"
+                    ],
+                    "value2": contribution_metrics2[
+                        "total_contributions"
+                    ]
                 },
+
                 {
                     "name": "Total Commits",
-                    "value1": contribution_metrics1["total_commits"],
-                    "value2": contribution_metrics2["total_commits"]
+                    "value1": contribution_metrics1[
+                        "total_commits"
+                    ],
+                    "value2": contribution_metrics2[
+                        "total_commits"
+                    ]
                 },
+
                 {
                     "name": "Active Contribution Days",
-                    "value1": contribution_metrics1["active_days"],
-                    "value2": contribution_metrics2["active_days"]
+                    "value1": contribution_metrics1[
+                        "active_days"
+                    ],
+                    "value2": contribution_metrics2[
+                        "active_days"
+                    ]
                 },
+
                 {
                     "name": "Longest Contribution Streak",
-                    "value1": contribution_metrics1["longest_streak"],
-                    "value2": contribution_metrics2["longest_streak"]
+                    "value1": contribution_metrics1[
+                        "longest_streak"
+                    ],
+                    "value2": contribution_metrics2[
+                        "longest_streak"
+                    ]
                 },
+
                 {
                     "name": "Average Contributions / Active Day",
-                    "value1": contribution_metrics1["average_contributions"],
-                    "value2": contribution_metrics2["average_contributions"]
+                    "value1": contribution_metrics1[
+                        "average_contributions"
+                    ],
+                    "value2": contribution_metrics2[
+                        "average_contributions"
+                    ]
                 }
             ]
         }
 
-    # ============================================================
-# WEIGHTED NORMALIZED PROFILE SCORING
-# ============================================================
-
-    def normalized_metric_score(value, other_value, higher_is_better=True):
-        """
-        Converts two metric values into relative scores between 0 and 100.
-    
-        The score is based on the proportion of the combined value.
-        This means the actual magnitude of the difference matters.
-    
-        Example:
-            100 vs 50
-            -> 66.67 vs 33.33
-    
-            10 vs 9
-            -> 52.63 vs 47.37
-        """
-    
-        if not isinstance(value, (int, float)):
-            return None
-    
-        if not isinstance(other_value, (int, float)):
-            return None
-    
-        if value < 0 or other_value < 0:
-            return None
-    
-        total = value + other_value
-    
-        if total == 0:
-            return 50.0
-    
-        if higher_is_better:
-            score = (value / total) * 100
-        else:
-            score = (other_value / total) * 100
-    
-        return round(score, 2)
-    
-
-# ------------------------------------------------------------
-# Metric importance weights
-# ------------------------------------------------------------
-
-    metric_weights = {
-        "Followers": 0.75,
-
-        "Total Stars": 1.00,
-        "Total Forks": 0.85,
-        "Average Stars / Repository": 1.00,
-    
-        "Original Repositories": 0.90,
-    
-        "Total Contributions": 0.80,
-        "Total Commits": 0.85,
-        "Active Contribution Days": 0.75,
-        "Longest Contribution Streak": 0.65,
-        "Average Contributions / Active Day": 0.70
-    }
-
-    category_weights = {
-        "visibility": 0.75,
-        "project_impact": 1.00,
-        "repository_portfolio": 0.90,
-        "development_activity": 1.00
-    }
-
-
-# ------------------------------------------------------------
-# Calculate weighted scores for every metric
-# ------------------------------------------------------------
+    # ========================================================
+    # CATEGORY WINNERS
+    # ========================================================
+    #
+    # These are NOT used to calculate the Profile Score.
+    #
+    # They simply tell the comparison page who has the higher
+    # value for each category.
+    # ========================================================
 
     category_scores = {}
 
-    overall_weighted_score1 = 0
-    overall_weighted_score2 = 0
-    overall_weight = 0
+    category_metric_weights = {
+        "visibility": {
+            "Followers": 1.0,
+            "Following": 0.25
+        },
+
+        "project_impact": {
+            "Total Stars": 1.0,
+            "Total Forks": 0.5,
+            "Average Stars / Repository": 1.0
+        },
+
+        "repository_portfolio": {
+            "Public Repositories": 0.5,
+            "Original Repositories": 1.0,
+            "Forked Repositories": 0.25,
+            "Archived Repositories": 0.1
+        },
+
+        "technical_profile": {
+            "Languages": 1.0,
+            "Profile Completeness": 0.75
+        },
+
+        "development_activity": {
+            "Total Contributions": 1.0,
+            "Total Commits": 1.0,
+            "Active Contribution Days": 0.8,
+            "Longest Contribution Streak": 0.6,
+            "Average Contributions / Active Day": 0.7
+        }
+    }
 
     for category_key, category in comparison_categories.items():
 
-        category_score1 = 0
-        category_score2 = 0
-        category_weight_total = 0
-    
-        metric_results = []
-    
-        for metric in category["metrics"]:
-    
-            name = metric["name"]
+        metrics = category["metrics"]
+
+        weighted_advantage1 = 0
+        weighted_advantage2 = 0
+
+        comparable_metrics = 0
+
+        for metric in metrics:
+
             value1 = metric["value1"]
             value2 = metric["value2"]
-    
-            weight = metric_weights.get(name, 1.0)
-    
-            score1 = normalized_metric_score(
+
+            if not isinstance(
                 value1,
-                value2,
-                higher_is_better=True
-            )
-    
-            score2 = normalized_metric_score(
-                value2,
-                value1,
-                higher_is_better=True
-            )
-    
-            # Ignore metrics that cannot be numerically compared
-            if score1 is None or score2 is None:
+                (int, float)
+            ):
                 continue
-    
-            category_score1 += score1 * weight
-            category_score2 += score2 * weight
-            category_weight_total += weight
-    
-            metric_results.append({
-                "name": name,
-                "value1": value1,
-                "value2": value2,
-                "score1": round(score1, 2),
-                "score2": round(score2, 2),
-                "weight": weight
-            })
-    
-    # --------------------------------------------------------
-    # Normalize category score to 0–100
-        # --------------------------------------------------------
-    
-        if category_weight_total > 0:
-    
-            category_score1 = (
-                category_score1 / category_weight_total
-            )
-    
-            category_score2 = (
-                category_score2 / category_weight_total
-            )
-    
-            category_weight = category_weights.get(
+
+            if not isinstance(
+                value2,
+                (int, float)
+            ):
+                continue
+
+            weight = category_metric_weights.get(
                 category_key,
+                {}
+            ).get(
+                metric["name"],
                 1.0
             )
-    
-            overall_weighted_score1 += (
-                category_score1 * category_weight
-            )
-    
-            overall_weighted_score2 += (
-                category_score2 * category_weight
-            )
-    
-            overall_weight += category_weight
-    
-            if category_score1 > category_score2:
-                category_winner = user1["login"]
-    
-            elif category_score2 > category_score1:
-                category_winner = user2["login"]
-    
-            else:
-                category_winner = "Tie"
-    
-        else:
-            category_score1 = None
-            category_score2 = None
+
+            if value1 > value2:
+
+                weighted_advantage1 += weight
+
+            elif value2 > value1:
+
+                weighted_advantage2 += weight
+
+            comparable_metrics += 1
+
+        if comparable_metrics == 0:
+
             category_winner = "Insufficient Data"
-    
-        category_scores[category_key] = {
+
+        elif weighted_advantage1 > weighted_advantage2:
+
+            category_winner = user1["login"]
+
+        elif weighted_advantage2 > weighted_advantage1:
+
+            category_winner = user2["login"]
+
+        else:
+
+            category_winner = "Tie"
+
+        category_scores[
+            category_key
+        ] = {
+
             "label": category["label"],
-            "score1": (
-                round(category_score1, 2)
-                if category_score1 is not None
-                else None
-            ),
-            "score2": (
-                round(category_score2, 2)
-                if category_score2 is not None
-                else None
-            ),
+
             "winner": category_winner,
-            "metrics": metric_results
+
+            "metrics": metrics
         }
 
+    # ========================================================
+    # OVERALL PROFILE SCORE COMPARISON
+    # ========================================================
 
-# ------------------------------------------------------------
-# Final overall scores
-# ------------------------------------------------------------
+    overall_score1 = (
+        profile_score1["total"]
+    )
 
-    if overall_weight > 0:
+    overall_score2 = (
+        profile_score2["total"]
+    )
 
-        overall_score1 = round(
-            overall_weighted_score1 / overall_weight,
-            2
-        )
-
-        overall_score2 = round(
-            overall_weighted_score2 / overall_weight,
-            2
-        )
-
-    else:
-
-        overall_score1 = 0
-        overall_score2 = 0
-    
-
-# ------------------------------------------------------------
-# Determine overall result
-# ------------------------------------------------------------
-
-    score_difference = abs(
-        overall_score1 - overall_score2
+    score_difference = round(
+        abs(
+            overall_score1
+            - overall_score2
+        ),
+        2
     )
 
     if score_difference < 0.01:
@@ -1266,6 +2646,9 @@ def compare():
 
         overall_winner = user2["login"]
 
+    # --------------------------------------------------------
+    # Count category ties
+    # --------------------------------------------------------
 
     overall_tie_count = sum(
         1
@@ -1273,18 +2656,96 @@ def compare():
         if category["winner"] == "Tie"
     )
 
+    # ========================================================
+    # RENDER
+    # ========================================================
+
     return render_template(
+
         "compare.html",
+
         user1=user1,
+
         user2=user2,
-        comparison_metrics=comparison_metrics,
-        comparison_categories=comparison_categories,
-        category_scores=category_scores,
-        overall_score1=overall_score1,
-        overall_score2=overall_score2,
-        overall_tie_count=overall_tie_count,
-        overall_winner=overall_winner
+
+        comparison_metrics=(
+            comparison_metrics
+        ),
+
+        comparison_categories=(
+            comparison_categories
+        ),
+
+        category_scores=(
+            category_scores
+        ),
+
+        # ----------------------------------------------------
+        # Independent Profile Scores
+        # ----------------------------------------------------
+
+        profile_score1=(
+            profile_score1
+        ),
+
+        profile_score2=(
+            profile_score2
+        ),
+
+        overall_score1=(
+            overall_score1
+        ),
+
+        overall_score2=(
+            overall_score2
+        ),
+
+        overall_tie_count=(
+            overall_tie_count
+        ),
+
+        overall_winner=(
+            overall_winner
+        ),
+
+        score_difference=(
+            score_difference
+        ),
+
+        # ----------------------------------------------------
+        # Additional data if compare.html needs it later
+        # ----------------------------------------------------
+
+        repo_metrics1=(
+            repo_metrics1
+        ),
+
+        repo_metrics2=(
+            repo_metrics2
+        ),
+
+        contribution_metrics1=(
+            contribution_metrics1
+        ),
+
+        contribution_metrics2=(
+            contribution_metrics2
+        ),
+
+        completeness1=(
+            completeness1
+        ),
+
+        completeness2=(
+            completeness2
+        )
     )
+
+
+# ============================================================
+# APPLICATION START
+# ============================================================
 
 if __name__ == "__main__":
     app.run(debug=True)
+

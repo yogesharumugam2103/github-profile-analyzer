@@ -41,37 +41,31 @@ body.profile-page {
     position: sticky;
     top: 0;
     z-index: 1000;
-
     width: 100%;
     background: #080d18;
-
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.18);
+    box-shadow:
+        0 5px 25px rgba(0, 0, 0, 0.18);
 }
 
 .header-content {
     width: 94%;
     max-width: 1450px;
-    min-height: 60px;
-
+    min-height: 72px;
     margin: auto;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    gap: 24px;
+    gap: 30px;
 }
 
 .brand {
     display: flex;
     align-items: center;
-    gap: 9px;
-
+    gap: 10px;
     color: white;
     text-decoration: none;
-
-    font-size: 17px;
+    font-size: 23px;
     white-space: nowrap;
 }
 
@@ -80,44 +74,34 @@ body.profile-page {
 }
 
 .brand-icon {
-    width: 28px;
-    height: 28px;
-
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 7px;
-
+    border-radius: 8px;
     background: #ffffff;
     color: #111827;
-
-    font-size: 15px;
+    font-size: 20px;
 }
 
 .header-search {
     flex: 1;
-    max-width: 480px;
-
+    max-width: 750px;
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
 .header-search input {
     flex: 1;
-    height: 34px;
-
-    padding: 0 14px;
-
+    height: 46px;
+    padding: 0 18px;
     border: 1px solid #374151;
-    border-radius: 7px;
-
+    border-radius: 9px;
     outline: none;
-
     background: #101827;
     color: white;
-
-    font-size: 13px;
+    font-size: 16px;
 }
 
 .header-search input::placeholder {
@@ -126,25 +110,23 @@ body.profile-page {
 
 .header-search input:focus {
     border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .header-search button {
-    height: 34px;
-    padding: 0 16px;
-
+    height: 46px;
+    padding: 0 24px;
     border: none;
-    border-radius: 7px;
-
+    border-radius: 9px;
     background: #2563eb;
     color: white;
-
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
-
     cursor: pointer;
-
-    transition: background 0.2s ease, transform 0.2s ease;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .header-search button:hover {
@@ -155,12 +137,9 @@ body.profile-page {
 .compare-link {
     color: white;
     text-decoration: none;
-
-    font-size: 13px;
+    font-size: 17px;
     font-weight: 700;
-
     white-space: nowrap;
-
     transition: color 0.2s ease;
 }
 
@@ -622,10 +601,6 @@ body.profile-page {
     grid-template-columns: 1fr 1fr;
 }
 
-.language-analysis-grid {
-    grid-template-columns: 1.3fr 1fr;
-}
-
 
 /* =========================================================
    INFO CARD (reusable icon + value + label)
@@ -689,6 +664,10 @@ body.profile-page {
 .icon-teal   { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
 .icon-red    { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
 .icon-gray   { background: rgba(107, 114, 128, 0.12); color: #6b7280; }
+.icon-indigo { background: rgba(99, 102, 241, 0.12); color: #4f46e5; }
+.icon-pink   { background: rgba(236, 72, 153, 0.12); color: #db2777; }
+.icon-amber  { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.icon-cyan   { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
 
 .info-text {
     min-width: 0;
@@ -904,23 +883,37 @@ body.profile-page {
 
 /* =========================================================
    4. REPOSITORY ANALYSIS — SIZE DISTRIBUTION
+      + PROFILE COMPLETENESS (50 / 50 ROW)
 ========================================================= */
 
-.repo-size-distribution-card {
+.repo-analysis-bottom-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+
     margin-top: 14px;
+    align-items: stretch;
+}
+
+.repo-size-distribution-card,
+.profile-completeness-card {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .size-distribution-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .size-distribution-card {
-    padding: 12px 14px;
+    padding: 12px 12px;
 
     display: flex;
     flex-direction: column;
+    min-width: 0;
 
     border: 1px solid #eef0f5;
     border-radius: 11px;
@@ -937,8 +930,8 @@ body.profile-page {
 }
 
 .size-icon {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
 
     display: flex;
     align-items: center;
@@ -946,11 +939,11 @@ body.profile-page {
 
     border-radius: 8px;
 
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .size-percent {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     color: #6b7280;
 }
@@ -962,7 +955,7 @@ body.profile-page {
 
     color: #111827;
 
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 800;
 
     line-height: 1.2;
@@ -973,8 +966,11 @@ body.profile-page {
 
     color: #374151;
 
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .size-range {
@@ -984,7 +980,7 @@ body.profile-page {
 
     color: #9ca3af;
 
-    font-size: 10.5px;
+    font-size: 10px;
 }
 
 .size-progress-track {
@@ -1028,14 +1024,6 @@ body.profile-page {
     background: #ef4444;
 }
 
-.language-donut-wrapper {
-    position: relative;
-
-    width: 172px;
-    height: 172px;
-    flex-shrink: 0;
-}
-
 .donut-center-label {
     position: absolute;
     top: 50%;
@@ -1051,7 +1039,7 @@ body.profile-page {
 
     color: #111827;
 
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
 }
 
@@ -1060,16 +1048,7 @@ body.profile-page {
 
     color: #6b7280;
 
-    font-size: 9px;
-}
-
-.language-legend {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px 20px;
-
-    flex: 1;
-    min-width: 0;
+    font-size: 9.5px;
 }
 
 .legend-dot {
@@ -1089,28 +1068,120 @@ body.profile-page {
 }
 
 
+/* --- Profile Completeness card (paired with size distribution) --- */
+
+.completeness-card-body {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.85fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+    flex: 1;
+    align-items: start;
+}
+
+.completeness-ring-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 4px;
+}
+
+.completeness-ring-col .health-score-ring {
+    margin-bottom: 4px;
+}
+
+.completeness-ring-col .health-fields-count {
+    margin-bottom: 0;
+}
+
+.completeness-ring-col .health-fields-hint {
+    margin-bottom: 0;
+}
+
+.completeness-fields-col {
+    min-width: 0;
+}
+
+.completeness-fields-col .health-col-title {
+    margin-bottom: 10px;
+}
+
+.completeness-fields-col .health-field-list li {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.health-field-list .all-complete {
+    color: #9ca3af !important;
+    font-style: italic;
+}
+
+
 /* =========================================================
-   4. LANGUAGE ANALYSIS
+   4. LANGUAGE ANALYSIS (single merged card)
 ========================================================= */
+
+.language-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+
+    margin-bottom: 20px;
+}
+
+/* Three columns: legend | donut | stacked mini-stats.
+   The mini-stats column now sits to the right of the chart
+   instead of spanning full-width underneath it. */
 
 .language-distribution-body {
     display: flex;
     align-items: center;
-    gap: 26px;
+    justify-content: center;
+    gap: 44px;
 
-    margin-bottom: 16px;
+    margin-bottom: 4px;
+}
+
+.language-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(130px, 180px));
+
+    /* Less gap between rows within the same column,
+       more gap between the two columns themselves. */
+    column-gap: 52px;
+    row-gap: 10px;
+
+    flex-shrink: 0;
 }
 
 .language-legend-row {
-    display: grid;
-    grid-template-columns: 9px 1fr auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    min-width: 0;
+}
+
+.legend-name-group {
+    display: flex;
     align-items: center;
     gap: 8px;
 
     min-width: 0;
 }
 
+.legend-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .legend-stats {
+    flex-shrink: 0;
+
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -1120,7 +1191,7 @@ body.profile-page {
 
 .legend-percentage {
     color: #111827;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
 }
 
@@ -1131,7 +1202,19 @@ body.profile-page {
     white-space: nowrap;
 }
 
+/* Bigger donut chart */
+
+.language-donut-wrapper {
+    position: relative;
+
+    width: 264px;
+    height: 264px;
+    flex-shrink: 0;
+}
+
 .view-all-languages-button {
+    flex-shrink: 0;
+
     display: inline-block;
 
     padding: 8px 14px;
@@ -1145,31 +1228,64 @@ body.profile-page {
 
     font-size: 12px;
     font-weight: 700;
+
+    white-space: nowrap;
 }
 
 .view-all-languages-button:hover {
     background: #e0e7ff;
 }
 
-.language-analysis-side {
+
+/* Mini-stats, now stacked vertically as their own column
+   beside the donut chart (Primary Language / Diversity /
+   Coverage), instead of a horizontal strip below it. */
+
+.language-mini-stats {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
+
+    flex-shrink: 0;
+    width: 190px;
+
+    padding-left: 28px;
+
+    border-left: 1px solid #eef0f4;
 }
 
-.primary-language-card {
+.language-mini-stat {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
 }
 
-.primary-language-card strong {
+.language-mini-stat-text {
+    min-width: 0;
+}
+
+.language-mini-stat-text small {
+    display: block;
+
+    color: #6b7280;
+
+    font-size: 11px;
+    font-weight: 500;
+
+    margin-bottom: 2px;
+}
+
+.language-mini-stat-text strong {
     display: block;
 
     color: #111827;
 
-    font-size: 19px;
+    font-size: 16px;
     font-weight: 800;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
@@ -1324,53 +1440,396 @@ body.profile-page {
 
 
 /* =========================================================
-   7. PROFILE HEALTH
+   7. PROFILE SCORE (gauge + breakdown + explainer)
 ========================================================= */
 
-.profile-health-card {
+.profile-score-card {
+    padding: 22px 24px;
+}
+
+.profile-score-body {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
+    grid-template-columns: 300px minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 24px;
+
+    margin-top: 10px;
+    align-items: stretch;
 }
 
-.profile-health-col {
-    padding: 4px 20px;
+/* --- Gauge column ---
+   Content is a fixed-size block (gauge + score text + rating),
+   so instead of pinning it to the top of a column that's now
+   taller than it (10-row breakdown), it's centered vertically
+   within the stretched column height. That keeps the gauge
+   visually anchored around the middle of the section instead
+   of floating at the top with dead space underneath it. */
 
-    border-right: 1px solid #eef0f4;
-}
-
-.profile-health-col:first-child {
-    padding-left: 4px;
-}
-
-.profile-health-col:last-child {
-    border-right: none;
-}
-
-.health-col-title {
-    display: block;
-
-    margin-bottom: 12px;
-
-    color: #374151;
-
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-.health-col-title.missing {
-    color: #dc2626;
-}
-
-.profile-health-col:first-child {
+.score-gauge-col {
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    justify-content: center;
     text-align: center;
+
+    padding-right: 26px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    border-right: 1px solid #eef0f4;
 }
+
+.gauge-wrap {
+    position: relative;
+    width: 240px;
+    height: 128px;
+    margin-bottom: 6px;
+}
+
+.gauge-arc {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 240px 240px 0 0;
+}
+
+.gauge-arc::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 240px;
+
+    filter: drop-shadow(0 6px 12px rgba(15, 23, 42, 0.14));
+
+    /* One continuous, smoothly-blended sweep from a deep red
+       through amber/lime to a medium (not too dark) green —
+       no hard zone edges or dividers, just a gradual grade. */
+    background: conic-gradient(
+        from -90deg at 50% 100%,
+        #7f1d1d 0deg,
+        #b91c1c 20deg,
+        #dc2626 38deg,
+        #ea580c 55deg,
+        #f59e0b 72deg,
+        #eab308 90deg,
+        #cddc39 108deg,
+        #a3e635 125deg,
+        #65d67a 142deg,
+        #34c76f 160deg,
+        #16a34a 180deg,
+        transparent 180deg 360deg
+    );
+}
+
+.gauge-arc::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 240px;
+
+    pointer-events: none;
+
+    /* Glossy sheen: a soft light streak across the upper band
+       of the arc plus a gentle overall highlight, so the ring
+       reads as a curved, polished surface rather than flat
+       color. Layered on top of the color sweep in ::before. */
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.55) 0%,
+            rgba(255, 255, 255, 0.22) 22%,
+            rgba(255, 255, 255, 0) 48%
+        ),
+        radial-gradient(
+            120% 60% at 50% 0%,
+            rgba(255, 255, 255, 0.35),
+            rgba(255, 255, 255, 0) 65%
+        );
+
+    mix-blend-mode: overlay;
+}
+
+.gauge-hole {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 172px;
+    height: 86px;
+
+    transform: translateX(-50%);
+
+    background: #ffffff;
+    border-radius: 172px 172px 0 0;
+
+    box-shadow:
+        inset 0 0 0 3px #f4f5f9,
+        inset 0 3px 8px rgba(15, 23, 42, 0.05);
+}
+
+.gauge-needle {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 16px;
+    height: 94px;
+
+    clip-path: polygon(50% 0%, 64% 100%, 36% 100%);
+
+    background: linear-gradient(180deg, #4b5568 0%, #1f2437 75%);
+
+    filter: drop-shadow(0 3px 4px rgba(15, 23, 42, 0.3));
+
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(calc(var(--angle, -45) * 1deg));
+
+    transition: transform 0.6s ease;
+}
+
+.gauge-needle::before {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+
+    width: 24px;
+    height: 24px;
+
+    border-radius: 50%;
+    background: rgba(31, 36, 55, 0.10);
+
+    transform: translateX(-50%);
+}
+
+.gauge-needle::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+
+    width: 16px;
+    height: 16px;
+
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #545f74, #1f2437 70%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+
+    transform: translateX(-50%);
+}
+
+.gauge-zone-label {
+    position: absolute;
+
+    color: #9ca3af;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    white-space: nowrap;
+}
+
+.gauge-zone-poor {
+    left: -7px;
+    bottom: 7px;
+}
+
+.gauge-zone-fair {
+    left: 27px;
+    top: 9px;
+}
+
+.gauge-zone-good {
+    right: 30px;
+    top: 9px;
+}
+
+.gauge-zone-excellent {
+    right: -21px;
+    bottom: 7px;
+}
+
+.gauge-score-text {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+
+    margin-top: 4px;
+}
+
+.gauge-score-text strong {
+    color: #111827;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.5px;
+}
+
+.gauge-score-text span {
+    color: #9ca3af;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.gauge-rating {
+    display: inline-block;
+    margin-top: 7px;
+    padding: 3px 12px;
+
+    border-radius: 20px;
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+.rating-poor      { color: #dc2626; background: rgba(239, 68, 68, 0.10); }
+.rating-fair      { color: #d97706; background: rgba(245, 158, 11, 0.10); }
+.rating-good      { color: #65a30d; background: rgba(132, 204, 22, 0.12); }
+.rating-excellent { color: #16a34a; background: rgba(34, 197, 94, 0.10); }
+
+.gauge-hint {
+    margin-top: 8px;
+
+    color: #9ca3af;
+    font-size: 11px;
+    line-height: 1.4;
+    max-width: 210px;
+}
+
+/* --- Score breakdown column ---
+   This column's natural height (10 rows) now defines the
+   height of the whole section row; the other two columns
+   stretch to match it and center their own content within
+   that space rather than growing to fill it themselves. */
+
+.score-breakdown-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 11px;
+
+    padding-right: 22px;
+    border-right: 1px solid #eef0f4;
+}
+
+.score-breakdown-title {
+    color: #111827;
+    font-size: 12.5px;
+    font-weight: 800;
+
+    margin-bottom: 2px;
+}
+
+.score-breakdown-row {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) minmax(60px, 1fr) 56px;
+    align-items: center;
+    gap: 10px;
+}
+
+.score-breakdown-icon {
+    width: 22px;
+    height: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 6px;
+
+    font-size: 11px;
+}
+
+.score-breakdown-name {
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.score-breakdown-track {
+    height: 7px;
+
+    border-radius: 5px;
+    background: #eef0f4;
+
+    overflow: hidden;
+}
+
+.score-breakdown-fill {
+    display: block;
+    height: 100%;
+    border-radius: 5px;
+}
+
+.fill-green  { background: #22c55e; }
+.fill-lime   { background: #84cc16; }
+.fill-blue   { background: #3b82f6; }
+.fill-purple { background: #8b5cf6; }
+.fill-amber  { background: #f59e0b; }
+.fill-indigo { background: #6366f1; }
+.fill-teal   { background: #14b8a6; }
+.fill-orange { background: #f97316; }
+.fill-pink   { background: #ec4899; }
+.fill-gray   { background: #6b7280; }
+.fill-cyan   { background: #06b6d4; }
+
+.score-breakdown-value {
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* --- Info column ---
+   Same idea as the gauge column: the explainer text is a
+   fixed-height block, so it's centered vertically in the
+   stretched column instead of sitting pinned to the top. */
+
+.score-info-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+}
+
+.score-info-col h4 {
+    color: #111827;
+    font-size: 12.5px;
+    font-weight: 800;
+}
+
+.score-info-col p {
+    color: #6b7280;
+    font-size: 11.5px;
+    line-height: 1.6;
+}
+
+.score-info-checklist {
+    list-style: none;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.score-info-checklist li {
+    color: #16a34a;
+    font-size: 11.5px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   PROFILE HEALTH SCORE RING (shared by completeness card)
+========================================================= */
 
 .health-score-ring {
     --score: 0%;
@@ -1424,6 +1883,23 @@ body.profile-page {
     margin-bottom: 12px;
 }
 
+.health-col-title {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #374151;
+
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.health-col-title.missing {
+    color: #dc2626;
+}
+
 .health-field-list {
     list-style: none;
 
@@ -1442,38 +1918,6 @@ body.profile-page {
     color: #dc2626;
     font-size: 12px;
     font-weight: 600;
-}
-
-.account-summary-list {
-    list-style: none;
-
-    display: flex;
-    flex-direction: column;
-}
-
-.account-summary-list li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 7px 0;
-
-    border-bottom: 1px solid #f3f4f7;
-
-    font-size: 11.5px;
-}
-
-.account-summary-list li:last-child {
-    border-bottom: none;
-}
-
-.account-summary-list li span {
-    color: #6b7280;
-}
-
-.account-summary-list li strong {
-    color: #111827;
-    font-weight: 700;
 }
 
 
@@ -1894,6 +2338,21 @@ body.profile-page {
    RESPONSIVE
 ========================================================= */
 
+@media (max-width: 1200px) {
+
+    .profile-score-body {
+        grid-template-columns: 1fr;
+    }
+
+    .score-gauge-col,
+    .score-breakdown-col {
+        padding-right: 0;
+        border-right: none;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #eef0f4;
+    }
+}
+
 @media (max-width: 1100px) {
 
     .identity-hero-body {
@@ -1924,8 +2383,11 @@ body.profile-page {
     }
 
     .activity-grid,
-    .activity-feed-grid,
-    .language-analysis-grid {
+    .activity-feed-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-analysis-bottom-row {
         grid-template-columns: 1fr;
     }
 
@@ -1933,19 +2395,43 @@ body.profile-page {
         grid-template-columns: 1fr;
     }
 
+    .completeness-card-body {
+        grid-template-columns: 1fr;
+    }
+
+    .completeness-ring-col {
+        flex-direction: row;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 14px;
+    }
+
     .repository-grid-view {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .profile-health-card {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+    .language-distribution-body {
+        flex-wrap: wrap;
+
+        gap: 28px;
     }
 
-    .profile-health-col {
-        border-right: none;
-        border-bottom: 1px solid #eef0f4;
-        padding-bottom: 16px;
+    .language-mini-stats {
+        width: 100%;
+
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        padding-left: 0;
+        padding-top: 18px;
+
+        border-left: none;
+        border-top: 1px solid #eef0f4;
+    }
+
+    .language-mini-stat {
+        flex: 1;
+        min-width: 150px;
     }
 }
 
@@ -1983,7 +2469,36 @@ body.profile-page {
         grid-template-columns: 1fr;
     }
 
-    .profile-health-card {
+    .language-donut-wrapper {
+        width: 220px;
+        height: 220px;
+    }
+
+    .language-legend {
+        grid-template-columns: 1fr;
+
+        row-gap: 10px;
+    }
+
+    .language-mini-stats {
+        flex-direction: column;
+    }
+
+    .activity-repo-grid {
         grid-template-columns: 1fr;
     }
+
+    .score-breakdown-row {
+        grid-template-columns: 20px 1fr;
+        grid-template-areas:
+            "icon name"
+            "track track"
+            "value value";
+        row-gap: 4px;
+    }
+
+    .score-breakdown-icon { grid-area: icon; }
+    .score-breakdown-name { grid-area: name; }
+    .score-breakdown-track { grid-area: track; }
+    .score-breakdown-value { grid-area: value; text-align: left; }
 }
