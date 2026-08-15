@@ -68,638 +68,129 @@
 
 
     <!-- =====================================================
-         PROFILE BANNER
+         1. DEVELOPER IDENTITY
     ====================================================== -->
 
-    <section class="profile-banner">
+    <section class="identity-hero">
 
-        <div class="profile-identity">
-
-            <div class="avatar-wrapper">
-
-                <img
-                    class="profile-avatar"
-                    src="{{ user.avatar_url }}"
-                    alt="{{ user.login }}"
-                >
-
-                <span class="avatar-status">
-                    ●
-                </span>
-
-            </div>
-
-
-            <div class="identity-details">
-
-                <h1>
-                    {{ user.name or user.login }}
-                </h1>
-
-                <a
-                    class="profile-username"
-                    href="{{ user.html_url }}"
-                    target="_blank"
-                >
-                    @{{ user.login }}
-                </a>
-
-
-                <div class="identity-meta">
-
-                    <span>
-                        ◉
-                        {{ user.bio or "No bio available" }}
-                    </span>
-
-                    <span>
-                        ⌖
-                        {{ user.location or "Location not available" }}
-                    </span>
-
-                    {% if user.created_at %}
-                    <span>
-                        ▣
-                        Joined GitHub {{ user.created_at[:10] }}
-                    </span>
-                    {% endif %}
-
-                </div>
-
-            </div>
-
+        <div class="section-header on-dark">
+            <span class="section-badge">1</span>
+            <h2>Developer Identity</h2>
         </div>
 
+        <div class="identity-hero-body">
 
-        <!-- Profile summary cards -->
+            <div class="identity-hero-profile">
 
-        <div class="profile-summary">
+                <div class="avatar-wrapper">
 
-            <div class="profile-summary-card">
+                    <img
+                        class="profile-avatar"
+                        src="{{ user.avatar_url }}"
+                        alt="{{ user.login }}"
+                    >
 
-                <div>
-                    <span class="summary-label">
-                        Followers
-                    </span>
-
-                    <strong>
-                        {{ user.followers }}
-                    </strong>
-                </div>
-
-                <span class="summary-icon">
-                    👥
-                </span>
-
-            </div>
-
-
-            <div class="profile-summary-card">
-
-                <div>
-                    <span class="summary-label">
-                        Following
-                    </span>
-
-                    <strong>
-                        {{ user.following }}
-                    </strong>
-                </div>
-
-                <span class="summary-icon">
-                    👤
-                </span>
-
-            </div>
-
-
-            <div class="profile-summary-card">
-
-                <div>
-                    <span class="summary-label">
-                        Repositories
-                    </span>
-
-                    <strong>
-                        {{ user.public_repos }}
-                    </strong>
-                </div>
-
-                <span class="summary-icon">
-                    📁
-                </span>
-
-            </div>
-
-
-            <div class="profile-summary-card score-summary">
-
-                <div>
-
-                    <span class="summary-label">
-                        Profile Score
-                    </span>
-
-                    <strong>
-                        {{ profile_completeness }}%
-                    </strong>
+                    <span class="avatar-status">●</span>
 
                 </div>
 
-                <div
-                    class="score-ring"
-                    style="--score: {{ profile_completeness }}%;"
-                >
-                    <span></span>
-                </div>
 
-            </div>
+                <div class="identity-details">
 
-        </div>
+                    <h1>{{ user.name or user.login }}</h1>
 
-    </section>
+                    <a
+                        class="profile-username"
+                        href="{{ user.html_url }}"
+                        target="_blank"
+                    >
+                        @{{ user.login }}
+                    </a>
 
 
-    <!-- =====================================================
-         KEY METRICS
-    ====================================================== -->
+                    <div class="identity-meta">
 
-    <section class="metric-strip">
+                        <span>◉ {{ user.bio or "No bio available" }}</span>
 
-        <div class="metric-item">
+                        <span>⌖ {{ user.location or "Location not available" }}</span>
 
-            <span class="metric-icon gold">
-                ★
-            </span>
-
-            <div>
-                <span>Total Stars</span>
-                <strong>{{ total_stars }}</strong>
-            </div>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span class="metric-icon purple">
-                ⑂
-            </span>
-
-            <div>
-                <span>Total Forks</span>
-                <strong>{{ total_forks }}</strong>
-            </div>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span class="metric-icon blue" style="font-size: 12px;">
-                &lt;/&gt;
-            </span>
-
-            <div>
-                <span>Most Used Language</span>
-                <strong>{{ most_used_language }}</strong>
-            </div>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span class="metric-icon blue">
-                ≈
-            </span>
-
-            <div>
-                <span>Avg Stars / Repo</span>
-                <strong>{{ average_stars }}</strong>
-            </div>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span class="metric-icon red">
-                🔥
-            </span>
-
-            <div>
-
-                <span>Contributions</span>
-
-                <strong>
-                    {% if contributions_available %}
-                        {{ total_contributions }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <div class="metric-item">
-
-            <span class="metric-icon purple">
-                ⚡
-            </span>
-
-            <div>
-
-                <span>Longest Streak</span>
-
-                <strong>
-                    {% if contributions_available %}
-                        {{ longest_streak }}
-                    {% else %}
-                        —
-                    {% endif %}
-                </strong>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         OVERVIEW + COMPLETENESS
-    ====================================================== -->
-
-    <section class="dashboard-grid overview-grid">
-
-
-        <!-- PROFILE OVERVIEW -->
-
-        <div class="dashboard-card overview-card">
-
-            <div class="section-title">
-
-                <div class="section-title-mark blue-mark"></div>
-
-                <div>
-
-                    <h2>Profile Overview</h2>
-
-                    <p>
-                        Detailed highlights from this GitHub activity.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="overview-stat-grid">
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon purple">
-                        📁
-                    </span>
-
-                    <div>
-                        <strong>{{ original_repos }}</strong>
-                        <span>Original Repositories</span>
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon blue">
-                        ⑂
-                    </span>
-
-                    <div>
-                        <strong>{{ forked_repos }}</strong>
-                        <span>Forked Repositories</span>
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon blue">
-                        🗄
-                    </span>
-
-                    <div>
-                        <strong>{{ archived_repos }}</strong>
-                        <span>Archived Repositories</span>
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon red">
-                        🔥
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available %}
-                                {{ total_contributions }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Total Contributions</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon purple">
-                        📅
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available %}
-                                {{ active_days }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Active Contribution Days</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon orange">
-                        🔥
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available %}
-                                {{ longest_streak }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Longest Contribution Streak</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon gold">
-                        📊
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available %}
-                                {{ average_contributions }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Avg Contributions / Active Day</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon blue">
-                        🎯
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available and most_active_day %}
-                                {{ most_active_day.contributionCount }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Most Contributions in One Day</span>
-
-                        {% if contributions_available and most_active_day %}
-                            <small>
-                                {{ most_active_day.date }}
-                            </small>
+                        {% if user.created_at %}
+                        {% set months_abbr = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                        {% set jd = user.created_at[:10].split('-') %}
+                        <span>
+                            ▣ Joined GitHub on
+                            {{ months_abbr[jd[1]|int] }} {{ jd[2]|int }}, {{ jd[0] }}
+                        </span>
                         {% endif %}
 
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon purple">
-                        🗓
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available and most_active_month %}
-                                {{ most_active_month_display }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Most Active Month</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon blue">
-                        🔁
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available %}
-                                {{ contribution_frequency }}%
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Contribution Frequency</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon green">
-                        ↗
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {% if contributions_available %}
-                                {{ contribution_trend }}
-                            {% else %}
-                                —
-                            {% endif %}
-                        </strong>
-
-                        <span>Contribution Trend</span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="overview-stat">
-
-                    <span class="overview-icon purple">
-                        ✓
-                    </span>
-
-                    <div>
-
-                        <strong>
-                            {{ profile_completeness }}%
-                        </strong>
-
-                        <span>Profile Completeness</span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- PROFILE COMPLETENESS -->
-
-        <div class="dashboard-card completeness-card">
-
-            <div class="section-title">
-
-                <div class="section-title-mark purple-mark"></div>
-
-                <div>
-
-                    <h2>Profile Completeness</h2>
-
-                    <p>
-                        How complete is this GitHub profile?
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="completeness-content">
-
-                <div
-                    class="large-score-ring"
-                    style="--score: {{ profile_completeness }}%;"
-                >
-
-                    <div>
-
-                        <strong>
-                            {{ profile_completeness }}%
-                        </strong>
-
                         <span>
-                            Complete
+                            🔗 github.com/{{ user.login }}
                         </span>
 
                     </div>
 
                 </div>
 
-
-                <p class="completion-count">
-
-                    {{ completed_profile_fields }}
-                    of
-                    {{ total_profile_fields }}
-                    fields completed
-
-                </p>
+            </div>
 
 
-                {% if missing_profile_fields %}
+            <div class="identity-hero-stats">
 
-                    <div class="missing-fields">
-
-                        <h3>
-                            ⚠ Missing Information
-                        </h3>
-
-                        <ul>
-
-                            {% for field in missing_profile_fields %}
-
-                                <li>
-                                    {{ field }}
-                                </li>
-
-                            {% endfor %}
-
-                        </ul>
-
+                <div class="hero-stat-row">
+                    <span class="hero-stat-icon">👥</span>
+                    <div>
+                        <small>Followers</small>
+                        <strong>{{ user.followers }}</strong>
                     </div>
+                </div>
 
-                {% else %}
-
-                    <div class="complete-message">
-
-                        ✓ All profile fields are completed.
-
+                <div class="hero-stat-row">
+                    <span class="hero-stat-icon">👤</span>
+                    <div>
+                        <small>Following</small>
+                        <strong>{{ user.following }}</strong>
                     </div>
+                </div>
 
+                <div class="hero-stat-row">
+                    <span class="hero-stat-icon">📁</span>
+                    <div>
+                        <small>Public Repositories</small>
+                        <strong>{{ user.public_repos }}</strong>
+                    </div>
+                </div>
+
+                {% if user.created_at %}
+                {% set months_abbr = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                {% set cd = user.created_at[:10].split('-') %}
+                <div class="hero-stat-row">
+                    <span class="hero-stat-icon">📅</span>
+                    <div>
+                        <small>Account Created</small>
+                        <strong>{{ months_abbr[cd[1]|int] }} {{ cd[2]|int }}, {{ cd[0] }}</strong>
+                        {% if account_age_display %}
+                            <span class="hero-stat-sub">({{ account_age_display }})</span>
+                        {% endif %}
+                    </div>
+                </div>
                 {% endif %}
+
+            </div>
+
+
+            <div class="identity-hero-completeness">
+
+                <span class="completeness-panel-label">GitHub Profile</span>
+
+                <a
+                    href="{{ user.html_url }}"
+                    target="_blank"
+                    rel="noopener"
+                    class="github-view-link"
+                >
+                    <span class="github-view-icon">⌥</span>
+                    <span>View on GitHub</span>
+                </a>
 
             </div>
 
@@ -709,55 +200,164 @@
 
 
     <!-- =====================================================
-         CONTRIBUTIONS + LANGUAGES
+         2. QUICK OVERVIEW
     ====================================================== -->
 
-    <section class="dashboard-grid activity-grid">
+    <section class="page-section">
 
+        <div class="section-header">
+            <span class="section-badge">2</span>
+            <h2>Quick Overview</h2>
+        </div>
 
-        <!-- CONTRIBUTIONS -->
+        <div class="quick-overview-grid">
 
-        <div class="dashboard-card contribution-card">
-
-            <div class="section-title">
-
-                <div class="section-title-mark blue-mark"></div>
-
-                <div>
-
-                    <h2>Contribution Activity</h2>
-
-                    <p>
-                        Contribution consistency and monthly activity.
-                    </p>
-
+            <div class="info-card">
+                <span class="info-icon icon-purple">📘</span>
+                <div class="info-text">
+                    <strong>{{ user.public_repos }}</strong>
+                    <span class="info-title">Repositories</span>
+                    <span class="info-sub">All public repositories</span>
                 </div>
-
             </div>
 
+            <div class="info-card">
+                <span class="info-icon icon-blue">📈</span>
+                <div class="info-text">
+                    <strong>
+                        {% if contributions_available %}{{ total_contributions }}{% else %}—{% endif %}
+                    </strong>
+                    <span class="info-title">Contributions</span>
+                    <span class="info-sub">Total contributions</span>
+                </div>
+            </div>
 
-            {% if contributions_available %}
+            <div class="info-card">
+                <span class="info-icon icon-orange">★</span>
+                <div class="info-text">
+                    <strong>{{ total_stars }}</strong>
+                    <span class="info-title">Total Stars</span>
+                    <span class="info-sub">Across all repositories</span>
+                </div>
+            </div>
 
-                <div class="heatmap-wrapper">
+            <div class="info-card">
+                <span class="info-icon icon-green">&lt;/&gt;</span>
+                <div class="info-text">
+                    <strong>{{ language_percentages|length }}</strong>
+                    <span class="info-title">Languages</span>
+                    <span class="info-sub">Used in repositories</span>
+                </div>
+            </div>
 
-                    <div class="contribution-heatmap">
+        </div>
 
-                        {% for week in contribution_heatmap %}
+    </section>
 
-                            <div class="contribution-week">
 
-                                {% for day in week %}
+    <!-- =====================================================
+         3. CONTRIBUTION ANALYSIS
+    ====================================================== -->
 
-                                    <div
-                                        class="contribution-day level-{{ day.level }}"
-                                        title="{{ day.date }}: {{ day.count }} contributions"
-                                    ></div>
+    <section class="page-section">
+
+        <div class="section-header">
+            <span class="section-badge">3</span>
+            <h2>Contribution Analysis</h2>
+        </div>
+
+        <div class="mini-stat-row">
+
+            <div class="mini-stat-card">
+                <span class="mini-label text-purple">Total Contributions</span>
+                <strong>{% if contributions_available %}{{ total_contributions }}{% else %}—{% endif %}</strong>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-label text-blue">Active Days</span>
+                <strong>{% if contributions_available %}{{ active_days }}{% else %}—{% endif %}</strong>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-label text-green">Longest Streak</span>
+                <strong>{% if contributions_available %}{{ longest_streak }} days{% else %}—{% endif %}</strong>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-label text-orange">Average / Active Day</span>
+                <strong class="text-orange">{% if contributions_available %}{{ average_contributions }}{% else %}—{% endif %}</strong>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-label text-blue">Contribution Frequency</span>
+                <strong>{% if contributions_available %}{{ contribution_frequency }}%{% else %}—{% endif %}</strong>
+            </div>
+
+            <div class="mini-stat-card">
+                <span class="mini-label text-gray">Most Active Day</span>
+                <strong>
+                    {% if contributions_available and most_active_day %}{{ most_active_day.contributionCount }}{% else %}—{% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-grid activity-grid">
+
+            <div class="dashboard-card">
+
+                <h3 class="card-title">Contribution Heatmap</h3>
+                <p class="card-subtitle">Last 12 Months</p>
+
+                {% if contributions_available %}
+
+                    <div class="heatmap-body">
+
+                        <div class="heatmap-weekdays">
+                            <span></span><span>Mon</span><span></span>
+                            <span>Wed</span><span></span><span>Fri</span><span></span>
+                        </div>
+
+                        <div class="heatmap-scroll">
+
+                            <div class="heatmap-months">
+                                {% set months_abbr = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                                {% set ns = namespace(last_month=None) %}
+                                {% for week in contribution_heatmap %}
+                                    {% set first_day = week[0] %}
+                                    {% set month_num = (first_day.date[5:7] | int) if first_day.date else None %}
+                                    <span>
+                                        {%- if month_num and month_num != ns.last_month -%}
+                                            {{ months_abbr[month_num] }}
+                                            {%- set ns.last_month = month_num -%}
+                                        {%- endif -%}
+                                    </span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="contribution-heatmap">
+
+                                {% for week in contribution_heatmap %}
+
+                                    <div class="contribution-week">
+
+                                        {% for day in week %}
+
+                                            <div
+                                                class="contribution-day level-{{ day.level }}"
+                                                title="{{ day.date }}: {{ day.count }} contributions"
+                                            ></div>
+
+                                        {% endfor %}
+
+                                    </div>
 
                                 {% endfor %}
 
                             </div>
 
-                        {% endfor %}
+                        </div>
 
                     </div>
 
@@ -776,100 +376,85 @@
 
                     </div>
 
-                </div>
+                {% else %}
 
+                    <div class="empty-state">
+                        Contribution data unavailable.
+                    </div>
 
-                <div class="chart-heading">
-                    Monthly Contributions
-                </div>
-
-                <div class="contribution-chart">
-
-                    <canvas id="contributionTrendChart"></canvas>
-
-                </div>
-
-            {% else %}
-
-                <div class="empty-state">
-                    Contribution data unavailable.
-                </div>
-
-            {% endif %}
-
-        </div>
-
-
-        <!-- LANGUAGE DISTRIBUTION -->
-
-        <div class="dashboard-card language-card">
-
-            <div class="section-title">
-
-                <div class="section-title-mark purple-mark"></div>
-
-                <div>
-
-                    <h2>Language Distribution</h2>
-
-                    <p>
-                        Languages used across repositories.
-                    </p>
-
-                </div>
+                {% endif %}
 
             </div>
 
 
-            {% if language_percentages %}
+            <div class="dashboard-card">
 
-                <div class="language-bars">
+                <h3 class="card-title">Monthly Contributions</h3>
 
-                    {% for language, percentage in language_percentages.items() %}
+                {% if contributions_available %}
+                    <div class="contribution-chart">
+                        <canvas id="contributionTrendChart"></canvas>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        Contribution data unavailable.
+                    </div>
+                {% endif %}
 
-                        <div class="language-row">
+            </div>
 
-                            <div class="language-row-header">
+        </div>
 
-                                <span>
-                                    {{ language }}
-                                </span>
 
-                                <strong>
-                                    {{ percentage }}%
-                                </strong>
+        <div class="info-card-row">
 
-                            </div>
-
-                            <div class="language-track">
-
-                                <div
-                                    class="language-progress"
-                                    style="width: {{ percentage }}%;"
-                                ></div>
-
-                            </div>
-
-                        </div>
-
-                    {% endfor %}
-
+            <div class="info-card">
+                <span class="info-icon icon-purple">📅</span>
+                <div class="info-text">
+                    <span class="info-title">Most Active Month</span>
+                    <strong>
+                        {% if contributions_available and most_active_month %}{{ most_active_month_display }}{% else %}—{% endif %}
+                    </strong>
+                    <span class="info-sub">
+                        {% if contributions_available %}{{ total_contributions }} contributions{% else %}No data{% endif %}
+                    </span>
                 </div>
+            </div>
 
-
-                <div class="language-chart">
-
-                    <canvas id="languageChart"></canvas>
-
+            <div class="info-card">
+                <span class="info-icon icon-green">↗</span>
+                <div class="info-text">
+                    <span class="info-title">Contribution Trend</span>
+                    <strong class="text-green">
+                        {% if contributions_available %}{{ contribution_trend }}{% else %}—{% endif %}
+                    </strong>
+                    <span class="info-sub">Consistent activity</span>
                 </div>
+            </div>
 
-            {% else %}
-
-                <div class="empty-state">
-                    No language information available.
+            <div class="info-card">
+                <span class="info-icon icon-blue">📆</span>
+                <div class="info-text">
+                    <span class="info-title">Contribution Frequency</span>
+                    <strong>
+                        {% if contributions_available %}{{ contribution_frequency }}%{% else %}—{% endif %}
+                    </strong>
+                    <span class="info-sub">Active day ratio</span>
                 </div>
+            </div>
 
-            {% endif %}
+            <div class="info-card">
+                <span class="info-icon icon-gray">📊</span>
+                <div class="info-text">
+                    <span class="info-title">Most Active Day</span>
+                    <strong>
+                        {% if contributions_available and most_active_day %}{{ most_active_day.contributionCount }}{% else %}—{% endif %}
+                    </strong>
+                    <span class="info-sub">
+                        {% if contributions_available and most_active_day %}{{ most_active_day.contributionCount }} contributions{% else %}— contributions{% endif %}
+                    </span>
+                </div>
+            </div>
 
         </div>
 
@@ -877,76 +462,169 @@
 
 
     <!-- =====================================================
-         REPOSITORY SIZE + COMMIT ACTIVITY
+         4. REPOSITORY ANALYSIS
     ====================================================== -->
 
-    <section class="dashboard-grid repository-summary-grid">
+    <section class="page-section">
 
+        <div class="section-header">
+            <span class="section-badge">4</span>
+            <h2>Repository Analysis</h2>
+        </div>
 
-        <!-- REPOSITORY SIZE -->
+        {% set repo_total = user.public_repos if user.public_repos else 0 %}
 
-        <div class="dashboard-card">
+        <div class="info-card-row four-col">
 
-            <div class="section-title">
-
-                <div class="section-title-mark blue-mark"></div>
-
-                <div>
-
-                    <h2>Repository Size Distribution</h2>
-
-                    <p>
-                        Distribution by repository size.
-                    </p>
-
+            <div class="info-card">
+                <span class="info-icon icon-blue">📘</span>
+                <div class="info-text">
+                    <span class="info-title">Original Repositories</span>
+                    <strong>{{ original_repos }}</strong>
+                    <span class="info-sub">{{ ((original_repos / repo_total * 100) | round | int) if repo_total else 0 }}%</span>
                 </div>
-
             </div>
 
+            <div class="info-card">
+                <span class="info-icon icon-teal">⑂</span>
+                <div class="info-text">
+                    <span class="info-title">Forked Repositories</span>
+                    <strong>{{ forked_repos }}</strong>
+                    <span class="info-sub">{{ ((forked_repos / repo_total * 100) | round | int) if repo_total else 0 }}%</span>
+                </div>
+            </div>
 
-            <div class="repo-size-grid">
+            <div class="info-card">
+                <span class="info-icon icon-orange">🗄</span>
+                <div class="info-text">
+                    <span class="info-title">Archived Repositories</span>
+                    <strong>{{ archived_repos }}</strong>
+                    <span class="info-sub">{{ ((archived_repos / repo_total * 100) | round | int) if repo_total else 0 }}%</span>
+                </div>
+            </div>
 
-                <div class="repo-size-card small-size">
+            <div class="info-card">
+                <span class="info-icon icon-red">★</span>
+                <div class="info-text">
+                    <span class="info-title">Average Stars / Repo</span>
+                    <strong>{{ average_stars }}</strong>
+                    <span class="info-sub">Across all repos</span>
+                </div>
+            </div>
 
-                    <span>Small</span>
+        </div>
 
-                    <strong>
-                        {{ repo_size_distribution["Small"] }}
-                    </strong>
 
-                    <small>
-                        &lt; 1 MB
-                    </small>
+        {% set top_starred = (repos | selectattr('stargazers_count', 'greaterthan', 0) | list | sort(attribute='stargazers_count', reverse=True) | first) if repos else None %}
+        {% set top_forked = (repos | selectattr('forks_count', 'greaterthan', 0) | list | sort(attribute='forks_count', reverse=True) | first) if repos else None %}
+
+        <div class="info-card-row two-col">
+
+            <div class="info-card">
+                <span class="info-icon icon-blue">📘</span>
+                <div class="info-text">
+                    <span class="info-title">Most Starred Repository</span>
+                    {% if top_starred %}
+                        <strong>{{ top_starred.name }}</strong>
+                        <span class="info-sub">{{ top_starred.stargazers_count }} stars</span>
+                    {% else %}
+                        <span class="info-empty">No starred repositories</span>
+                        <span class="info-sub">Star your repositories to see data here.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-card">
+                <span class="info-icon icon-purple">⑂</span>
+                <div class="info-text">
+                    <span class="info-title">Most Forked Repository</span>
+                    {% if top_forked %}
+                        <strong>{{ top_forked.name }}</strong>
+                        <span class="info-sub">{{ top_forked.forks_count }} forks</span>
+                    {% else %}
+                        <span class="info-empty">No forked repositories</span>
+                        <span class="info-sub">Get forks on your repositories to see data here.</span>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+
+        {% set size_total = (repo_size_distribution.values() | sum) %}
+        {% set small = repo_size_distribution['Small'] %}
+        {% set medium = repo_size_distribution['Medium'] %}
+        {% set large = repo_size_distribution['Large'] %}
+
+        <div class="dashboard-card repo-size-distribution-card">
+
+            <h3 class="card-title">Repository Size Distribution</h3>
+            <p class="card-subtitle">Breakdown of repositories by codebase size</p>
+
+            <div class="size-distribution-grid">
+
+                <div class="size-distribution-card size-small">
+
+                    <div class="size-card-header">
+                        <span class="size-icon">📦</span>
+                        <span class="size-percent">{{ ((small / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                    </div>
+
+                    <strong class="size-count">{{ small }}</strong>
+
+                    <span class="size-label">Small Repositories</span>
+                    <span class="size-range">Under 1 MB</span>
+
+                    <div class="size-progress-track">
+                        <span
+                            class="size-progress-fill"
+                            style="width: {{ (small / size_total * 100) if size_total else 0 }}%;"
+                        ></span>
+                    </div>
 
                 </div>
 
 
-                <div class="repo-size-card medium-size">
+                <div class="size-distribution-card size-medium">
 
-                    <span>Medium</span>
+                    <div class="size-card-header">
+                        <span class="size-icon">🗂</span>
+                        <span class="size-percent">{{ ((medium / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                    </div>
 
-                    <strong>
-                        {{ repo_size_distribution["Medium"] }}
-                    </strong>
+                    <strong class="size-count">{{ medium }}</strong>
 
-                    <small>
-                        1 MB – 10 MB
-                    </small>
+                    <span class="size-label">Medium Repositories</span>
+                    <span class="size-range">1 - 10 MB</span>
+
+                    <div class="size-progress-track">
+                        <span
+                            class="size-progress-fill"
+                            style="width: {{ (medium / size_total * 100) if size_total else 0 }}%;"
+                        ></span>
+                    </div>
 
                 </div>
 
 
-                <div class="repo-size-card large-size">
+                <div class="size-distribution-card size-large">
 
-                    <span>Large</span>
+                    <div class="size-card-header">
+                        <span class="size-icon">🗃</span>
+                        <span class="size-percent">{{ ((large / size_total * 100) | round | int) if size_total else 0 }}%</span>
+                    </div>
 
-                    <strong>
-                        {{ repo_size_distribution["Large"] }}
-                    </strong>
+                    <strong class="size-count">{{ large }}</strong>
 
-                    <small>
-                        &gt; 10 MB
-                    </small>
+                    <span class="size-label">Large Repositories</span>
+                    <span class="size-range">Over 10 MB</span>
+
+                    <div class="size-progress-track">
+                        <span
+                            class="size-progress-fill"
+                            style="width: {{ (large / size_total * 100) if size_total else 0 }}%;"
+                        ></span>
+                    </div>
 
                 </div>
 
@@ -954,47 +632,187 @@
 
         </div>
 
+    </section>
 
-        <!-- RECENT COMMIT ACTIVITY -->
 
-        <div class="dashboard-card">
+    <!-- =====================================================
+         4. LANGUAGE ANALYSIS
+    ====================================================== -->
 
-            <div class="section-title">
+    <section class="page-section">
 
-                <div class="section-title-mark purple-mark"></div>
+        <div class="section-header">
+            <span class="section-badge">4</span>
+            <h2>Language Analysis</h2>
+        </div>
 
-                <div>
+        <div class="dashboard-grid language-analysis-grid">
 
-                    <h2>Recent Commit Activity</h2>
+            <div class="dashboard-card">
 
-                    <p>
-                        Last 30 days summary.
-                    </p>
+                <h3 class="card-title">Language Distribution</h3>
+
+                {% if language_percentages %}
+
+                    <div class="language-distribution-body">
+
+                        <div class="language-donut-wrapper">
+                            <canvas id="languageChart"></canvas>
+                            <div class="donut-center-label">
+                                <strong>{{ language_percentages|length }}</strong>
+                                <span>Total Languages</span>
+                            </div>
+                        </div>
+
+                        <div class="language-legend">
+
+                            {% set language_colors = ['#ee5d83', '#4385e5', '#9a67d5', '#f2a74b', '#48b88a', '#45a5c7', '#e07145', '#5b5ce2'] %}
+
+                            {% for language, percentage in language_percentages.items() %}
+
+                                {% set repo_count = repos | selectattr('language', 'equalto', language) | list | length %}
+
+                                <div class="language-legend-row">
+                                    <span class="legend-dot" style="background:{{ language_colors[loop.index0 % language_colors|length] }};"></span>
+                                    <span class="legend-name">{{ language }}</span>
+                                    <span class="legend-stats">
+                                        <span class="legend-percentage">{{ percentage }}%</span>
+                                        <span class="legend-repo-count">{{ repo_count }} repo{{ 's' if repo_count != 1 else '' }}</span>
+                                    </span>
+                                </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    <a href="#all-repositories" class="view-all-languages-button">
+                        View All Languages →
+                    </a>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        No language information available.
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="language-analysis-side">
+
+                <div class="dashboard-card primary-language-card">
+                    <span class="info-icon icon-red">&lt;/&gt;</span>
+                    <div>
+                        <span class="info-title">Primary Language</span>
+                        <strong>{{ most_used_language }}</strong>
+                        <span class="info-sub">Most used in your repositories</span>
+                    </div>
+                </div>
+
+                <div class="info-card-row two-col">
+
+                    <div class="info-card">
+                        <div class="info-text">
+                            <span class="info-title">Language Diversity</span>
+                            <strong>{{ language_percentages|length }}</strong>
+                            <span class="info-sub">Different languages used</span>
+                        </div>
+                    </div>
+
+                    {% set repos_with_language = repos | selectattr('language') | list | length %}
+                    {% set repo_coverage = ((repos_with_language / repo_total * 100) | round | int) if repo_total else 0 %}
+
+                    <div class="info-card">
+                        <div class="info-text">
+                            <span class="info-title">Repository Coverage</span>
+                            <strong>{{ repo_coverage }}%</strong>
+                            <span class="info-sub">Repositories use detected languages</span>
+                        </div>
+                    </div>
 
                 </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         6. ACTIVITY FEED
+    ====================================================== -->
+
+    <section class="page-section">
+
+        <div class="dashboard-card activity-feed-card">
+
+            <div class="activity-feed-header">
+
+                <div class="activity-feed-header-left">
+                    <span class="activity-feed-icon">🪪</span>
+                    <h2>Recent Commit Activity</h2>
+                </div>
+
+                <span class="activity-feed-subtitle">Last 30 days summary</span>
 
             </div>
 
 
             {% if active_repositories %}
 
-                <div class="commit-grid">
+                {% set repo_lookup = {} %}
+                {% for r in repos %}{% set _ = repo_lookup.update({r.name: r}) %}{% endfor %}
+
+                <div class="activity-repo-grid">
 
                     {% for repo in active_repositories %}
 
-                        <div class="commit-card">
+                        {% set details = repo_lookup.get(repo.name) %}
 
-                            <strong>
-                                {{ repo.name }}
-                            </strong>
+                        <div class="activity-repo-card">
 
-                            <span class="commit-number">
-                                {{ repo.commit_count }}
-                            </span>
+                            <div class="activity-repo-top">
+                                <span class="activity-repo-icon">&lt;/&gt;</span>
+                                <span class="activity-repo-name">{{ repo.name }}</span>
+                            </div>
 
-                            <small>
-                                Commits
-                            </small>
+                            <div class="activity-repo-main">
+
+                                <div class="activity-repo-count">
+                                    <strong>{{ repo.commit_count }}</strong>
+                                    <span>Commits</span>
+                                </div>
+
+                                <div class="activity-sparkline-wrapper">
+                                    <canvas
+                                        class="sparkline-canvas"
+                                        data-seed="{{ repo.name }}"
+                                        data-commits="{{ repo.commit_count }}"
+                                        data-daily="{{ repo.daily_commits | default([]) | tojson }}"
+                                    ></canvas>
+                                </div>
+
+                            </div>
+
+                            {% if details %}
+                            <div class="activity-repo-footer">
+
+                                <span class="table-language">
+                                    <span class="language-dot"></span>
+                                    {{ details.language or "Unknown" }}
+                                </span>
+
+                                <span class="activity-repo-updated">
+                                    Updated: {{ details.updated_at[:10] }}
+                                </span>
+
+                            </div>
+                            {% endif %}
 
                         </div>
 
@@ -1003,11 +821,7 @@
                 </div>
 
             {% else %}
-
-                <div class="empty-state">
-                    No recent commit activity available.
-                </div>
-
+                <div class="empty-state">No recent commit activity available.</div>
             {% endif %}
 
         </div>
@@ -1016,136 +830,120 @@
 
 
     <!-- =====================================================
-         RECENTLY UPDATED REPOSITORIES
+         7. PROFILE HEALTH
     ====================================================== -->
 
-    <section class="dashboard-card recent-section">
+    <section class="page-section" id="profile-health">
 
-        <div class="section-title section-title-with-action">
-
-            <div class="section-title-left">
-
-                <div class="section-title-mark blue-mark"></div>
-
-                <div>
-
-                    <h2>Recently Updated Repositories</h2>
-
-                    <p>
-                        Repositories with the latest activity.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="view-all-button"
-                onclick="document.getElementById('all-repositories').scrollIntoView({behavior:'smooth'})"
-            >
-                View All Repositories
-            </button>
-
+        <div class="section-header">
+            <span class="section-badge">7</span>
+            <h2>Profile Health</h2>
         </div>
 
+        <div class="dashboard-card profile-health-card">
 
-        {% if recent_repos %}
+            <div class="profile-health-col">
 
-            <div class="recent-repository-grid">
+                <span class="health-col-title">Profile Completeness</span>
 
-                {% for repo in recent_repos[:4] %}
+                <div class="health-score-ring" style="--score: {{ profile_completeness }}%;">
+                    <div><strong>{{ profile_completeness }}%</strong></div>
+                </div>
 
-                    <article class="recent-repository-card">
+                <p class="health-fields-count">{{ completed_profile_fields }} / {{ total_profile_fields }} Fields</p>
+                <p class="health-fields-hint">Complete more fields to improve your visibility.</p>
 
-                        <a
-                            href="{{ repo.html_url }}"
-                            target="_blank"
-                            class="repo-name"
-                        >
-                            {{ repo.name }}
-                        </a>
-
-
-                        <div class="repo-language">
-
-                            <span
-                                class="language-dot language-{{ (repo.language or 'unknown')|lower|replace(' ', '-') }}"
-                            ></span>
-
-                            {{ repo.language or "Unknown" }}
-
-                        </div>
-
-
-                        <p>
-                            {{ repo.description or
-                            "No description available." }}
-                        </p>
-
-
-                        <div class="recent-repo-footer">
-
-                            <span>
-                                ☆ {{ repo.stargazers_count }}
-                            </span>
-
-                            <span>
-                                ♧ {{ repo.forks_count }}
-                            </span>
-
-                            <span class="updated-date">
-                                Updated:
-                                {{ repo.updated_at[:10] }}
-                            </span>
-
-                        </div>
-
-                    </article>
-
-                {% endfor %}
+                <a href="#" class="hero-improve-button light">Improve Profile +</a>
 
             </div>
 
-        {% else %}
 
-            <div class="empty-state">
-                No repositories available.
+            <div class="profile-health-col">
+
+                <span class="health-col-title">Completed Fields ({{ completed_profile_fields }}/{{ total_profile_fields }})</span>
+
+                <ul class="health-field-list completed">
+                    {% for field in completed_profile_field_names or ["Profile Picture", "Public Email"] %}
+                        <li>✓ {{ field }}</li>
+                    {% endfor %}
+                </ul>
+
             </div>
 
-        {% endif %}
+
+            <div class="profile-health-col">
+
+                <span class="health-col-title missing">Missing Fields ({{ missing_profile_fields|length }}/{{ total_profile_fields }})</span>
+
+                <ul class="health-field-list missing">
+                    {% for field in missing_profile_fields %}
+                        <li>✕ {{ field }}</li>
+                    {% endfor %}
+                </ul>
+
+            </div>
+
+
+            <div class="profile-health-col">
+
+                <span class="health-col-title">Account Summary</span>
+
+                <ul class="account-summary-list">
+
+                    {% if user.created_at %}
+                    {% set months_abbr = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+                    {% set acd = user.created_at[:10].split('-') %}
+                    <li>
+                        <span>📅 Account Created</span>
+                        <strong>{{ months_abbr[acd[1]|int] }} {{ acd[2]|int }}, {{ acd[0] }}</strong>
+                    </li>
+                    {% endif %}
+
+                    {% if account_age_display %}
+                    <li>
+                        <span>⏱ Account Age</span>
+                        <strong>{{ account_age_display }}</strong>
+                    </li>
+                    {% endif %}
+
+                    <li>
+                        <span>📁 Public Repositories</span>
+                        <strong>{{ user.public_repos }}</strong>
+                    </li>
+
+                    <li>
+                        <span>📈 Total Contributions</span>
+                        <strong>{% if contributions_available %}{{ total_contributions }}{% else %}—{% endif %}</strong>
+                    </li>
+
+                    {% if recent_repos %}
+                    <li>
+                        <span>🕓 Last Updated</span>
+                        <strong>{{ recent_repos[0].updated_at[:10] }}</strong>
+                    </li>
+                    {% endif %}
+
+                </ul>
+
+            </div>
+
+        </div>
 
     </section>
 
 
     <!-- =====================================================
-         ALL REPOSITORIES
+         8. REPOSITORY EXPLORER
     ====================================================== -->
 
     <section
-        class="dashboard-card all-repositories-section"
+        class="page-section all-repositories-section"
         id="all-repositories"
     >
 
-        <div class="section-title section-title-with-action">
-
-            <div class="section-title-left">
-
-                <div class="section-title-mark blue-mark"></div>
-
-                <div>
-
-                    <h2>All Repositories</h2>
-
-                    <p>
-                        Browse all repositories in this profile.
-                    </p>
-
-                </div>
-
-            </div>
-
+        <div class="section-header">
+            <span class="section-badge">8</span>
+            <h2>Repository Explorer</h2>
         </div>
 
 
@@ -1167,10 +965,6 @@
 
 
             <div class="repository-filter">
-
-                <label for="languageFilter">
-                    Filter by Language
-                </label>
 
                 <select id="languageFilter">
 
@@ -1205,14 +999,10 @@
 
             <div class="repository-filter">
 
-                <label for="sortRepositories">
-                    Sort by
-                </label>
-
                 <select id="sortRepositories">
 
                     <option value="updated">
-                        Recently Updated
+                        Sort: Recently Updated
                     </option>
 
                     <option value="stars">
@@ -1236,7 +1026,7 @@
 
                 <button
                     type="button"
-                    class="view-switch active"
+                    class="view-switch"
                     id="tableViewButton"
                     title="Table view"
                 >
@@ -1245,7 +1035,7 @@
 
                 <button
                     type="button"
-                    class="view-switch"
+                    class="view-switch active"
                     id="gridViewButton"
                     title="Grid view"
                 >
@@ -1262,6 +1052,7 @@
         <div
             class="repository-table-wrapper"
             id="repositoryTableView"
+            style="display:none;"
         >
 
             <table class="repository-table">
@@ -1392,13 +1183,25 @@
                     data-updated="{{ repo.updated_at }}"
                 >
 
-                    <a
-                        href="{{ repo.html_url }}"
-                        target="_blank"
-                        class="repo-name"
-                    >
-                        {{ repo.name }}
-                    </a>
+                    <div class="grid-card-top">
+
+                        <a
+                            href="{{ repo.html_url }}"
+                            target="_blank"
+                            class="repo-name"
+                        >
+                            {{ repo.name }}
+                        </a>
+
+                        <span class="visibility-badge">Public</span>
+
+                    </div>
+
+
+                    <p>
+                        {{ repo.description or
+                        "No description available." }}
+                    </p>
 
 
                     <span class="table-language">
@@ -1408,12 +1211,6 @@
                         {{ repo.language or "Unknown" }}
 
                     </span>
-
-
-                    <p>
-                        {{ repo.description or
-                        "No description available." }}
-                    </p>
 
 
                     <div class="grid-repo-meta">
@@ -1427,7 +1224,7 @@
                         </span>
 
                         <span>
-                            {{ repo.updated_at[:10] }}
+                            Updated: {{ repo.updated_at[:10] }}
                         </span>
 
                     </div>
@@ -1436,7 +1233,7 @@
                     <a
                         href="{{ repo.html_url }}"
                         target="_blank"
-                        class="repo-view-button"
+                        class="repo-view-button grid-view-button"
                     >
                         View Repo
                     </a>
@@ -1457,6 +1254,11 @@
 
     </section>
 
+
+    <p class="page-footer-note">
+        Data is fetched from GitHub API and may not be 100% accurate.
+    </p>
+
 </main>
 
 
@@ -1469,7 +1271,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     /* =====================================================
-       CONTRIBUTION BAR CHART
+       CONTRIBUTION LINE CHART
     ===================================================== */
 
     {% if contributions_available %}
@@ -1497,7 +1299,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         new Chart(contributionCanvas, {
 
-            type: "bar",
+            type: "line",
 
             data: {
 
@@ -1509,15 +1311,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     data: contributionTotals,
 
-                    backgroundColor:
-                        "rgba(77, 139, 236, 0.55)",
+                    fill: true,
 
-                    borderColor:
-                        "rgba(77, 139, 236, 0.85)",
+                    backgroundColor: "rgba(91, 92, 226, 0.12)",
 
-                    borderWidth: 1,
+                    borderColor: "#5b5ce2",
 
-                    borderRadius: 5
+                    borderWidth: 2.5,
+
+                    tension: 0.4,
+
+                    pointBackgroundColor: "#5b5ce2",
+
+                    pointBorderColor: "#ffffff",
+
+                    pointBorderWidth: 2,
+
+                    pointRadius: 4,
+
+                    pointHoverRadius: 6
 
                 }]
 
@@ -1533,15 +1345,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 plugins: {
 
                     legend: {
-
-                        display: true,
-
-                        position: "top",
-
-                        labels: {
-                            boxWidth: 28
-                        }
-
+                        display: false
                     }
 
                 },
@@ -1553,14 +1357,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         grid: {
                             display: false
-                        },
-
-                        title: {
-
-                            display: true,
-
-                            text: "Month"
-
                         }
 
                     },
@@ -1570,12 +1366,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         beginAtZero: true,
 
-                        title: {
-
-                            display: true,
-
-                            text: "Contributions"
-
+                        grid: {
+                            color: "#f0f1f5"
                         }
 
                     }
@@ -1621,15 +1413,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     data: languageValues,
 
                     backgroundColor: [
-
-                        "#5b5ce2",
-                        "#4385e5",
                         "#ee5d83",
+                        "#4385e5",
+                        "#9a67d5",
                         "#f2a74b",
                         "#48b88a",
-                        "#9a67d5",
                         "#45a5c7",
-                        "#e07145"
+                        "#e07145",
+                        "#5b5ce2"
                     ],
 
                     borderWidth: 0
@@ -1645,24 +1436,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 maintainAspectRatio: false,
 
-                cutout: "62%",
+                cutout: "68%",
 
                 plugins: {
 
                     legend: {
-
-                        position: "right",
-
-                        labels: {
-
-                            usePointStyle: true,
-
-                            pointStyle: "circle",
-
-                            padding: 16
-
-                        }
-
+                        display: false
                     }
 
                 }
@@ -1672,6 +1451,177 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     }
+
+
+    /* =====================================================
+       COMMIT ACTIVITY SPARKLINES
+
+       Uses repo.daily_commits from the backend if provided
+       (list of last-7-days integer commit counts, oldest
+       first). If not provided, falls back to a deterministic
+       distribution of the repo's total commit_count across
+       the last 7 days, so the numbers shown on hover always
+       sum to the real total rather than being random noise.
+    ===================================================== */
+
+    function hashSeed(str) {
+
+        let hash = 0;
+
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+        }
+
+        return hash || 1;
+
+    }
+
+    function distributeCommits(seed, total, days) {
+
+        let s = hashSeed(seed);
+        const weights = [];
+        let weightSum = 0;
+
+        for (let i = 0; i < days; i++) {
+
+            s = (s * 9301 + 49297) % 233280;
+
+            const w = 0.4 + (s / 233280);
+
+            weights.push(w);
+            weightSum += w;
+
+        }
+
+        const data = weights.map(w => Math.floor((w / weightSum) * total));
+
+        let remainder = total - data.reduce((a, b) => a + b, 0);
+
+        let i = data.length - 1;
+
+        while (remainder > 0) {
+            data[i % data.length]++;
+            remainder--;
+            i++;
+        }
+
+        return data;
+
+    }
+
+    function last7DayLabels() {
+
+        const labels = [];
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const today = new Date();
+
+        for (let i = 6; i >= 0; i--) {
+
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+
+            labels.push(dayNames[d.getDay()] + " " + (d.getMonth() + 1) + "/" + d.getDate());
+
+        }
+
+        return labels;
+
+    }
+
+    document.querySelectorAll(".sparkline-canvas").forEach(function (canvas) {
+
+        const seed = canvas.dataset.seed || "repo";
+        const commits = Number(canvas.dataset.commits || 0);
+
+        let dailyRaw = [];
+
+        try {
+            dailyRaw = JSON.parse(canvas.dataset.daily || "[]");
+        } catch (e) {
+            dailyRaw = [];
+        }
+
+        const data = (Array.isArray(dailyRaw) && dailyRaw.length === 7)
+            ? dailyRaw
+            : distributeCommits(seed, commits, 7);
+
+        const labels = last7DayLabels();
+
+        new Chart(canvas, {
+
+            type: "line",
+
+            data: {
+
+                labels: labels,
+
+                datasets: [{
+
+                    data: data,
+
+                    borderColor: "#5b5ce2",
+
+                    borderWidth: 2,
+
+                    tension: 0.4,
+
+                    fill: false,
+
+                    pointRadius: 3,
+
+                    pointHoverRadius: 5,
+
+                    pointBackgroundColor: "#ffffff",
+
+                    pointBorderColor: "#5b5ce2",
+
+                    pointBorderWidth: 1.5
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "nearest",
+                    intersect: false
+                },
+
+                plugins: {
+
+                    legend: { display: false },
+
+                    tooltip: {
+                        enabled: true,
+                        displayColors: false,
+                        callbacks: {
+                            title: function (items) {
+                                return items[0].label;
+                            },
+                            label: function (item) {
+                                const v = item.raw;
+                                return v + (v === 1 ? " commit" : " commits");
+                            }
+                        }
+                    }
+
+                },
+
+                scales: {
+                    x: { display: false },
+                    y: { display: false, beginAtZero: true }
+                }
+
+            }
+
+        });
+
+    });
 
 
     /* =====================================================
@@ -1714,18 +1664,12 @@ document.addEventListener("DOMContentLoaded", function () {
         )
     );
     
-    const repositoriesPerPage = 5;
+    const repositoriesPerPage = 8;
     
     let currentPage = 1;
-    let currentView = "table";
+    let currentView = "grid";
     
     
-    /*
-     * Create a common repository list.
-     *
-     * The table row and grid card at the same index
-     * represent the same repository.
-     */
     const repositories = tableRows.map(function (row, index) {
     
         return {
@@ -1749,10 +1693,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
     });
     
-    
-    /* =====================================================
-       FILTER + SORT
-    ===================================================== */
     
     function getFilteredRepositories() {
     
@@ -1779,10 +1719,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
             });
     
-    
-        /* =================================================
-           SORT
-        ================================================= */
     
         const sortValue =
             sortSelect.value;
@@ -1813,8 +1749,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
     
     
-            /* Default: recently updated */
-    
             return b.updated.localeCompare(
                 a.updated
             );
@@ -1827,19 +1761,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     
-    /* =====================================================
-       RENDER REPOSITORIES
-    ===================================================== */
-    
     function renderRepositories() {
     
         const filtered =
             getFilteredRepositories();
     
     
-        /*
-         * Hide every repository first.
-         */
         repositories.forEach(function (repo) {
     
             repo.tableRow.style.display = "none";
@@ -1853,9 +1780,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     
     
-        /*
-         * Calculate total pages.
-         */
         const totalPages =
             Math.max(
                 1,
@@ -1866,10 +1790,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
     
     
-        /*
-         * Prevent current page from becoming invalid
-         * after filtering.
-         */
         if (currentPage > totalPages) {
     
             currentPage = totalPages;
@@ -1877,9 +1797,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
     
-        /*
-         * Calculate which repositories should be shown.
-         */
         const start =
             (currentPage - 1) *
             repositoriesPerPage;
@@ -1892,10 +1809,6 @@ document.addEventListener("DOMContentLoaded", function () {
             );
     
     
-        /*
-         * Show repositories in the currently
-         * selected view.
-         */
         visibleRepositories.forEach(
             function (repo) {
     
@@ -1924,10 +1837,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     
-    /* =====================================================
-       PAGINATION
-    ===================================================== */
-    
     function renderPagination(totalPages) {
     
         pagination.innerHTML = "";
@@ -1939,8 +1848,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
         }
     
-    
-        /* Previous button */
     
         const previous =
             document.createElement("button");
@@ -1972,8 +1879,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
         pagination.appendChild(previous);
     
-    
-        /* Page buttons */
     
         for (
             let page = 1;
@@ -2015,8 +1920,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
     
-        /* Next button */
-    
         const next =
             document.createElement("button");
     
@@ -2050,10 +1953,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     
-    /* =====================================================
-       SCROLL TO REPOSITORIES
-    ===================================================== */
-    
     function scrollToRepositories() {
     
             const repositorySection =
@@ -2076,10 +1975,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
     }
     
-    
-    /* =====================================================
-       TABLE / GRID VIEW
-    ===================================================== */
     
     function setView(view) {
     
@@ -2130,10 +2025,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     
     
-    /* =====================================================
-       SEARCH
-    ===================================================== */
-    
     searchInput.addEventListener(
         "input",
             function () {
@@ -2145,10 +2036,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
     
-    
-    /* =====================================================
-       LANGUAGE FILTER
-    ===================================================== */
     
     languageFilter.addEventListener(
         "change",
@@ -2162,10 +2049,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     
     
-    /* =====================================================
-       SORT
-    ===================================================== */
-    
     sortSelect.addEventListener(
         "change",
         function () {
@@ -2178,10 +2061,6 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     
     
-    /* =====================================================
-       TABLE VIEW BUTTON
-    ===================================================== */
-    
     tableButton.addEventListener(
         "click",
         function () {
@@ -2191,10 +2070,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
     
-    
-    /* =====================================================
-       GRID VIEW BUTTON
-    ===================================================== */
     
     gridButton.addEventListener(
         "click",
@@ -2206,11 +2081,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     
     
-    /* =====================================================
-       INITIAL VIEW
-    ===================================================== */
-    
-    setView("table");
+    setView("grid");
     
 });
 

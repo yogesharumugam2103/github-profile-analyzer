@@ -1,7 +1,5 @@
 /* =========================================================
-   GITHUB PROFILE ANALYZER
-   PROFILE PAGE
-   Consistent with landing-page design
+   GITHUB PROFILE ANALYZER — PROFILE PAGE
 ========================================================= */
 
 * {
@@ -24,23 +22,19 @@ body.profile-page {
         Arial,
         sans-serif;
 
-    background:
-        radial-gradient(circle at top right,
-            rgba(99,102,241,.08),
-            transparent 35%),
-        radial-gradient(circle at bottom left,
-            rgba(59,130,246,.06),
-            transparent 35%),
-        #f5f7fb;
+    background: #f5f6fa;
     color: #111827;
     font-size: 15px;
     line-height: 1.5;
 }
 
+.profile-page * {
+    font-family: inherit;
+}
+
 
 /* =========================================================
    HEADER
-   Same style as landing page
 ========================================================= */
 
 .main-header {
@@ -49,20 +43,16 @@ body.profile-page {
     z-index: 1000;
 
     width: 100%;
-
     background: #080d18;
 
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    box-shadow:
-        0 5px 25px rgba(0, 0, 0, 0.18);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.18);
 }
 
 .header-content {
     width: 94%;
     max-width: 1450px;
-    min-height: 72px;
+    min-height: 60px;
 
     margin: auto;
 
@@ -70,19 +60,18 @@ body.profile-page {
     align-items: center;
     justify-content: space-between;
 
-    gap: 30px;
+    gap: 24px;
 }
 
 .brand {
     display: flex;
     align-items: center;
-
-    gap: 10px;
+    gap: 9px;
 
     color: white;
     text-decoration: none;
 
-    font-size: 23px;
+    font-size: 17px;
     white-space: nowrap;
 }
 
@@ -91,45 +80,44 @@ body.profile-page {
 }
 
 .brand-icon {
-    width: 34px;
-    height: 34px;
+    width: 28px;
+    height: 28px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 8px;
+    border-radius: 7px;
 
     background: #ffffff;
     color: #111827;
 
-    font-size: 20px;
+    font-size: 15px;
 }
 
 .header-search {
     flex: 1;
-    max-width: 750px;
+    max-width: 480px;
 
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .header-search input {
     flex: 1;
+    height: 34px;
 
-    height: 46px;
-
-    padding: 0 18px;
+    padding: 0 14px;
 
     border: 1px solid #374151;
-    border-radius: 9px;
+    border-radius: 7px;
 
     outline: none;
 
     background: #101827;
     color: white;
 
-    font-size: 16px;
+    font-size: 13px;
 }
 
 .header-search input::placeholder {
@@ -138,35 +126,29 @@ body.profile-page {
 
 .header-search input:focus {
     border-color: #3b82f6;
-
-    box-shadow:
-        0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .header-search button {
-    height: 46px;
-
-    padding: 0 24px;
+    height: 34px;
+    padding: 0 16px;
 
     border: none;
-    border-radius: 9px;
+    border-radius: 7px;
 
     background: #2563eb;
     color: white;
 
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
 
     cursor: pointer;
 
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .header-search button:hover {
     background: #1d4ed8;
-
     transform: translateY(-1px);
 }
 
@@ -174,7 +156,7 @@ body.profile-page {
     color: white;
     text-decoration: none;
 
-    font-size: 17px;
+    font-size: 13px;
     font-weight: 700;
 
     white-space: nowrap;
@@ -192,128 +174,131 @@ body.profile-page {
 ========================================================= */
 
 .profile-dashboard {
-    width: 94%;
-    max-width: 1450px;
+    width: 92%;
+    max-width: 1350px;
 
-    margin: 24px auto 60px;
+    margin: 20px auto 40px;
 
     display: flex;
     flex-direction: column;
 
-    gap: 16px;
+    gap: 22px;
 }
 
 
 /* =========================================================
-   PROFILE BANNER
+   SECTION HEADERS (numbered badges)
 ========================================================= */
 
-.profile-banner {
-    position: relative;
+.section-header,
+.identity-hero .section-header {
+    display: flex;
+    align-items: center;
+    gap: 9px;
 
-    min-height: 185px;
+    margin-bottom: 12px;
+}
 
-    padding: 28px 32px;
+.section-badge {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 
     display: flex;
     align-items: center;
-    justify-content: space-between;
-
-    gap: 30px;
-
-    overflow: hidden;
-
-    border-radius: 10px;
-
-    background:
-        radial-gradient(
-            circle at 90% 20%,
-            rgba(59, 130, 246, 0.25),
-            transparent 35%
-        ),
-        radial-gradient(
-            circle at 10% 90%,
-            rgba(59, 130, 246, 0.12),
-            transparent 35%
-        ),
-        linear-gradient(
-            135deg,
-            #090d18,
-            #10162c 55%,
-            #102a63
-        );
-
-    color: white;
-
-    box-shadow:
-        0 8px 30px rgba(15, 23, 42, 0.16);
-}
-
-.profile-banner::after {
-    content: "";
-
-    position: absolute;
-
-    width: 450px;
-    height: 450px;
-
-    right: -230px;
-    top: -300px;
-
-    border:
-        1px solid rgba(96, 165, 250, 0.13);
+    justify-content: center;
 
     border-radius: 50%;
 
-    pointer-events: none;
+    background: #2563eb;
+    color: white;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.section-header h2 {
+    color: #111827;
+
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.section-header.on-dark h2 {
+    color: #ffffff;
+}
+
+.section-header.on-dark {
+    margin-bottom: 18px;
 }
 
 
 /* =========================================================
-   PROFILE IDENTITY
+   1. DEVELOPER IDENTITY (HERO)
 ========================================================= */
 
-.profile-identity {
+.identity-hero {
+    position: relative;
+    overflow: hidden;
+
+    padding: 22px 28px 26px;
+
+    border-radius: 12px;
+
+    background:
+        radial-gradient(circle at 88% 15%, rgba(59, 130, 246, 0.22), transparent 40%),
+        radial-gradient(circle at 8% 95%, rgba(59, 130, 246, 0.10), transparent 40%),
+        linear-gradient(135deg, #090d18, #10162c 55%, #102a63);
+
+    color: white;
+
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.16);
+}
+
+.identity-hero-body {
     position: relative;
     z-index: 2;
 
     display: flex;
-    align-items: center;
-
-    gap: 20px;
-
-    min-width: 0;
+    align-items: stretch;
+    gap: 28px;
 }
 
-.avatar-wrapper {
-    position: relative;
+.identity-hero-profile {
+    display: flex;
+    align-items: center;
+    gap: 28px;
 
     flex-shrink: 0;
 }
 
+.avatar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
 .profile-avatar {
-    width: 112px;
-    height: 112px;
+    width: 116px;
+    height: 116px;
 
     display: block;
-
     object-fit: cover;
 
     border-radius: 50%;
-
-    border: 4px solid rgba(255, 255, 255, 0.92);
+    border: 3px solid rgba(255, 255, 255, 0.92);
 
     background: white;
 }
 
 .avatar-status {
     position: absolute;
-
-    right: 2px;
+    right: 3px;
     bottom: 4px;
 
-    width: 23px;
-    height: 23px;
+    width: 20px;
+    height: 20px;
 
     display: flex;
     align-items: center;
@@ -324,13 +309,9 @@ body.profile-page {
     background: #22c55e;
     color: white;
 
-    border: 3px solid #10162c;
+    border: 2px solid #10162c;
 
-    font-size: 9px;
-}
-
-.identity-details {
-    min-width: 0;
+    font-size: 8px;
 }
 
 .identity-details h1 {
@@ -338,22 +319,22 @@ body.profile-page {
 
     color: white;
 
-    font-size: 27px;
+    font-size: 21px;
     font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
 
     line-height: 1.2;
 }
 
 .profile-username {
     display: inline-block;
-
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 
     color: #60a5fa;
-
     text-decoration: none;
 
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
 }
 
@@ -365,693 +346,554 @@ body.profile-page {
 .identity-meta {
     display: flex;
     flex-direction: column;
-
     gap: 4px;
 
-    color: #d1d5db;
+    color: #cbd3e1;
 
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .identity-meta span {
     display: flex;
     align-items: center;
-
     gap: 7px;
 }
 
-
-/* =========================================================
-   PROFILE SUMMARY
-========================================================= */
-
-.profile-summary {
-    position: relative;
-    z-index: 2;
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(110px, 1fr));
-
-    min-width: 500px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.09);
-
-    border-radius: 12px;
-
-    background:
-        rgba(4, 9, 24, 0.25);
-
-    backdrop-filter: blur(8px);
-
-    overflow: hidden;
-}
-
-.profile-summary-card {
-    min-height: 85px;
-
-    padding: 15px 17px;
-
+.identity-hero-stats {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
 
-    gap: 12px;
+    padding: 0 24px;
 
-    border-right:
-        1px solid rgba(255, 255, 255, 0.08);
+    border-left: 1px solid rgba(255, 255, 255, 0.10);
+    border-right: 1px solid rgba(255, 255, 255, 0.10);
+
+    flex: 1;
 }
 
-.profile-summary-card:last-child {
-    border-right: none;
+.hero-stat-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    flex: 1;
+    min-width: 118px;
 }
 
-.summary-label {
+.hero-stat-icon {
+    width: 26px;
+    flex-shrink: 0;
+
+    font-size: 14px;
+    opacity: 0.85;
+
+    text-align: center;
+}
+
+.hero-stat-row small {
     display: block;
 
-    margin-bottom: 3px;
+    color: #9aa5ba;
 
-    color: #aeb8ca;
-
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
 }
 
-.profile-summary-card strong {
+.hero-stat-row strong {
     display: block;
 
     color: white;
 
-    font-size: 21px;
+    font-size: 16px;
     font-weight: 800;
 }
 
-.summary-icon {
-    font-size: 19px;
-    opacity: 0.9;
+.hero-stat-sub {
+    display: block;
+
+    color: #7c8494;
+
+    font-size: 10px;
 }
 
-.score-summary {
-    position: relative;
+.identity-hero-completeness {
+    width: 200px;
+    flex-shrink: 0;
+
+    padding: 16px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    gap: 14px;
+
+    text-align: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.045);
 }
 
-.score-ring {
+.completeness-panel-label {
+    margin-bottom: 10px;
+
+    color: #b9c1d4;
+
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+.hero-score-ring {
     --score: 0%;
 
-    position: relative;
+    width: 78px;
+    height: 78px;
 
-    width: 55px;
-    height: 55px;
-
-    border-radius: 50%;
-
-    background:
-        conic-gradient(
-            #4f46e5 var(--score),
-            rgba(255, 255, 255, 0.12) 0
-        );
+    margin-bottom: 8px;
 
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.score-ring::before {
-    content: "";
-
-    position: absolute;
-
-    width: 42px;
-    height: 42px;
 
     border-radius: 50%;
 
-    background: #111936;
+    background: conic-gradient(#3b82f6 var(--score), rgba(255, 255, 255, 0.12) 0);
 }
 
-.score-ring span {
-    position: relative;
-    z-index: 2;
-}
-
-
-/* =========================================================
-   COMMON DASHBOARD CARD
-========================================================= */
-
-.dashboard-card {
-    background: rgba(255,255,255,0.85);
-
-    backdrop-filter: blur(20px);
-
-    border: 1px solid rgba(255,255,255,.5);
-
-    border-radius: 24px;
-
-    padding: 24px;
-
-    box-shadow:
-        0 10px 30px rgba(15,23,42,.06),
-        0 1px 2px rgba(15,23,42,.04);
-
-    transition: all .3s ease;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 20px 50px rgba(15,23,42,.12);
-}
-
-
-/* =========================================================
-   SECTION TITLES
-========================================================= */
-
-.section-title {
-    display: flex;
-    align-items: flex-start;
-
-    gap: 10px;
-
-    margin-bottom: 18px;
-}
-
-.section-title-mark {
-    width: 4px;
-    min-width: 4px;
-
-    height: 24px;
-
-    margin-top: 2px;
-
-    border-radius: 4px;
-}
-
-.blue-mark {
-    background: #3b82f6;
-}
-
-.purple-mark {
-    background: #7c3aed;
-}
-
-.section-title h2 {
-    color: #111827;
-
-    font-size: 17px;
-    font-weight: 800;
-
-    line-height: 1.25;
-
-    margin-bottom: 3px;
-}
-
-.section-title p {
-    color: #6b7280;
-
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-.section-title-with-action {
-    justify-content: space-between;
-}
-
-.section-title-left {
-    display: flex;
-    align-items: flex-start;
-
-    gap: 10px;
-}
-
-
-/* =========================================================
-   METRIC STRIP
-========================================================= */
-
-.metric-strip {
-    display: grid;
-
-    grid-template-columns:
-        repeat(6, 1fr);
-
-    background: white;
-
-    border:
-        1px solid #e1e5eb;
-
-    border-radius: 10px;
-
-    box-shadow:
-        0 5px 18px rgba(15, 23, 42, 0.045);
-
-    overflow: hidden;
-}
-
-.metric-item {
-    min-height: 80px;
-
-    padding: 14px 18px;
+.hero-score-ring > div {
+    width: 60px;
+    height: 60px;
 
     display: flex;
     align-items: center;
+    justify-content: center;
 
-    gap: 12px;
+    border-radius: 50%;
 
-    border-right:
-        1px solid #e5e7eb;
+    background: #101528;
 }
 
-.metric-item:last-child {
-    border-right: none;
-}
-
-.metric-item > div {
-    min-width: 0;
-}
-
-.metric-item > div > span {
-    display: block;
-
-    margin-bottom: 2px;
-
-    color: #6b7280;
-
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.metric-item strong {
-    display: block;
-
-    color: #111827;
-
-    font-size: 20px;
+.hero-score-ring strong {
+    color: white;
+    font-size: 16px;
     font-weight: 800;
 }
 
-.metric-icon {
-    width: 38px;
-    height: 38px;
+.completeness-panel-count {
+    margin-bottom: 14px;
 
+    color: #b9c1d4;
+
+    font-size: 11px;
+}
+
+.hero-improve-button {
+    display: inline-block;
+
+    padding: 7px 14px;
+
+    border-radius: 7px;
+
+    background: #2563eb;
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    transition: background 0.2s ease;
+}
+
+.hero-improve-button:hover {
+    background: #1d4ed8;
+}
+
+.hero-improve-button.light {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.hero-improve-button.light:hover {
+    background: #e0e7ff;
+}
+
+.github-view-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    width: 100%;
+    padding: 12px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.06);
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.github-view-link:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+
+    transform: translateY(-1px);
+}
+
+.github-view-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+
+/* =========================================================
+   COMMON PAGE SECTION / CARD
+========================================================= */
+
+.page-section {
+    width: 100%;
+}
+
+.dashboard-card {
+    background: white;
+
+    border: 1px solid #e8eaf0;
+    border-radius: 12px;
+
+    padding: 20px;
+
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.045);
+}
+
+.card-title {
+    color: #111827;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    margin-bottom: 2px;
+}
+
+.card-subtitle {
+    color: #9ca3af;
+
+    font-size: 11px;
+
+    margin-bottom: 14px;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.activity-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+}
+
+.activity-grid > .dashboard-card {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.activity-feed-grid {
+    grid-template-columns: 1fr 1fr;
+}
+
+.language-analysis-grid {
+    grid-template-columns: 1.3fr 1fr;
+}
+
+
+/* =========================================================
+   INFO CARD (reusable icon + value + label)
+========================================================= */
+
+.quick-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+.info-card-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.info-card-row.four-col {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.info-card-row.two-col {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    padding: 15px 16px;
+
+    background: white;
+
+    border: 1px solid #e8eaf0;
+    border-radius: 11px;
+
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.info-icon {
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border-radius: 10px;
+    border-radius: 9px;
 
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 800;
 }
 
-.metric-icon.gold {
-    background: rgba(234, 179, 8, 0.12);
-    color: #eab308;
-}
+.icon-purple { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+.icon-blue   { background: rgba(59, 130, 246, 0.12); color: #2563eb; }
+.icon-orange { background: rgba(249, 115, 22, 0.12); color: #ea580c; }
+.icon-green  { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
+.icon-teal   { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
+.icon-red    { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+.icon-gray   { background: rgba(107, 114, 128, 0.12); color: #6b7280; }
 
-.metric-icon.purple {
-    background: rgba(124, 58, 237, 0.10);
-    color: #7c3aed;
-}
-
-.metric-icon.blue {
-    background: rgba(59, 130, 246, 0.11);
-    color: #2563eb;
-}
-
-.metric-icon.red {
-    background: rgba(239, 68, 68, 0.10);
-    color: #ef4444;
-}
-
-
-/* =========================================================
-   GRID LAYOUTS
-========================================================= */
-
-.dashboard-grid {
-    display: grid;
-
-    gap: 16px;
-}
-
-.overview-grid {
-    grid-template-columns: 2fr 1fr;
-}
-
-.activity-grid {
-    grid-template-columns: 1.6fr 1fr;
-}
-
-.repository-summary-grid {
-    grid-template-columns: 1fr 1.6fr;
-}
-
-
-/* =========================================================
-   PROFILE OVERVIEW
-========================================================= */
-
-.overview-stat-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 10px;
-}
-
-.overview-stat {
-    min-height: 76px;
-
-    padding: 12px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    border:
-        1px solid #e7e9ef;
-
-    border-radius: 9px;
-
-    background: #fcfcfe;
-
-    transition:
-        border-color 0.2s ease,
-        transform 0.2s ease;
-}
-
-.overview-stat:hover {
-    border-color: #cdd5e1;
-
-    transform: translateY(-1px);
-}
-
-.overview-stat > div {
+.info-text {
     min-width: 0;
 }
 
-.overview-stat strong {
+.info-text strong {
     display: block;
-
-    margin-bottom: 2px;
 
     color: #111827;
 
     font-size: 19px;
     font-weight: 800;
-
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
-.overview-stat > div > span {
+.info-title {
     display: block;
 
     color: #6b7280;
 
     font-size: 11px;
-    line-height: 1.3;
+    font-weight: 600;
+
+    order: -1;
+
+    margin-bottom: 2px;
 }
 
-.overview-stat small {
+.info-sub {
     display: block;
 
+    color: #9ca3af;
+
+    font-size: 11px;
+
     margin-top: 2px;
+}
+
+.info-empty {
+    display: block;
+
+    color: #6b7280;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    margin-bottom: 2px;
+}
+
+.text-purple { color: #7c3aed; }
+.text-blue   { color: #2563eb; }
+.text-green  { color: #16a34a; }
+.text-orange { color: #ea580c; }
+.text-gray   { color: #6b7280; }
+
+
+/* =========================================================
+   3. CONTRIBUTION ANALYSIS
+========================================================= */
+
+.mini-stat-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+
+    margin-bottom: 16px;
+}
+
+.mini-stat-card {
+    padding: 12px 14px;
+
+    background: white;
+
+    border: 1px solid #e8eaf0;
+    border-radius: 10px;
+}
+
+.mini-label {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.mini-stat-card strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+
+/* Heatmap */
+
+.heatmap-body {
+    display: flex;
+    gap: 6px;
+
+    min-width: 0;
+}
+
+.heatmap-weekdays {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+
+    width: 24px;
+    flex-shrink: 0;
+
+    font-size: 9px;
+    color: #9ca3af;
+}
+
+.heatmap-weekdays span {
+    height: 10px;
+    line-height: 10px;
+}
+
+.heatmap-scroll {
+    min-width: 0;
+    flex: 1;
+
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.heatmap-months {
+    display: flex;
+    gap: 3px;
+
+    margin-bottom: 5px;
+
+    font-size: 9px;
+    color: #9ca3af;
+}
+
+.heatmap-months span {
+    width: 12px;
+    flex-shrink: 0;
+
+    white-space: nowrap;
+}
+
+.contribution-heatmap {
+    display: flex;
+    gap: 3px;
+
+    width: max-content;
+}
+
+.contribution-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.contribution-day {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 2px;
+}
+
+.contribution-day.level-0,
+.legend-box.level-0 { background: #ebedf0; }
+
+.contribution-day.level-1,
+.legend-box.level-1 { background: #c6e6b0; }
+
+.contribution-day.level-2,
+.legend-box.level-2 { background: #7fce8c; }
+
+.contribution-day.level-3,
+.legend-box.level-3 { background: #3fae5b; }
+
+.contribution-day.level-4,
+.legend-box.level-4 { background: #1f7a38; }
+
+.contribution-legend {
+    margin-top: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
 
     color: #9ca3af;
 
     font-size: 10px;
 }
 
-.overview-icon {
-    width: 34px;
-    height: 34px;
-
-    flex-shrink: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 9px;
-
-    font-size: 16px;
-}
-
-.overview-icon.purple {
-    background: rgba(124, 58, 237, 0.10);
-}
-
-.overview-icon.blue {
-    background: rgba(59, 130, 246, 0.10);
-}
-
-.overview-icon.red {
-    background: rgba(239, 68, 68, 0.10);
-}
-
-.overview-icon.orange {
-    background: rgba(249, 115, 22, 0.10);
-}
-
-.overview-icon.gold {
-    background: rgba(234, 179, 8, 0.10);
-}
-
-.overview-icon.green {
-    background: rgba(34, 197, 94, 0.10);
-}
-
-
-/* =========================================================
-   COMPLETENESS
-========================================================= */
-
-.completeness-content {
-    min-height: 300px;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: flex-start;
-
-    text-align: center;
-}
-
-.large-score-ring {
-    --score: 0%;
-
-    width: 145px;
-    height: 145px;
-
-    margin: 8px auto 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background:
-        conic-gradient(
-            #5b5ce2 var(--score),
-            #e7e9f7 0
-        );
-}
-
-.large-score-ring > div {
-    width: 110px;
-    height: 110px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: white;
-}
-
-.large-score-ring strong {
-    color: #5b5ce2;
-
-    font-size: 28px;
-    font-weight: 800;
-}
-
-.large-score-ring span {
-    color: #6b7280;
-
-    font-size: 12px;
-}
-
-.completion-count {
-    margin-bottom: 15px;
-
-    color: #6b7280;
-
-    font-size: 13px;
-}
-
-.missing-fields {
-    width: 100%;
-
-    padding: 12px 15px;
-
-    text-align: left;
-
-    border:
-        1px solid #f3c46b;
-
-    border-radius: 8px;
-
-    background: #fffaf0;
-}
-
-.missing-fields h3 {
-    margin-bottom: 7px;
-
-    color: #a16207;
-
-    font-size: 13px;
-}
-
-.missing-fields ul {
-    padding-left: 18px;
-}
-
-.missing-fields li {
-    color: #92400e;
-
-    font-size: 12px;
-
-    line-height: 1.6;
-}
-
-.complete-message {
-    width: 100%;
-
-    padding: 12px;
-
-    border-radius: 8px;
-
-    background: #ecfdf5;
-
-    color: #15803d;
-
-    font-size: 13px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   CONTRIBUTION ACTIVITY
-========================================================= */
-
-.heatmap-wrapper {
-    width: 100%;
-
-    overflow-x: auto;
-
-    padding-bottom: 4px;
-}
-
-.contribution-heatmap {
-    display: flex;
-
-    gap: 4px;
-
-    min-width: 650px;
-}
-
-.contribution-week {
-    display: flex;
-    flex-direction: column;
-
-    gap: 4px;
-}
-
-.contribution-day {
-    width: 11px;
-    height: 11px;
-
-    border-radius: 2px;
-
-    border:
-        1px solid rgba(0, 0, 0, 0.025);
-}
-
-.contribution-day.level-0,
-.legend-box.level-0 {
-    background: #e5e7eb;
-}
-
-.contribution-day.level-1,
-.legend-box.level-1 {
-    background: #bfdbfe;
-}
-
-.contribution-day.level-2,
-.legend-box.level-2 {
-    background: #60a5fa;
-}
-
-.contribution-day.level-3,
-.legend-box.level-3 {
-    background: #3b82f6;
-}
-
-.contribution-day.level-4,
-.legend-box.level-4 {
-    background: #1d4ed8;
-}
-
-.contribution-legend {
-    min-width: 650px;
-
-    margin-top: 9px;
-
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-
-    gap: 5px;
-
-    color: #6b7280;
-
-    font-size: 10px;
-}
-
 .legend-box {
-    width: 11px;
-    height: 11px;
-
+    width: 10px;
+    height: 10px;
     border-radius: 2px;
-}
-
-.chart-heading {
-    margin-top: 18px;
-    margin-bottom: 8px;
-
-    color: #374151;
-
-    font-size: 13px;
-    font-weight: 700;
 }
 
 .contribution-chart {
     width: 100%;
-    height: 190px;
+    height: 210px;
+    flex: 1;
 }
 
 .contribution-chart canvas {
@@ -1061,420 +903,614 @@ body.profile-page {
 
 
 /* =========================================================
-   LANGUAGE DISTRIBUTION
+   4. REPOSITORY ANALYSIS — SIZE DISTRIBUTION
 ========================================================= */
 
-.language-bars {
+.repo-size-distribution-card {
+    margin-top: 14px;
+}
+
+.size-distribution-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.size-distribution-card {
+    padding: 12px 14px;
+
     display: flex;
     flex-direction: column;
 
-    gap: 13px;
+    border: 1px solid #eef0f5;
+    border-radius: 11px;
 
-    margin-bottom: 20px;
+    background: #fbfbfe;
 }
 
-.language-row-header {
+.size-card-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
 
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+}
+
+.size-icon {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+}
+
+.size-percent {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #6b7280;
+}
+
+.size-count {
+    display: block;
+
+    margin-bottom: 1px;
+
+    color: #111827;
+
+    font-size: 21px;
+    font-weight: 800;
+
+    line-height: 1.2;
+}
+
+.size-label {
+    display: block;
 
     color: #374151;
 
     font-size: 12px;
-}
-
-.language-row-header strong {
-    color: #6b7280;
-
-    font-size: 12px;
-}
-
-.language-track {
-    width: 100%;
-    height: 7px;
-
-    overflow: hidden;
-
-    border-radius: 10px;
-
-    background: #e5e7eb;
-}
-
-.language-progress {
-    height: 100%;
-
-    border-radius: inherit;
-
-    background:
-        linear-gradient(
-            90deg,
-            #5b5ce2,
-            #3b82f6
-        );
-}
-
-.language-chart {
-    width: 100%;
-    height: 190px;
-}
-
-.language-chart canvas {
-    width: 100% !important;
-    height: 100% !important;
-}
-
-
-/* =========================================================
-   EMPTY STATES
-========================================================= */
-
-.empty-state {
-    min-height: 130px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    color: #9ca3af;
-
-    font-size: 14px;
-}
-
-
-/* =========================================================
-   REPOSITORY SIZE
-========================================================= */
-
-.repo-size-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 12px;
-}
-
-.repo-size-card {
-    min-height: 125px;
-
-    padding: 17px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    text-align: center;
-
-    border-radius: 10px;
-}
-
-.repo-size-card span {
-    margin-bottom: 5px;
-
-    font-size: 14px;
     font-weight: 700;
 }
 
-.repo-size-card strong {
-    margin-bottom: 2px;
-
-    color: #111827;
-
-    font-size: 26px;
-    font-weight: 800;
-}
-
-.repo-size-card small {
-    color: #6b7280;
-
-    font-size: 11px;
-}
-
-.small-size {
-    background: rgba(34, 197, 94, 0.08);
-}
-
-.small-size span {
-    color: #16a34a;
-}
-
-.medium-size {
-    background: rgba(245, 158, 11, 0.09);
-}
-
-.medium-size span {
-    color: #d97706;
-}
-
-.large-size {
-    background: rgba(239, 68, 68, 0.08);
-}
-
-.large-size span {
-    color: #dc2626;
-}
-
-
-/* =========================================================
-   RECENT COMMITS
-========================================================= */
-
-.commit-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 12px;
-}
-
-.commit-card {
-    min-height: 125px;
-
-    padding: 16px;
-
-    display: flex;
-    flex-direction: column;
-
-    justify-content: center;
-
-    border:
-        1px solid #e5e7eb;
-
-    border-radius: 9px;
-
-    background: #fcfcfe;
-}
-
-.commit-card strong {
+.size-range {
     display: block;
 
     margin-bottom: 8px;
 
-    color: #374151;
+    color: #9ca3af;
 
-    font-size: 12px;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 10.5px;
 }
 
-.commit-number {
-    color: #4f46e5;
+.size-progress-track {
+    height: 5px;
 
-    font-size: 26px;
+    border-radius: 6px;
+
+    background: #eef0f4;
+
+    overflow: hidden;
+}
+
+.size-progress-fill {
+    display: block;
+    height: 100%;
+
+    border-radius: inherit;
+}
+
+.size-small .size-icon {
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.size-small .size-progress-fill {
+    background: #22c55e;
+}
+
+.size-medium .size-icon {
+    background: rgba(245, 158, 11, 0.14);
+}
+
+.size-medium .size-progress-fill {
+    background: #f59e0b;
+}
+
+.size-large .size-icon {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.size-large .size-progress-fill {
+    background: #ef4444;
+}
+
+.language-donut-wrapper {
+    position: relative;
+
+    width: 172px;
+    height: 172px;
+    flex-shrink: 0;
+}
+
+.donut-center-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    text-align: center;
+    pointer-events: none;
+}
+
+.donut-center-label strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 20px;
     font-weight: 800;
 }
 
-.commit-card small {
-    color: #9ca3af;
+.donut-center-label span {
+    display: block;
 
-    font-size: 11px;
+    color: #6b7280;
+
+    font-size: 9px;
+}
+
+.language-legend {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+
+    flex: 1;
+    min-width: 0;
+}
+
+.legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.legend-name {
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
 /* =========================================================
-   RECENT REPOSITORIES
+   4. LANGUAGE ANALYSIS
 ========================================================= */
 
-.recent-section {
-    width: 100%;
+.language-distribution-body {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+
+    margin-bottom: 16px;
 }
 
-.view-all-button {
-    padding: 7px 13px;
-
-    border:
-        1px solid #c7d2fe;
-
-    border-radius: 7px;
-
-    background: white;
-    color: #4f46e5;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease;
-}
-
-.view-all-button:hover {
-    background: #eef2ff;
-    border-color: #818cf8;
-}
-
-.recent-repository-grid {
+.language-legend-row {
     display: grid;
+    grid-template-columns: 9px 1fr auto;
+    align-items: center;
+    gap: 8px;
 
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 12px;
+    min-width: 0;
 }
 
-.recent-repository-card {
-    min-height: 190px;
-
-    padding: 16px;
-
+.legend-stats {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
 
-    border:
-        1px solid #e5e7eb;
-
-    border-radius: 9px;
-
-    background: #ffffff;
-
-    transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+    line-height: 1.3;
 }
 
-.recent-repository-card:hover {
-    transform: translateY(-2px);
-
-    border-color: #c7d2fe;
-
-    box-shadow:
-        0 8px 20px rgba(15, 23, 42, 0.07);
+.legend-percentage {
+    color: #111827;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.repo-name {
+.legend-repo-count {
+    color: #9ca3af;
+    font-size: 10px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.view-all-languages-button {
     display: inline-block;
 
-    margin-bottom: 7px;
+    padding: 8px 14px;
 
-    color: #2563eb;
+    border-radius: 8px;
+
+    background: #eef2ff;
+    color: #4f46e5;
 
     text-decoration: none;
 
-    font-size: 14px;
-    font-weight: 700;
-
-    overflow-wrap: anywhere;
-}
-
-.repo-name:hover {
-    text-decoration: underline;
-}
-
-.repo-language {
-    display: flex;
-    align-items: center;
-
-    gap: 6px;
-
-    margin-bottom: 9px;
-
-    color: #6b7280;
-
-    font-size: 11px;
-}
-
-.language-dot {
-    width: 8px;
-    height: 8px;
-
-    flex-shrink: 0;
-
-    border-radius: 50%;
-
-    background: #8b5cf6;
-}
-
-.recent-repository-card p {
-    flex: 1;
-
-    margin-bottom: 13px;
-
-    color: #6b7280;
-
     font-size: 12px;
-    line-height: 1.5;
+    font-weight: 700;
 }
 
-.recent-repo-footer {
+.view-all-languages-button:hover {
+    background: #e0e7ff;
+}
+
+.language-analysis-side {
     display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    padding-top: 10px;
-
-    border-top:
-        1px solid #f0f1f4;
-
-    color: #6b7280;
-
-    font-size: 10px;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.updated-date {
-    margin-left: auto;
+.primary-language-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.primary-language-card strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 19px;
+    font-weight: 800;
 }
 
 
 /* =========================================================
-   ALL REPOSITORIES
+   6. RECENT COMMIT ACTIVITY (merged feed card)
+========================================================= */
+
+.activity-feed-card {
+    padding: 22px 24px;
+}
+
+.activity-feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+}
+
+.activity-feed-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.activity-feed-icon {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: rgba(91, 92, 226, 0.12);
+
+    font-size: 14px;
+}
+
+.activity-feed-header-left h2 {
+    color: #111827;
+
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.activity-feed-subtitle {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.activity-repo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.activity-repo-card {
+    padding: 16px 18px;
+
+    border: 1px solid #edeefb;
+    border-radius: 12px;
+
+    background: #fbfbfe;
+}
+
+.activity-repo-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+.activity-repo-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: rgba(91, 92, 226, 0.12);
+    color: #5b5ce2;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.activity-repo-name {
+    color: #111827;
+
+    font-size: 13.5px;
+    font-weight: 700;
+}
+
+.activity-repo-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.activity-repo-count strong {
+    display: block;
+
+    color: #4f46e5;
+
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.activity-repo-count span {
+    display: block;
+
+    color: #9ca3af;
+
+    font-size: 11.5px;
+}
+
+.activity-sparkline-wrapper {
+    width: 45%;
+    height: 42px;
+}
+
+.activity-repo-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    margin-top: 14px;
+    padding-top: 12px;
+
+    border-top: 1px solid #eef0f4;
+
+    font-size: 11px;
+}
+
+.activity-repo-updated {
+    color: #9ca3af;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   7. PROFILE HEALTH
+========================================================= */
+
+.profile-health-card {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+}
+
+.profile-health-col {
+    padding: 4px 20px;
+
+    border-right: 1px solid #eef0f4;
+}
+
+.profile-health-col:first-child {
+    padding-left: 4px;
+}
+
+.profile-health-col:last-child {
+    border-right: none;
+}
+
+.health-col-title {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #374151;
+
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.health-col-title.missing {
+    color: #dc2626;
+}
+
+.profile-health-col:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    text-align: center;
+}
+
+.health-score-ring {
+    --score: 0%;
+
+    width: 84px;
+    height: 84px;
+
+    margin-bottom: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: conic-gradient(#5b5ce2 var(--score), #e7e9f7 0);
+}
+
+.health-score-ring > div {
+    width: 64px;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: white;
+}
+
+.health-score-ring strong {
+    color: #5b5ce2;
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.health-fields-count {
+    color: #111827;
+    font-size: 12px;
+    font-weight: 700;
+
+    margin-bottom: 3px;
+}
+
+.health-fields-hint {
+    color: #9ca3af;
+    font-size: 10.5px;
+    line-height: 1.4;
+
+    margin-bottom: 12px;
+}
+
+.health-field-list {
+    list-style: none;
+
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.health-field-list.completed li {
+    color: #16a34a;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.health-field-list.missing li {
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.account-summary-list {
+    list-style: none;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.account-summary-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 7px 0;
+
+    border-bottom: 1px solid #f3f4f7;
+
+    font-size: 11.5px;
+}
+
+.account-summary-list li:last-child {
+    border-bottom: none;
+}
+
+.account-summary-list li span {
+    color: #6b7280;
+}
+
+.account-summary-list li strong {
+    color: #111827;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   8. REPOSITORY EXPLORER
 ========================================================= */
 
 .all-repositories-section {
     width: 100%;
 }
 
-/* =========================================================
-   REPOSITORY TOOLBAR
-   Matches uploaded screenshot style
-========================================================= */
-
 .repository-toolbar {
     display: grid;
+    grid-template-columns: minmax(220px, 1fr) 170px 190px 90px;
+    gap: 10px;
 
-    grid-template-columns:
-        minmax(250px, 1fr)
-        180px
-        180px
-        105px;
-
-    gap: 12px;
-
-    align-items: end;
-
-    margin-bottom: 22px;
+    margin-bottom: 18px;
 }
 
 .repository-search {
-    height: 52px;
+    height: 40px;
 
     display: flex;
     align-items: center;
+    gap: 9px;
 
-    gap: 10px;
+    padding: 0 13px;
 
-    padding: 0 14px;
-
-    border:
-        1px solid #e1dfeb;
-
-    border-radius: 10px;
+    border: 1px solid #e1dfeb;
+    border-radius: 9px;
 
     background: white;
 }
 
 .repository-search > span {
     color: #718096;
-
-    font-size: 17px;
+    font-size: 14px;
 }
 
 .repository-search input {
@@ -1482,74 +1518,46 @@ body.profile-page {
 
     border: none;
     outline: none;
-
     background: transparent;
 
     color: #374151;
-
-    font-size: 14px;
+    font-size: 12.5px;
 }
 
 .repository-search input::placeholder {
     color: #64748b;
 }
 
-.repository-filter {
-    display: flex;
-    flex-direction: column;
-
-    gap: 5px;
-}
-
-.repository-filter label {
-    color: #7c8494;
-
-    font-size: 11px;
-}
-
 .repository-filter select {
     width: 100%;
-    height: 52px;
+    height: 40px;
 
-    padding: 0 13px;
+    padding: 0 12px;
 
-    border:
-        1px solid #e1dfeb;
-
-    border-radius: 10px;
+    border: 1px solid #e1dfeb;
+    border-radius: 9px;
 
     background: white;
-
     color: #111827;
 
-    font-size: 13px;
+    font-size: 12px;
 
     outline: none;
-
     cursor: pointer;
 }
 
 .repository-filter select:focus {
     border-color: #aebce8;
-
-    box-shadow:
-        0 0 0 3px rgba(79, 70, 229, 0.08);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
 }
 
-
-/* =========================================================
-   VIEW SWITCHER
-========================================================= */
-
 .view-switcher {
-    height: 52px;
+    height: 40px;
 
     display: flex;
 
-    border:
-        1px solid #e1dfeb;
-
-    border-radius: 10px;
+    border: 1px solid #e1dfeb;
+    border-radius: 9px;
 
     overflow: hidden;
 
@@ -1558,19 +1566,15 @@ body.profile-page {
 
 .view-switch {
     flex: 1;
-
-    min-width: 50px;
+    min-width: 40px;
 
     border: none;
-
-    border-right:
-        1px solid #e1dfeb;
+    border-right: 1px solid #e1dfeb;
 
     background: white;
-
     color: #7c8494;
 
-    font-size: 17px;
+    font-size: 14px;
 
     cursor: pointer;
 }
@@ -1585,26 +1589,22 @@ body.profile-page {
 
 .view-switch.active {
     background: #f0efff;
-
     color: #4f46e5;
 }
 
-/* =========================================================
-   REPOSITORY TABLE
-========================================================= */
+
+/* Table view (kept, hidden by default; toggled by JS) */
 
 .repository-table-wrapper {
     width: 100%;
-
     overflow-x: auto;
 }
 
 .repository-table {
     width: 100%;
-
     border-collapse: collapse;
 
-    font-size: 13px;
+    font-size: 12.5px;
 }
 
 .repository-table thead {
@@ -1612,26 +1612,23 @@ body.profile-page {
 }
 
 .repository-table th {
-    padding: 12px 10px;
+    padding: 10px 8px;
 
-    border-bottom:
-        1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
 
     color: #6b7280;
-
     text-align: left;
 
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
 
     white-space: nowrap;
 }
 
 .repository-table td {
-    padding: 14px 10px;
+    padding: 12px 8px;
 
-    border-bottom:
-        1px solid #edf0f4;
+    border-bottom: 1px solid #edf0f4;
 
     color: #4b5563;
 
@@ -1643,47 +1640,64 @@ body.profile-page {
 }
 
 .table-repository {
-    min-width: 260px;
+    min-width: 220px;
 }
 
 .table-repository .repo-name {
-    margin-bottom: 3px;
-
-    font-size: 14px;
+    margin-bottom: 2px;
+    font-size: 13px;
 }
 
 .table-repository p {
-    max-width: 440px;
+    max-width: 400px;
 
     color: #6b7280;
-
     font-size: 11px;
-
     line-height: 1.4;
 
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
+.repo-name {
+    display: inline-block;
+
+    color: #2563eb;
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.repo-name:hover {
+    text-decoration: underline;
+}
+
 .table-language {
     display: inline-flex;
     align-items: center;
-
     gap: 6px;
 
     color: #4b5563;
+    font-size: 11.5px;
+}
 
-    font-size: 12px;
+.language-dot {
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #8b5cf6;
 }
 
 .repo-view-button {
     display: inline-block;
 
-    padding: 6px 10px;
+    padding: 5px 9px;
 
-    border:
-        1px solid #c7d2fe;
-
+    border: 1px solid #c7d2fe;
     border-radius: 6px;
 
     background: white;
@@ -1691,7 +1705,7 @@ body.profile-page {
 
     text-decoration: none;
 
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
 
     white-space: nowrap;
@@ -1702,55 +1716,114 @@ body.profile-page {
 }
 
 
-/* =========================================================
-   GRID VIEW
-========================================================= */
+/* Grid view (default) */
 
 .repository-grid-view {
-    display: none;
+    display: grid;
 
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 13px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
 }
 
 .repository-grid-card {
-    min-height: 210px;
-
-    padding: 17px;
+    padding: 16px;
 
     display: flex;
     flex-direction: column;
+    gap: 8px;
 
-    border:
-        1px solid #e5e7eb;
-
-    border-radius: 9px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
 
     background: white;
+
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.repository-grid-card:hover {
+    transform: translateY(-2px);
+
+    border-color: #c7d2fe;
+
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+}
+
+.grid-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.visibility-badge {
+    flex-shrink: 0;
+
+    padding: 2px 8px;
+
+    border-radius: 20px;
+
+    background: #f1f2f6;
+    color: #6b7280;
+
+    font-size: 10px;
+    font-weight: 700;
 }
 
 .repository-grid-card p {
-    flex: 1;
-
-    margin: 9px 0;
-
     color: #6b7280;
 
     font-size: 12px;
     line-height: 1.5;
+
+    min-height: 34px;
 }
 
 .grid-repo-meta {
     display: flex;
+    align-items: center;
     gap: 12px;
 
-    margin-bottom: 12px;
+    margin-top: auto;
+    padding-top: 10px;
+
+    border-top: 1px solid #f0f1f4;
 
     color: #6b7280;
 
-    font-size: 11px;
+    font-size: 10.5px;
+}
+
+.grid-repo-meta span:last-child {
+    margin-left: auto;
+}
+
+.grid-view-button {
+    display: block;
+
+    margin-top: 4px;
+
+    padding: 8px 10px;
+
+    text-align: center;
+
+    font-size: 11.5px;
+}
+
+
+/* =========================================================
+   EMPTY STATES
+========================================================= */
+
+.empty-state {
+    min-height: 120px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: #9ca3af;
+
+    font-size: 13px;
 }
 
 
@@ -1762,21 +1835,18 @@ body.profile-page {
     display: flex;
     justify-content: center;
     align-items: center;
-
     gap: 6px;
 
     margin-top: 18px;
 }
 
 .repository-pagination button {
-    min-width: 34px;
-    height: 34px;
+    min-width: 32px;
+    height: 32px;
 
-    padding: 0 10px;
+    padding: 0 9px;
 
-    border:
-        1px solid #d9dee7;
-
+    border: 1px solid #d9dee7;
     border-radius: 6px;
 
     background: white;
@@ -1790,21 +1860,33 @@ body.profile-page {
 
 .repository-pagination button:hover:not(:disabled) {
     border-color: #93c5fd;
-
     color: #2563eb;
 }
 
 .repository-pagination button.active {
     border-color: #2563eb;
-
     background: #2563eb;
     color: white;
 }
 
 .repository-pagination button:disabled {
     opacity: 0.45;
-
     cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FOOTER NOTE
+========================================================= */
+
+.page-footer-note {
+    margin-top: 6px;
+
+    text-align: center;
+
+    color: #9ca3af;
+
+    font-size: 12px;
 }
 
 
@@ -1812,97 +1894,58 @@ body.profile-page {
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
 
-    .profile-banner {
-        align-items: flex-start;
+    .identity-hero-body {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .profile-summary {
-        width: 100%;
-        min-width: 0;
-    }
+    .identity-hero-stats {
+        flex-direction: row;
+        flex-wrap: wrap;
 
-    .metric-strip {
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
-
-    .metric-item:nth-child(3) {
+        border-left: none;
         border-right: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.10);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+
+        padding: 14px 0;
     }
 
-    .metric-item:nth-child(-n + 3) {
-        border-bottom:
-            1px solid #e5e7eb;
+    .identity-hero-completeness {
+        width: 100%;
     }
 
-    .overview-grid,
+    .quick-overview-grid,
+    .info-card-row.four-col,
+    .mini-stat-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .activity-grid,
-    .repository-summary-grid {
+    .activity-feed-grid,
+    .language-analysis-grid {
         grid-template-columns: 1fr;
     }
 
-    .recent-repository-grid {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .overview-stat-grid {
-        grid-template-columns:
-            repeat(4, 1fr);
+    .size-distribution-grid {
+        grid-template-columns: 1fr;
     }
 
     .repository-grid-view {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-}
-
-
-@media (max-width: 900px) {
-
-    .header-content {
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr);
     }
 
-    .brand {
-        font-size: 20px;
+    .profile-health-card {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
     }
 
-    .header-search {
-        max-width: 500px;
-    }
-
-    .compare-link {
-        font-size: 14px;
-    }
-
-    .profile-dashboard {
-        width: 92%;
-    }
-
-    .overview-stat-grid {
-        grid-template-columns:
-            repeat(3, 1fr);
-    }
-
-    .recent-repository-grid {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .repository-toolbar {
-        flex-wrap: wrap;
-    }
-
-    .repository-search {
-        flex-basis: 100%;
-    }
-
-    .repository-filter {
-        flex: 1;
+    .profile-health-col {
+        border-right: none;
+        border-bottom: 1px solid #eef0f4;
+        padding-bottom: 16px;
     }
 }
 
@@ -1911,21 +1954,13 @@ body.profile-page {
 
     .header-content {
         flex-wrap: wrap;
-
-        padding: 12px 0;
-
-        gap: 12px;
-    }
-
-    .brand {
-        font-size: 19px;
+        padding: 10px 0;
+        gap: 10px;
     }
 
     .header-search {
         order: 3;
-
         flex-basis: 100%;
-
         max-width: none;
     }
 
@@ -1933,218 +1968,22 @@ body.profile-page {
         margin-left: auto;
     }
 
-    .profile-dashboard {
-        width: 94%;
-
-        margin-top: 15px;
-    }
-
-    .profile-banner {
-        padding: 22px;
-
-        border-radius: 9px;
-    }
-
-    .profile-identity {
-        width: 100%;
-    }
-
-    .profile-avatar {
-        width: 88px;
-        height: 88px;
-    }
-
-    .identity-details h1 {
-        font-size: 23px;
-    }
-
-    .profile-summary {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .profile-summary-card:nth-child(2) {
-        border-right: none;
-    }
-
-    .profile-summary-card:nth-child(-n + 2) {
-        border-bottom:
-            1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .metric-strip {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .metric-item {
-        border-right:
-            1px solid #e5e7eb;
-        border-bottom:
-            1px solid #e5e7eb;
-    }
-
-    .metric-item:nth-child(even) {
-        border-right: none;
-    }
-
-    .metric-item:nth-last-child(-n + 2) {
-        border-bottom: none;
-    }
-
-    .overview-stat-grid {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
-    .repo-size-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .commit-grid {
+    .quick-overview-grid,
+    .info-card-row.four-col,
+    .info-card-row.two-col,
+    .mini-stat-row {
         grid-template-columns: 1fr;
     }
 
     .repository-grid-view {
         grid-template-columns: 1fr;
     }
-}
-
-
-@media (max-width: 550px) {
-
-    body.profile-page {
-        font-size: 14px;
-    }
-
-    .header-content {
-        width: 92%;
-    }
-
-    .brand {
-        font-size: 18px;
-    }
-
-    .brand-icon {
-        width: 30px;
-        height: 30px;
-    }
-
-    .compare-link {
-        font-size: 13px;
-    }
-
-    .header-search button {
-        padding: 0 16px;
-    }
-
-    .profile-dashboard {
-        width: 94%;
-
-        gap: 12px;
-    }
-
-    .profile-banner {
-        padding: 18px;
-
-        gap: 20px;
-    }
-
-    .profile-identity {
-        align-items: flex-start;
-    }
-
-    .profile-avatar {
-        width: 72px;
-        height: 72px;
-    }
-
-    .identity-details h1 {
-        font-size: 20px;
-    }
-
-    .profile-username {
-        font-size: 13px;
-    }
-
-    .identity-meta {
-        font-size: 11px;
-    }
-
-    .profile-summary-card {
-        min-height: 70px;
-
-        padding: 12px;
-    }
-
-    .profile-summary-card strong {
-        font-size: 18px;
-    }
-
-    .summary-label {
-        font-size: 10px;
-    }
-
-    .metric-strip {
-        grid-template-columns: 1fr;
-    }
-
-    .metric-item,
-    .metric-item:nth-child(even),
-    .metric-item:nth-last-child(-n + 2) {
-        border-right: none;
-
-        border-bottom:
-            1px solid #e5e7eb;
-    }
-
-    .metric-item:last-child {
-        border-bottom: none;
-    }
-
-    .overview-stat-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .recent-repository-grid {
-        grid-template-columns: 1fr;
-    }
 
     .repository-toolbar {
-        align-items: stretch;
-
-        flex-direction: column;
+        grid-template-columns: 1fr;
     }
 
-    .repository-search {
-        min-width: 0;
-    }
-
-    .repository-filter {
-        width: 100%;
-    }
-
-    .view-switcher {
-        width: 100%;
-    }
-
-    .view-switch {
-        flex: 1;
-    }
-
-    .section-title h2 {
-        font-size: 16px;
-    }
-
-    .section-title p {
-        font-size: 12px;
-    }
-
-    .dashboard-card {
-        padding: 15px;
-    }
-
-    .recent-repository-card {
-        min-height: 175px;
+    .profile-health-card {
+        grid-template-columns: 1fr;
     }
 }
