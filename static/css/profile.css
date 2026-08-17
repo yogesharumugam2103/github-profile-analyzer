@@ -642,6 +642,26 @@ body.profile-page {
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
+/* Variant: info-card that carries a "View Repo" link on the
+   right (Most Starred / Most Forked Repository, when a repo
+   is actually present). Centers items vertically so the
+   link sits nicely alongside the icon + text instead of
+   pinned to the top, and lets info-text take the available
+   width so the link is pushed all the way to the right. */
+
+.info-card.info-card-with-link {
+    align-items: center;
+}
+
+.info-card.info-card-with-link .info-text {
+    flex: 1;
+}
+
+.info-card-view-link {
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
 .info-icon {
     width: 36px;
     height: 36px;
@@ -783,6 +803,14 @@ body.profile-page {
 
     font-size: 9px;
     color: #9ca3af;
+
+    /* Must equal .heatmap-months's height + margin-bottom below,
+       so the first weekday label (row 0, Sunday) starts at the
+       exact same y-position as the first row of day squares —
+       otherwise the month-label row above the grid pushes the
+       squares down while these labels stay put, and every row
+       label ends up sitting a row too high. */
+    margin-top: 16px;
 }
 
 .heatmap-weekdays span {
@@ -802,6 +830,8 @@ body.profile-page {
     display: flex;
     gap: 3px;
 
+    height: 11px;
+    line-height: 11px;
     margin-bottom: 5px;
 
     font-size: 9px;
@@ -809,10 +839,15 @@ body.profile-page {
 }
 
 .heatmap-months span {
-    width: 12px;
+    /* Width is set inline per label (one per month, sized to
+       that month's full column-group), so text can be centered
+       within its own group instead of pinned to the first
+       column's left edge. */
     flex-shrink: 0;
 
+    text-align: center;
     white-space: nowrap;
+    overflow: visible;
 }
 
 .contribution-heatmap {
@@ -833,6 +868,20 @@ body.profile-page {
     height: 10px;
 
     border-radius: 2px;
+}
+
+.contribution-day.contribution-day-empty {
+    background: transparent;
+}
+
+/* A small extra breathing gap after the last column of a
+   month (on both the label row and the day grid, applied to
+   matching elements so they stay aligned) — makes it visibly
+   clear that the next column belongs to a new month rather
+   than continuing the same one. */
+.heatmap-months .month-gap,
+.contribution-heatmap .month-gap {
+    margin-right: 5px;
 }
 
 .contribution-day.level-0,
@@ -1415,8 +1464,25 @@ body.profile-page {
 }
 
 .activity-sparkline-wrapper {
-    width: 45%;
-    height: 42px;
+    width: 180px;
+    height: 75px;
+    min-width: 0;
+    position: relative;
+    margin-top: 10px;
+}
+
+.sparkline-canvas {
+    display: block;
+    width: 100% !important;
+    height: 75px !important;
+}
+
+.sparkline-period-label {
+    display: block;
+    font-size: 11px;
+    color: #9a9cab;
+    margin-bottom: 4px;
+    text-align: center;
 }
 
 .activity-repo-footer {
@@ -2459,6 +2525,15 @@ body.profile-page {
     .info-card-row.two-col,
     .mini-stat-row {
         grid-template-columns: 1fr;
+    }
+
+    .info-card.info-card-with-link {
+        flex-wrap: wrap;
+        row-gap: 10px;
+    }
+
+    .info-card-view-link {
+        margin-left: 48px;
     }
 
     .repository-grid-view {

@@ -9,116 +9,330 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/compare.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
+<body class="compare-page">
 
-<main class="comparison-container">
+<header class="site-header">
+    <div class="brand">
+        <span class="brand-mark">◉</span>
+        <span>GitHub <b>Profile Analyzer</b></span>
+    </div>
+
+    <nav class="site-nav">
+        <a href="/">Dashboard</a>
+        <a href="/profile">Profile</a>
+        <a class="active" href="/compare">Compare</a>
+        <a href="/about">About</a>
+        <span class="theme-icon">☾</span>
+    </nav>
+</header>
+
+<main class="compare-shell">
 
     <!-- =========================================================
-         PAGE HEADER
-         ========================================================= -->
+         PAGE INTRO + COMPARE FORM
+    ========================================================== -->
 
-    <header class="comparison-header">
+    <section class="page-intro">
+        <h1>Compare <span>GitHub</span> Profiles</h1>
+        <p>Side-by-side comparison of developers and their GitHub presence</p>
 
-        <h1>GitHub Profile Comparison</h1>
+        <form action="/compare" method="GET" class="compare-selector">
 
-        <p>
-            Compare the GitHub activity and repository statistics
-            of two profiles.
-        </p>
+            <div class="selector-profile">
+                {% if user1 %}
+                    <img class="selector-avatar" src="{{ user1.avatar_url }}" alt="{{ user1.login }}">
+                {% else %}
+                    <div class="selector-avatar placeholder-avatar">GH</div>
+                {% endif %}
+                <div class="selector-text">
+                    <input type="text"
+                           name="username1"
+                           placeholder="First GitHub username"
+                           value="{{ user1.login if user1 else '' }}"
+                           required>
+                    <small>@{{ user1.login if user1 else 'username' }}</small>
+                </div>
+                <span class="selector-status purple">✓</span>
+            </div>
 
-    </header>
+            <div class="selector-vs">VS</div>
 
+            <div class="selector-profile">
+                {% if user2 %}
+                    <img class="selector-avatar" src="{{ user2.avatar_url }}" alt="{{ user2.login }}">
+                {% else %}
+                    <div class="selector-avatar placeholder-avatar">GH</div>
+                {% endif %}
+                <div class="selector-text">
+                    <input type="text"
+                           name="username2"
+                           placeholder="Second GitHub username"
+                           value="{{ user2.login if user2 else '' }}"
+                           required>
+                    <small>@{{ user2.login if user2 else 'username' }}</small>
+                </div>
+                <span class="selector-status green">✓</span>
+            </div>
 
-    <!-- =========================================================
-         COMPARE FORM
-         ========================================================= -->
-
-    <section class="compare-form-section">
-
-        <h2>Compare Two GitHub Profiles</h2>
-
-        <p>
-            Enter two GitHub usernames to compare their activity
-            and repositories.
-        </p>
-
-        <form action="/compare"
-              method="GET"
-              class="compare-form">
-
-            <input
-                type="text"
-                name="username1"
-                placeholder="First GitHub username"
-                required
-            >
-
-            <span class="form-vs">VS</span>
-
-            <input
-                type="text"
-                name="username2"
-                placeholder="Second GitHub username"
-                required
-            >
-
-            <button type="submit">
-                Compare Profiles
-            </button>
-
+            <button type="submit" class="compare-button">Compare →</button>
         </form>
-
     </section>
 
 
     {% if user1 and user2 %}
 
+    <!-- =========================================================
+         PROFILE HERO — DARK
+    ========================================================== -->
+
+    <section class="profile-hero">
+
+        <div class="hero-profile left-profile">
+            <img src="{{ user1.avatar_url }}"
+                 alt="{{ user1.login }}"
+                 class="hero-avatar purple-border">
+
+            <div class="hero-copy">
+                <h2>{{ user1.name or user1.login }} <span class="verified">✓</span></h2>
+                <a href="{{ user1.html_url }}" target="_blank" rel="noopener noreferrer">@{{ user1.login }}</a>
+                <p>{{ user1.bio or "No bio available." }}</p>
+
+                <div class="hero-meta">
+                    {% if user1.location %}
+                    <span>⌖ {{ user1.location }}</span>
+                    {% endif %}
+                    {% if user1.created_at %}
+                    <span>▤ Joined {{ user1.created_at[:10] }}</span>
+                    {% endif %}
+                </div>
+
+                <a href="{{ user1.html_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="profile-button">View Profile →</a>
+            </div>
+        </div>
+
+        <div class="hero-vs">VS</div>
+
+        <div class="hero-profile right-profile">
+            <div class="hero-copy">
+                <h2>{{ user2.name or user2.login }} <span class="verified">✓</span></h2>
+                <a href="{{ user2.html_url }}" target="_blank" rel="noopener noreferrer">@{{ user2.login }}</a>
+                <p>{{ user2.bio or "No bio available." }}</p>
+
+                <div class="hero-meta">
+                    {% if user2.location %}
+                    <span>⌖ {{ user2.location }}</span>
+                    {% endif %}
+                    {% if user2.created_at %}
+                    <span>▤ Joined {{ user2.created_at[:10] }}</span>
+                    {% endif %}
+                </div>
+
+                <a href="{{ user2.html_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="profile-button">View Profile →</a>
+            </div>
+
+            <img src="{{ user2.avatar_url }}"
+                 alt="{{ user2.login }}"
+                 class="hero-avatar green-border">
+        </div>
+
+    </section>
+
 
     <!-- =========================================================
-         PROFILE CARDS
-         ========================================================= -->
+         SECTION 1 — OVERVIEW SNAPSHOT
+    ========================================================== -->
 
-    <section class="comparison-profiles">
+    <section class="dashboard-section light-section">
 
-        <div class="comparison-profile">
+        <div class="section-heading-row">
+            <div class="section-heading">
+                <span class="section-number">1</span>
+                <div>
+                    <h2>Overview Snapshot</h2>
+                    <p>A quick look at the most important numbers</p>
+                </div>
+            </div>
 
-            <img
-                src="{{ user1.avatar_url }}"
-                alt="{{ user1.login }}"
-            >
+            <div class="legend">
+                <span><i class="dot purple"></i>{{ user1.login }}</span>
+                <span><i class="dot green"></i>{{ user2.login }}</span>
+            </div>
+        </div>
 
-            <h2>
-                {{ user1.name or user1.login }}
-            </h2>
+        <div class="metric-row">
+            {% set overview_names = [
+                "Followers",
+                "Public Repositories",
+                "Total Contributions",
+                "Total Stars",
+                "Total Forks"
+            ] %}
 
-            <p>
-                @{{ user1.login }}
-            </p>
+            {% for wanted in overview_names %}
+                {% for metric in comparison_metrics %}
+                    {% if metric.name == wanted %}
+                    <article class="metric-card">
+                        <div class="metric-card-head">
+                            <span class="metric-icon">{{ "♟" if wanted == "Followers" else "▤" if wanted == "Public Repositories" else "✦" if wanted == "Total Stars" else "⑂" if wanted == "Total Forks" else "⌁" }}</span>
+                            <span class="metric-name">{{ metric.name }}</span>
+                        </div>
+
+                        <div class="metric-values">
+                            <strong class="value-one">{{ metric.value1 }}</strong>
+                            <span>vs</span>
+                            <strong class="value-two">{{ metric.value2 }}</strong>
+                        </div>
+
+                        <div class="comparison-bar">
+                            {% set v1 = metric.value1 if metric.value1 is number else 0 %}
+                            {% set v2 = metric.value2 if metric.value2 is number else 0 %}
+                            {% set total = v1 + v2 %}
+                            <span class="bar-one"
+                                  style="width: {{ ((v1 / total) * 100) if total else 50 }}%;"></span>
+                            <span class="bar-two"
+                                  style="width: {{ ((v2 / total) * 100) if total else 50 }}%;"></span>
+                        </div>
+                    </article>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         SECTION 2 — CONTRIBUTION ACTIVITY
+    ========================================================== -->
+
+    <section class="dashboard-section light-section">
+
+        <div class="section-heading">
+            <span class="section-number">2</span>
+            <div>
+                <h2>Contribution Activity</h2>
+                <p>How consistent and active are they?</p>
+            </div>
+        </div>
+
+        {% set contrib_total_days = (contribution_metrics1.contribution_days|default([]))|length %}
+        {% set freq1 = ((contribution_metrics1.active_days / contrib_total_days) * 100) | round | int if contrib_total_days else 0 %}
+        {% set freq2 = ((contribution_metrics2.active_days / contrib_total_days) * 100) | round | int if contrib_total_days else 0 %}
+
+        <div class="metric-row compact-metrics">
+
+            {% set contribution_names = [
+                "Total Contributions",
+                "Active Contribution Days",
+                "Longest Contribution Streak",
+                "Average Contributions / Active Day"
+            ] %}
+
+            {% for wanted in contribution_names %}
+                {% for metric in comparison_metrics %}
+                    {% if metric.name == wanted %}
+                    <article class="metric-card">
+                        <span class="metric-name">{{ metric.name }}</span>
+                        <div class="metric-values">
+                            <strong class="value-one">{{ metric.value1 }}{{ " days" if wanted == "Longest Contribution Streak" else "" }}</strong>
+                            <span>vs</span>
+                            <strong class="value-two">{{ metric.value2 }}{{ " days" if wanted == "Longest Contribution Streak" else "" }}</strong>
+                        </div>
+                        {% if metric.value1 is number and metric.value2 is number %}
+                        <div class="comparison-bar">
+                            {% set total = metric.value1 + metric.value2 %}
+                            <span class="bar-one" style="width: {{ ((metric.value1 / total) * 100) if total else 50 }}%;"></span>
+                            <span class="bar-two" style="width: {{ ((metric.value2 / total) * 100) if total else 50 }}%;"></span>
+                        </div>
+                        {% endif %}
+                    </article>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+            <article class="metric-card frequency-card">
+                <span class="metric-name">Contribution Frequency</span>
+                <div class="frequency-rings">
+                    <div class="mini-ring purple-ring" style="--score: {{ freq1 }}%;">
+                        <div><strong>{{ freq1 }}%</strong></div>
+                    </div>
+                    <span class="mini-vs">vs</span>
+                    <div class="mini-ring green-ring" style="--score: {{ freq2 }}%;">
+                        <div><strong>{{ freq2 }}%</strong></div>
+                    </div>
+                </div>
+            </article>
 
         </div>
 
+        <div class="contribution-visuals">
 
-        <div class="vs">
-            VS
-        </div>
+            <article class="visual-card heatmap-card">
+                <div class="visual-title">
+                    <strong>Contribution Heatmap</strong>
+                    <span>{{ user1.login }}</span>
+                </div>
 
+                <div class="heatmap">
+                    {% for day in (contribution_metrics1.contribution_days|default([]))[-350:] %}
+                    {% set c = day.contributionCount|default(0) %}
+                    <span class="heat-cell
+                        {% if c == 0 %}level-0
+                        {% elif c <= 2 %}level-1
+                        {% elif c <= 5 %}level-2
+                        {% elif c <= 9 %}level-3
+                        {% else %}level-4{% endif %}"
+                        title="{{ day.date }}: {{ c }} contributions"></span>
+                    {% endfor %}
+                </div>
 
-        <div class="comparison-profile">
+                <div class="heatmap-legend"><span>Less</span><i class="level-0"></i><i class="level-1"></i><i class="level-2"></i><i class="level-3"></i><i class="level-4"></i><span>More</span></div>
+            </article>
 
-            <img
-                src="{{ user2.avatar_url }}"
-                alt="{{ user2.login }}"
-            >
+            <article class="visual-card monthly-card">
+                <div class="visual-title">
+                    <strong>Monthly Contributions</strong>
+                    <span class="dual-legend">
+                        <i class="dot purple"></i>{{ user1.login }}
+                        <i class="dot green"></i>{{ user2.login }}
+                    </span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="monthlyContributionChart"></canvas>
+                </div>
+            </article>
 
-            <h2>
-                {{ user2.name or user2.login }}
-            </h2>
+            <article class="visual-card heatmap-card">
+                <div class="visual-title">
+                    <strong>Contribution Heatmap</strong>
+                    <span>{{ user2.login }}</span>
+                </div>
 
-            <p>
-                @{{ user2.login }}
-            </p>
+                <div class="heatmap green-heatmap">
+                    {% for day in (contribution_metrics2.contribution_days|default([]))[-350:] %}
+                    {% set c = day.contributionCount|default(0) %}
+                    <span class="heat-cell
+                        {% if c == 0 %}level-0
+                        {% elif c <= 2 %}level-1
+                        {% elif c <= 5 %}level-2
+                        {% elif c <= 9 %}level-3
+                        {% else %}level-4{% endif %}"
+                        title="{{ day.date }}: {{ c }} contributions"></span>
+                    {% endfor %}
+                </div>
+
+                <div class="heatmap-legend"><span>Less</span><i class="level-0"></i><i class="level-1"></i><i class="level-2"></i><i class="level-3"></i><i class="level-4"></i><span>More</span></div>
+            </article>
 
         </div>
 
@@ -126,588 +340,679 @@
 
 
     <!-- =========================================================
-         PROFILE COMPARISON
-         ========================================================= -->
+         SECTION 3 — REPOSITORY IMPACT
+    ========================================================== -->
 
-    <section class="comparison-section">
+    <section class="dashboard-section light-section">
 
-        <h2>👤 Profile Comparison</h2>
+        <div class="section-heading">
+            <span class="section-number">3</span>
+            <div>
+                <h2>Repository Impact</h2>
+                <p>Quality and popularity of repositories</p>
+            </div>
+        </div>
 
-        <div class="comparison-table">
+        <div class="metric-row compact-metrics">
+            {% set repo_names = [
+                "Public Repositories",
+                "Original Repositories",
+                "Total Stars",
+                "Total Forks",
+                "Average Stars / Repository"
+            ] %}
 
-            <div class="comparison-header-row">
+            {% for wanted in repo_names %}
+                {% for metric in comparison_metrics %}
+                    {% if metric.name == wanted %}
+                    <article class="metric-card">
+                        <span class="metric-name">{{ metric.name }}</span>
+                        <div class="metric-values">
+                            <strong class="value-one">{{ metric.value1 }}</strong>
+                            <span>vs</span>
+                            <strong class="value-two">{{ metric.value2 }}</strong>
+                        </div>
+                        {% if metric.value1 is number and metric.value2 is number %}
+                        <div class="comparison-bar">
+                            {% set total = metric.value1 + metric.value2 %}
+                            <span class="bar-one" style="width: {{ ((metric.value1 / total) * 100) if total else 50 }}%;"></span>
+                            <span class="bar-two" style="width: {{ ((metric.value2 / total) * 100) if total else 50 }}%;"></span>
+                        </div>
+                        {% endif %}
+                    </article>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
 
-                <span>Metric</span>
+        <div class="repo-impact-row">
 
-                <strong>{{ user1.login }}</strong>
+            <article class="visual-card repo-size-card">
+                <div class="visual-title">
+                    <strong>Repository Size Distribution</strong>
+                    <span class="size-legend">
+                        <i><b class="small-dot"></b> Small (&lt; 1 MB)</i>
+                        <i><b class="medium-dot"></b> Medium (1–10 MB)</i>
+                        <i><b class="large-dot"></b> Large (&gt; 10 MB)</i>
+                    </span>
+                </div>
 
-                <strong>{{ user2.login }}</strong>
+                {% for profile_name, rm in [(user1.login, repo_metrics1), (user2.login, repo_metrics2)] %}
+                {% set total_repos = rm.repo_size_distribution.Small + rm.repo_size_distribution.Medium + rm.repo_size_distribution.Large %}
+                <div class="size-profile">
+                    <span class="size-profile-name">{{ profile_name }}</span>
+
+                    <div class="size-stack">
+                        <span class="size-small"
+                              style="width: {{ ((rm.repo_size_distribution.Small / total_repos) * 100) if total_repos else 0 }}%;">
+                            {{ ((rm.repo_size_distribution.Small / total_repos) * 100)|round|int if total_repos else 0 }}%
+                        </span>
+                        <span class="size-medium"
+                              style="width: {{ ((rm.repo_size_distribution.Medium / total_repos) * 100) if total_repos else 0 }}%;">
+                            {{ ((rm.repo_size_distribution.Medium / total_repos) * 100)|round|int if total_repos else 0 }}%
+                        </span>
+                        <span class="size-large"
+                              style="width: {{ ((rm.repo_size_distribution.Large / total_repos) * 100) if total_repos else 0 }}%;">
+                            {{ ((rm.repo_size_distribution.Large / total_repos) * 100)|round|int if total_repos else 0 }}%
+                        </span>
+                    </div>
+
+                    <div class="size-counts">
+                        <span>{{ rm.repo_size_distribution.Small }}</span>
+                        <span>{{ rm.repo_size_distribution.Medium }}</span>
+                        <span>{{ rm.repo_size_distribution.Large }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </article>
+
+            <article class="visual-card standout-card">
+                <div class="visual-title"><strong>Most Starred Repository</strong></div>
+
+                <div class="repo-standout">
+                    <div class="standout-vs">
+                        <div class="standout-side">
+                            <div class="standout-avatar purple-border-thin">{{ user1.login[:2]|upper }}</div>
+                            <div>
+                                <b>{{ repo_metrics1.most_starred_repo.name if repo_metrics1.most_starred_repo else "—" }}</b>
+                                <small>{{ user1.login }} · ★ {{ "{:,}".format(repo_metrics1.most_starred_repo.stargazers_count) if repo_metrics1.most_starred_repo else 0 }}</small>
+                            </div>
+                        </div>
+                        <span>vs</span>
+                        <div class="standout-side right">
+                            <div>
+                                <b>{{ repo_metrics2.most_starred_repo.name if repo_metrics2.most_starred_repo else "—" }}</b>
+                                <small>{{ user2.login }} · ★ {{ "{:,}".format(repo_metrics2.most_starred_repo.stargazers_count) if repo_metrics2.most_starred_repo else 0 }}</small>
+                            </div>
+                            <div class="standout-avatar green-border-thin">{{ user2.login[:2]|upper }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="visual-title standout-title-spaced"><strong>Most Forked Repository</strong></div>
+
+                <div class="repo-standout">
+                    <div class="standout-vs">
+                        <div class="standout-side">
+                            <div class="standout-avatar purple-border-thin">{{ user1.login[:2]|upper }}</div>
+                            <div>
+                                <b>{{ repo_metrics1.most_forked_repo.name if repo_metrics1.most_forked_repo else "—" }}</b>
+                                <small>{{ user1.login }} · ⑂ {{ "{:,}".format(repo_metrics1.most_forked_repo.forks_count) if repo_metrics1.most_forked_repo else 0 }}</small>
+                            </div>
+                        </div>
+                        <span>vs</span>
+                        <div class="standout-side right">
+                            <div>
+                                <b>{{ repo_metrics2.most_forked_repo.name if repo_metrics2.most_forked_repo else "—" }}</b>
+                                <small>{{ user2.login }} · ⑂ {{ "{:,}".format(repo_metrics2.most_forked_repo.forks_count) if repo_metrics2.most_forked_repo else 0 }}</small>
+                            </div>
+                            <div class="standout-avatar green-border-thin">{{ user2.login[:2]|upper }}</div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="visual-card repo-summary-card">
+                <div class="visual-title"><strong>Repository Portfolio</strong></div>
+
+                {% for label, key in [
+                    ("Public Repositories", "public_repos"),
+                    ("Original Repositories", "original_repos"),
+                    ("Total Stars Earned", "total_stars"),
+                    ("Total Forks", "total_forks"),
+                    ("Avg Stars / Repo", "average_stars")
+                ] %}
+                <div class="summary-row">
+                    <span>{{ label }}</span>
+                    <strong class="value-one">
+                        {% if key == "public_repos" %}{{ user1.public_repos }}{% else %}{{ repo_metrics1[key] }}{% endif %}
+                    </strong>
+                    <span>vs</span>
+                    <strong class="value-two">
+                        {% if key == "public_repos" %}{{ user2.public_repos }}{% else %}{{ repo_metrics2[key] }}{% endif %}
+                    </strong>
+                </div>
+                {% endfor %}
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         SECTION 4 — LANGUAGE & TECH STACK
+    ========================================================== -->
+
+    <section class="dashboard-section light-section">
+
+        <div class="section-heading">
+            <span class="section-number">4</span>
+            <div>
+                <h2>Language &amp; Tech Stack</h2>
+                <p>Diversity and primary languages</p>
+            </div>
+        </div>
+
+        <div class="language-row">
+
+            <article class="visual-card top-language-card">
+                <div class="visual-title"><strong>Top Language</strong></div>
+
+                <div class="language-head-to-head">
+                    <div class="language-donut"
+                         style="--percent: {{ repo_metrics1.language_percentages.get(repo_metrics1.most_used_language, 0) }}%;">
+                        <div>
+                            <strong>{{ repo_metrics1.language_percentages.get(repo_metrics1.most_used_language, 0) }}%</strong>
+                            <span>{{ repo_metrics1.most_used_language }}</span>
+                        </div>
+                    </div>
+
+                    <span class="mini-vs">vs</span>
+
+                    <div class="language-donut green-donut"
+                         style="--percent: {{ repo_metrics2.language_percentages.get(repo_metrics2.most_used_language, 0) }}%;">
+                        <div>
+                            <strong>{{ repo_metrics2.language_percentages.get(repo_metrics2.most_used_language, 0) }}%</strong>
+                            <span>{{ repo_metrics2.most_used_language }}</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="visual-card languages-card">
+                <div class="visual-title"><strong>Top Languages</strong></div>
+
+                {% set lang_colors = ['#5a4ff3', '#8e7bff', '#f0a13a', '#c9cede'] %}
+
+                <div class="language-columns">
+                    <div>
+                        {% for language, percentage in repo_metrics1.language_percentages.items() %}
+                        <div class="language-list-row">
+                            <span><i class="language-dot" style="background: {{ lang_colors[loop.index0 % lang_colors|length] }};"></i>{{ language }}</span>
+                            <strong>{{ percentage }}%</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% set lang_colors2 = ['#22a05a', '#5fbf88', '#b7bec9', '#f0a13a'] %}
+
+                    <div>
+                        {% for language, percentage in repo_metrics2.language_percentages.items() %}
+                        <div class="language-list-row">
+                            <span><i class="language-dot" style="background: {{ lang_colors2[loop.index0 % lang_colors2|length] }};"></i>{{ language }}</span>
+                            <strong>{{ percentage }}%</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+
+            <article class="visual-card language-diversity-card">
+                <div class="visual-title"><strong>Language Diversity</strong></div>
+
+                <div class="diversity-values">
+                    <div>
+                        <strong>{{ repo_metrics1.language_count }}</strong>
+                        <span>Languages</span>
+                    </div>
+                    <span class="diversity-scale">⚖</span>
+                    <div>
+                        <strong class="green-text">{{ repo_metrics2.language_count }}</strong>
+                        <span>Languages</span>
+                    </div>
+                </div>
+
+                <p>
+                    {% if repo_metrics1.language_count == repo_metrics2.language_count %}
+                        Equal language diversity
+                    {% elif repo_metrics1.language_count > repo_metrics2.language_count %}
+                        {{ user1.login }} uses a broader language stack
+                    {% else %}
+                        {{ user2.login }} uses a broader language stack
+                    {% endif %}
+                </p>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         SECTION 5 + 6 — ACTIVITY + PROFILE COMPLETENESS
+    ========================================================== -->
+
+    <div class="paired-sections">
+
+        <section class="dashboard-section light-section half-section">
+
+            <div class="section-heading">
+                <span class="section-number">5</span>
+                <div>
+                    <h2>Developer Activity <span class="section-note">(Last 7 Days)</span></h2>
+                    <p>Recent commit behavior at a glance</p>
+                </div>
+            </div>
+
+            {% set days1_last7 = (contribution_metrics1.contribution_days|default([]))[-7:] %}
+            {% set days2_last7 = (contribution_metrics2.contribution_days|default([]))[-7:] %}
+            {% set active1_last7 = days1_last7 | selectattr("contributionCount", "greaterthan", 0) | list | length %}
+            {% set active2_last7 = days2_last7 | selectattr("contributionCount", "greaterthan", 0) | list | length %}
+            {% set latest1 = (days1_last7[-1].date if days1_last7 else "—") %}
+            {% set latest2 = (days2_last7[-1].date if days2_last7 else "—") %}
+
+            <div class="activity-row">
+
+                <article class="activity-card">
+                    <span class="activity-card-label">Daily Commits</span>
+                    <strong class="value-one activity-count">{{ days1_last7 | sum(attribute="contributionCount") }}</strong>
+                    <span class="activity-unit">Commits</span>
+                    <div class="sparkline" id="sparklineOne"></div>
+                    <small>▤ Latest commit: {{ latest1 }}</small>
+                </article>
+
+                <article class="activity-card">
+                    <span class="activity-card-label">Daily Commits</span>
+                    <strong class="value-two activity-count">{{ days2_last7 | sum(attribute="contributionCount") }}</strong>
+                    <span class="activity-unit">Commits</span>
+                    <div class="sparkline green-sparkline" id="sparklineTwo"></div>
+                    <small>▤ Latest commit: {{ latest2 }}</small>
+                </article>
+
+                <article class="activity-card frequency-summary-card">
+                    <span class="activity-card-label">Commit Frequency</span>
+                    <div class="frequency-summary-values">
+                        <div>
+                            <strong class="value-one">{{ active1_last7 }}</strong>
+                            <span>days active</span>
+                        </div>
+                        <span class="mini-vs">vs</span>
+                        <div>
+                            <strong class="value-two">{{ active2_last7 }}</strong>
+                            <span>{{ "day" if active2_last7 == 1 else "days" }} active</span>
+                        </div>
+                    </div>
+                    <small class="frequency-summary-footnote">out of last 7 days</small>
+                </article>
 
             </div>
 
-
-            {% for metric in comparison_metrics %}
-
-                {% if metric.name in ("Followers", "Following", "Public Repositories") %}
-
-                <div class="comparison-row">
-
-                    <span>
-                        {{ metric.name }}
-                    </span>
+        </section>
 
 
-                    <strong class="
-                        {% if metric.value1 > metric.value2 %}
-                            winner
-                        {% elif metric.value2 > metric.value1 %}
-                            loser
-                        {% endif %}
-                    ">
+        <section class="dashboard-section light-section half-section">
 
-                        {{ metric.value1 }}
+            <div class="section-heading">
+                <span class="section-number">6</span>
+                <div>
+                    <h2>Profile Completeness</h2>
+                    <p>How complete and professional is their profile?</p>
+                </div>
+            </div>
 
-                    </strong>
+            <div class="completeness-row">
 
+                <div class="completeness-rings-block">
 
-                    <strong class="
-                        {% if metric.value2 > metric.value1 %}
-                            winner
-                        {% elif metric.value1 > metric.value2 %}
-                            loser
-                        {% endif %}
-                    ">
+                    <span class="completeness-block-label">Profile Completeness</span>
 
-                        {{ metric.value2 }}
+                    <div class="completeness-rings">
+                        <div class="completeness-side">
+                            <div class="completeness-ring purple-ring"
+                                 style="--score: {{ completeness1.percentage }}%;">
+                                <div>
+                                    <strong>{{ completeness1.percentage }}%</strong>
+                                    <span>/100</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    </strong>
+                        <span class="mini-vs">vs</span>
+
+                        <div class="completeness-side">
+                            <div class="completeness-ring green-ring"
+                                 style="--score: {{ completeness2.percentage }}%;">
+                                <div>
+                                    <strong>{{ completeness2.percentage }}%</strong>
+                                    <span>/100</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="completeness-field-counts">
+                        <span>{{ completeness1.completed_fields }}/{{ completeness1.total_fields }} fields</span>
+                        <span>{{ completeness2.completed_fields }}/{{ completeness2.total_fields }} fields</span>
+                    </div>
 
                 </div>
 
-                {% endif %}
+                <div class="completed-fields">
 
-            {% endfor %}
+                    <strong class="completed-fields-title">Completed Profile Fields</strong>
 
-        </div>
+                    <div class="completed-fields-columns">
+                        <div>
+                            <span class="field-user">{{ user1.login }}</span>
+                            {% for field in ["Name", "Bio", "Location", "Website", "Public Repos", "Followers", "Twitter/Company"] %}
+                            <small class="{% if field in completeness1.missing_fields %}missing{% else %}done{% endif %}">
+                                {{ "✓" if field not in completeness1.missing_fields else "✕" }} {{ field }}
+                            </small>
+                            {% endfor %}
+                        </div>
 
-    </section>
+                        <div>
+                            <span class="field-user green-text">{{ user2.login }}</span>
+                            {% for field in ["Name", "Bio", "Location", "Website", "Public Repos", "Followers", "Twitter/Company"] %}
+                            <small class="{% if field in completeness2.missing_fields %}missing{% else %}done{% endif %}">
+                                {{ "✓" if field not in completeness2.missing_fields else "✕" }} {{ field }}
+                            </small>
+                            {% endfor %}
+                        </div>
+                    </div>
 
-
-    <!-- =========================================================
-         REPOSITORY ANALYSIS
-         ========================================================= -->
-
-    <section class="comparison-section">
-
-        <h2>📦 Repository Analysis</h2>
-
-        <div class="comparison-table">
-
-            <div class="comparison-header-row">
-
-                <span>Metric</span>
-
-                <strong>{{ user1.login }}</strong>
-
-                <strong>{{ user2.login }}</strong>
+                </div>
 
             </div>
 
+        </section>
 
-            {% for metric in comparison_metrics %}
-
-                {% if metric.name == "Total Stars"
-                   or metric.name == "Total Forks"
-                   or metric.name == "Original Repositories"
-                   or metric.name == "Forked Repositories"
-                   or metric.name == "Archived Repositories" %}
-
-                <div class="comparison-row">
-
-                    <span>
-                        {{ metric.name }}
-                    </span>
-
-
-                    <strong class="
-                        {% if metric.value1 > metric.value2 %}
-                            winner
-                        {% elif metric.value2 > metric.value1 %}
-                            loser
-                        {% endif %}
-                    ">
-
-                        {{ metric.value1 }}
-
-                    </strong>
-
-
-                    <strong class="
-                        {% if metric.value2 > metric.value1 %}
-                            winner
-                        {% elif metric.value1 > metric.value2 %}
-                            loser
-                        {% endif %}
-                    ">
-
-                        {{ metric.value2 }}
-
-                    </strong>
-
-                </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-
-            <!-- Most Used Language -->
-
-            {% for metric in comparison_metrics %}
-
-                {% if metric.name == "Most Used Language" %}
-
-                <div class="comparison-row">
-
-                    <span>
-                        {{ metric.name }}
-                    </span>
-
-                    <strong>
-                        {{ metric.value1 }}
-                    </strong>
-
-                    <strong>
-                        {{ metric.value2 }}
-                    </strong>
-
-                </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-        </div>
-
-    </section>
+    </div>
 
 
     <!-- =========================================================
-         CONTRIBUTION ACTIVITY
-         ========================================================= -->
+         SECTION 7 — OVERALL PROFILE WINNER — DARK
+    ========================================================== -->
 
-    <section class="comparison-section">
+    {% set rq1 = profile_score1.repositories + profile_score1.languages %}
+    {% set rq2 = profile_score2.repositories + profile_score2.languages %}
+    {% set ri1 = profile_score1.stars + profile_score1.forks %}
+    {% set ri2 = profile_score2.stars + profile_score2.forks %}
+    {% set da1 = profile_score1.contributions + profile_score1.commits + profile_score1.active_days + profile_score1.longest_streak %}
+    {% set da2 = profile_score2.contributions + profile_score2.commits + profile_score2.active_days + profile_score2.longest_streak %}
+    {% set ps1 = profile_score1.profile_completeness %}
+    {% set ps2 = profile_score2.profile_completeness %}
+    {% set vi1 = profile_score1.followers %}
+    {% set vi2 = profile_score2.followers %}
 
-        <h2>🔥 Contribution Activity</h2>
+    {% set score_breakdown = [
+        ("Repository Quality", "📁", rq1, rq2, 23),
+        ("Repository Impact", "★", ri1, ri2, 10),
+        ("Development Activity", "↗", da1, da2, 55),
+        ("Profile Strength", "✓", ps1, ps2, 7),
+        ("Visibility", "♟", vi1, vi2, 5)
+    ] %}
 
-        <div class="comparison-table">
+    <section class="winner-section">
 
-            <div class="comparison-header-row">
+        <div class="winner-heading">
+            <span class="section-number dark-number">7</span>
+            <div>
+                <h2>Overall Profile Score <span class="winner-heading-note">(The Deciding Factor)</span></h2>
+                <p>Comprehensive score based on 10 key factors</p>
+            </div>
+        </div>
 
-                <span>Metric</span>
+        <div class="winner-stage">
 
-                <strong>{{ user1.login }}</strong>
+            <div class="score-gauge-side">
+                <div class="gauge purple-gauge" style="--score: {{ overall_score1 }}%;">
+                    <span class="gauge-scale gauge-scale-left">0</span>
+                    <span class="gauge-scale gauge-scale-right">100</span>
+                    <div class="gauge-inner">
+                        <strong>{{ overall_score1|round|int }}</strong>
+                        <span>/100</span>
+                    </div>
+                </div>
+                <div class="gauge-identity">
+                    <span class="gauge-avatar purple-border-thin">{{ user1.login[:2]|upper }}</span>
+                    <b>{{ user1.login }}</b>
+                </div>
+            </div>
 
-                <strong>{{ user2.login }}</strong>
+            <div class="winner-announcement">
+
+                {% if overall_winner == "Tie" %}
+                    <div class="trophy">🤝</div>
+                    <span class="winner-kicker">RESULT</span>
+                    <h3>It's a Tie</h3>
+                    <p>Both profiles have the same overall score.</p>
+                {% elif overall_winner == user1.login %}
+                    <div class="trophy">🏆</div>
+                    <span class="winner-kicker">WINNER</span>
+                    <h3>{{ user1.login }}</h3>
+                    <p>{{ user1.login }} leads by {{ score_difference }} points</p>
+                {% else %}
+                    <div class="trophy">🏆</div>
+                    <span class="winner-kicker">WINNER</span>
+                    <h3>{{ user2.login }}</h3>
+                    <p>{{ user2.login }} leads by {{ score_difference }} points</p>
+                {% endif %}
 
             </div>
 
-
-            {% for metric in comparison_metrics %}
-
-                {% if metric.name == "Total Contributions"
-                    or metric.name == "Total Commits"
-                    or metric.name == "Active Contribution Days"
-                    or metric.name == "Longest Contribution Streak"
-                    or metric.name == "Average Contributions / Active Day" %}
-
-                <div class="comparison-row">
-
-                    <span>
-                        {{ metric.name }}
-                    </span>
-
-
-                    <strong class="
-                        {% if metric.value1 > metric.value2 %}
-                            winner
-                        {% elif metric.value2 > metric.value1 %}
-                            loser
-                        {% endif %}
-                    ">
-
-                        {{ metric.value1 }}
-
-                    </strong>
-
-
-                    <strong class="
-                        {% if metric.value2 > metric.value1 %}
-                            winner
-                        {% elif metric.value1 > metric.value2 %}
-                            loser
-                        {% endif %}
-                    ">
-
-                        {{ metric.value2 }}
-
-                    </strong>
-
+            <div class="score-gauge-side">
+                <div class="gauge green-gauge" style="--score: {{ overall_score2 }}%;">
+                    <span class="gauge-scale gauge-scale-left">0</span>
+                    <span class="gauge-scale gauge-scale-right">100</span>
+                    <div class="gauge-inner">
+                        <strong>{{ overall_score2|round|int }}</strong>
+                        <span>/100</span>
+                    </div>
                 </div>
-
-                {% endif %}
-
-            {% endfor %}
-
-
-            <!-- Non-numeric metrics -->
-
-            {% for metric in comparison_metrics %}
-
-                {% if metric.name in ("Most Active Month", "Contribution Trend") %}
-
-                <div class="comparison-row">
-
-                    <span>
-                        {{ metric.name }}
-                    </span>
-
-                    <strong>
-                        {{ metric.value1 }}
-                    </strong>
-
-                    <strong>
-                        {{ metric.value2 }}
-                    </strong>
-
+                <div class="gauge-identity">
+                    <span class="gauge-avatar green-border-thin">{{ user2.login[:2]|upper }}</span>
+                    <b>{{ user2.login }}</b>
                 </div>
-
-                {% endif %}
-
-            {% endfor %}
+            </div>
 
         </div>
 
-    </section>
+        <div class="score-breakdown">
 
+            <div class="breakdown-row">
 
-    <!-- =========================================================
-         PROFILE SCORING
-         ========================================================= -->
+                {% for label, icon, s1, s2, weight in score_breakdown %}
+                <article class="score-breakdown-card">
+                    <div class="breakdown-metric-head">
+                        <span>{{ icon }}</span>
+                        <b>{{ label }}</b>
+                        <em>{{ weight }} pts</em>
+                    </div>
 
-    <section class="comparison-section profile-scoring">
+                    <div class="breakdown-values">
+                        <strong class="value-one">{{ s1|round(1) }}</strong>
+                        <span>vs</span>
+                        <strong class="value-two">{{ s2|round(1) }}</strong>
+                    </div>
 
-        <h2>📊 Profile Scoring</h2>
+                    <div class="dual-score-track">
+                        <span class="track-one"
+                              style="width: {{ ((s1 / weight) * 100) if weight else 0 }}%;"></span>
+                        <span class="track-two"
+                              style="width: {{ ((s2 / weight) * 100) if weight else 0 }}%;"></span>
+                    </div>
+                </article>
+                {% endfor %}
 
-        <p class="scoring-intro">
-            Weighted scores based on visibility, project impact,
-            repository portfolio, and development activity.
+                <article class="score-breakdown-card total-breakdown-card">
+                    <div class="breakdown-metric-head">
+                        <span>🏆</span>
+                        <b>Total Score</b>
+                        <em>100 pts</em>
+                    </div>
+
+                    <div class="breakdown-values">
+                        <strong class="value-one">{{ overall_score1|round(1) }}</strong>
+                        <span>vs</span>
+                        <strong class="value-two">{{ overall_score2|round(1) }}</strong>
+                    </div>
+
+                    <div class="dual-score-track">
+                        <span class="track-one" style="width: {{ overall_score1 }}%;"></span>
+                        <span class="track-two" style="width: {{ overall_score2 }}%;"></span>
+                    </div>
+                </article>
+
+            </div>
+
+        </div>
+
+        <p class="score-footnote">
+            Scores are calculated using weighted metrics to evaluate overall GitHub presence and impact.
         </p>
 
-
-        <!-- =====================================================
-             OVERALL SCORES
-             ===================================================== -->
-
-        <div class="profile-score-container">
-
-
-            <!-- USER 1 -->
-
-            <div class="profile-score-card">
-
-                <h3>
-                    {{ user1.login }}
-                </h3>
-
-                <p class="profile-score">
-                    {{ overall_score1 }}
-                </p>
-
-                <p class="profile-score-label">
-                    Overall Profile Score / 100
-                </p>
-
-
-                {% if overall_winner == user1.login %}
-
-                    <span class="score-winner">
-                        🏆 Overall Winner
-                    </span>
-
-                {% elif overall_winner == "Tie" %}
-
-                    <span class="score-tie">
-                        🤝 Tie
-                    </span>
-
-                {% endif %}
-
-            </div>
-
-
-            <!-- VS -->
-
-            <div class="score-vs">
-                VS
-            </div>
-
-
-            <!-- USER 2 -->
-
-            <div class="profile-score-card">
-
-                <h3>
-                    {{ user2.login }}
-                </h3>
-
-                <p class="profile-score">
-                    {{ overall_score2 }}
-                </p>
-
-                <p class="profile-score-label">
-                    Overall Profile Score / 100
-                </p>
-
-
-                {% if overall_winner == user2.login %}
-
-                    <span class="score-winner">
-                        🏆 Overall Winner
-                    </span>
-
-                {% elif overall_winner == "Tie" %}
-
-                    <span class="score-tie">
-                        🤝 Tie
-                    </span>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
-
-        <!-- =====================================================
-             CATEGORY SCORES
-             ===================================================== -->
-
-        <div class="category-score-grid">
-
-            {% for category_key, category in category_scores.items() %}
-
-                <div class="category-score-card">
-
-                    <h3>
-                        {{ category.label }}
-                    </h3>
-
-
-                    <div class="category-score-values">
-
-
-                        <!-- USER 1 -->
-
-                        <div class="category-score-user">
-
-                            <span class="category-score-user-name">
-                                {{ user1.login }}
-                            </span>
-
-                            <span class="
-                                category-score-value
-
-                                {% if category.score1 > category.score2 %}
-                                    category-score-winner
-
-                                {% elif category.score1 < category.score2 %}
-                                    category-score-loser
-                                {% endif %}
-                            ">
-
-                                {{ category.score1 }}
-
-                            </span>
-
-                        </div>
-
-
-                        <!-- USER 2 -->
-
-                        <div class="category-score-user">
-
-                            <span class="category-score-user-name">
-                                {{ user2.login }}
-                            </span>
-
-                            <span class="
-                                category-score-value
-
-                                {% if category.score2 > category.score1 %}
-                                    category-score-winner
-
-                                {% elif category.score2 < category.score1 %}
-                                    category-score-loser
-                                {% endif %}
-                            ">
-
-                                {{ category.score2 }}
-
-                            </span>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- CATEGORY RESULT -->
-
-                    {% if category.winner == "Tie" %}
-
-                        <p class="category-result tie">
-                            🤝 Tie
-                        </p>
-
-                    {% elif category.winner == user1.login %}
-
-                        <p class="category-result winner-result">
-                            🏆 {{ user1.login }}
-                        </p>
-
-                    {% else %}
-
-                        <p class="category-result winner-result">
-                            🏆 {{ user2.login }}
-                        </p>
-
-                    {% endif %}
-
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-
-        <!-- =====================================================
-             SCORING BREAKDOWN
-             ===================================================== -->
-
-        <div class="scoring-breakdown">
-
-            <h3>
-                Scoring Breakdown
-            </h3>
-
-
-            {% for category_key, category in category_scores.items() %}
-
-                <div class="scoring-category">
-
-                    <h3>
-                        {{ category.label }}
-                    </h3>
-
-
-                    <div class="scoring-table">
-
-
-                        <!-- Header -->
-
-                        <div class="scoring-header">
-
-                            <span>Metric</span>
-
-                            <span>{{ user1.login }}</span>
-
-                            <span>{{ user2.login }}</span>
-
-                            <span>Weight</span>
-
-                            <span>{{ user1.login }} Score</span>
-
-                            <span>{{ user2.login }} Score</span>
-
-                        </div>
-
-
-                        <!-- Metrics -->
-
-                        {% for metric in category.metrics %}
-
-                        <div class="scoring-row">
-
-                            <span>
-                                {{ metric.name }}
-                            </span>
-
-                            <span>
-                                {{ metric.value1 }}
-                            </span>
-
-                            <span>
-                                {{ metric.value2 }}
-                            </span>
-
-                            <span class="metric-weight">
-                                {{ metric.weight }}
-                            </span>
-
-                            <span class="metric-score">
-                                {{ metric.score1 }}
-                            </span>
-
-                            <span class="metric-score">
-                                {{ metric.score2 }}
-                            </span>
-
-                        </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-
-        <!-- =====================================================
-             SCORING EXPLANATION
-             ===================================================== -->
-
-        <div class="scoring-explanation">
-
-            <h3>
-                How the score is calculated
-            </h3>
-
-            <p>
-                Each numerical metric is converted into a relative
-                score between the two profiles.
-            </p>
-
-            <p>
-                Metrics are then weighted according to their
-                importance within each category.
-            </p>
-
-            <p>
-                Category scores are combined using category weights
-                to produce the final profile score out of 100.
-            </p>
-
-        </div>
-
     </section>
-
 
     {% endif %}
 
 </main>
+
+<script>
+(function () {
+    const user1Days = {{ (contribution_metrics1.contribution_days|default([]))|tojson if user1 and user2 else '[]' }};
+    const user2Days = {{ (contribution_metrics2.contribution_days|default([]))|tojson if user1 and user2 else '[]' }};
+
+    function monthTotals(days) {
+        const map = {};
+        (days || []).forEach(function (day) {
+            const key = String(day.date || "").slice(0, 7);
+            if (!key) return;
+            map[key] = (map[key] || 0) + Number(day.contributionCount || 0);
+        });
+
+        const keys = Object.keys(map).sort().slice(-12);
+
+        return {
+            labels: keys.map(function (key) {
+                const parts = key.split("-");
+                return new Date(Number(parts[0]), Number(parts[1]) - 1, 1)
+                    .toLocaleString("en", { month: "short" });
+            }),
+            values: keys.map(function (key) { return map[key]; })
+        };
+    }
+
+    const canvas = document.getElementById("monthlyContributionChart");
+
+    if (canvas) {
+        const a = monthTotals(user1Days);
+        const b = monthTotals(user2Days);
+
+        const allLabels = Array.from(new Set(a.labels.concat(b.labels)));
+
+        new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: allLabels,
+                datasets: [
+                    {
+                        label: {{ user1.login|tojson if user1 else '""' }},
+                        data: allLabels.map(function (label) {
+                            const index = a.labels.indexOf(label);
+                            return index >= 0 ? a.values[index] : null;
+                        }),
+                        borderColor: "#5a4ff3",
+                        backgroundColor: "transparent",
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointBackgroundColor: "#5a4ff3",
+                        tension: 0.35
+                    },
+                    {
+                        label: {{ user2.login|tojson if user2 else '""' }},
+                        data: allLabels.map(function (label) {
+                            const index = b.labels.indexOf(label);
+                            return index >= 0 ? b.values[index] : null;
+                        }),
+                        borderColor: "#22a05a",
+                        backgroundColor: "transparent",
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointBackgroundColor: "#22a05a",
+                        tension: 0.35
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: "#8b93a5", font: { size: 11 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: "#eef0f5" },
+                        ticks: { color: "#8b93a5", font: { size: 11 }, precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    function drawSparkline(id, days, stroke) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const data = (days || []).slice(-7).map(function (d) {
+            return Number(d.contributionCount || 0);
+        });
+
+        if (!data.length) {
+            el.innerHTML = '<span class="spark-empty">No recent data</span>';
+            return;
+        }
+
+        const max = Math.max.apply(null, data.concat([1]));
+        const points = data.map(function (value, index) {
+            const x = data.length === 1 ? 50 : (index / (data.length - 1)) * 100;
+            const y = 42 - ((value / max) * 34);
+            return x.toFixed(2) + "," + y.toFixed(2);
+        }).join(" ");
+
+        const dots = data.map(function (value, index) {
+            const x = data.length === 1 ? 50 : (index / (data.length - 1)) * 100;
+            const y = 42 - ((value / max) * 34);
+            return '<circle cx="' + x + '" cy="' + y + '" r="2.4" fill="' + stroke + '"></circle>';
+        }).join("");
+
+        el.innerHTML =
+            '<svg viewBox="0 0 100 48" preserveAspectRatio="none" aria-hidden="true">' +
+            '<polyline points="' + points + '" fill="none" stroke="' + stroke + '" stroke-width="2" vector-effect="non-scaling-stroke"></polyline>' +
+            dots +
+            '</svg>';
+    }
+
+    drawSparkline("sparklineOne", user1Days, "#5a4ff3");
+    drawSparkline("sparklineTwo", user2Days, "#22a05a");
+})();
+</script>
 
 </body>
 </html>

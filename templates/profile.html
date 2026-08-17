@@ -312,6 +312,11 @@
 
                 {% if contributions_available %}
 
+                    {% set all_days = [] %}
+                    {% for week in contribution_heatmap %}
+                        {% set _ = all_days.extend(week) %}
+                    {% endfor %}
+
                     <div class="heatmap-body">
 
                         <div class="heatmap-weekdays">
@@ -321,41 +326,13 @@
 
                         <div class="heatmap-scroll">
 
-                            <div class="heatmap-months">
-                                {% set months_abbr = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
-                                {% set ns = namespace(last_month=None) %}
-                                {% for week in contribution_heatmap %}
-                                    {% set first_day = week[0] %}
-                                    {% set month_num = (first_day.date[5:7] | int) if first_day.date else None %}
-                                    <span>
-                                        {%- if month_num and month_num != ns.last_month -%}
-                                            {{ months_abbr[month_num] }}
-                                            {%- set ns.last_month = month_num -%}
-                                        {%- endif -%}
-                                    </span>
-                                {% endfor %}
-                            </div>
+                            <div class="heatmap-months" id="heatmapMonths"></div>
 
-                            <div class="contribution-heatmap">
-
-                                {% for week in contribution_heatmap %}
-
-                                    <div class="contribution-week">
-
-                                        {% for day in week %}
-
-                                            <div
-                                                class="contribution-day level-{{ day.level }}"
-                                                title="{{ day.date }}: {{ day.count }} contributions"
-                                            ></div>
-
-                                        {% endfor %}
-
-                                    </div>
-
-                                {% endfor %}
-
-                            </div>
+                            <div
+                                class="contribution-heatmap"
+                                id="contributionHeatmap"
+                                data-days='{{ all_days | tojson }}'
+                            ></div>
 
                         </div>
 
@@ -520,7 +497,7 @@
 
         <div class="info-card-row two-col">
 
-            <div class="info-card">
+            <div class="info-card{{ ' info-card-with-link' if top_starred else '' }}">
                 <span class="info-icon icon-blue">📘</span>
                 <div class="info-text">
                     <span class="info-title">Most Starred Repository</span>
@@ -532,9 +509,18 @@
                         <span class="info-sub">Star your repositories to see data here.</span>
                     {% endif %}
                 </div>
+                {% if top_starred %}
+                    <a
+                        href="{{ top_starred.html_url }}"
+                        target="_blank"
+                        class="repo-view-button info-card-view-link"
+                    >
+                        View Repo
+                    </a>
+                {% endif %}
             </div>
 
-            <div class="info-card">
+            <div class="info-card{{ ' info-card-with-link' if top_forked else '' }}">
                 <span class="info-icon icon-purple">⑂</span>
                 <div class="info-text">
                     <span class="info-title">Most Forked Repository</span>
@@ -546,6 +532,15 @@
                         <span class="info-sub">Get forks on your repositories to see data here.</span>
                     {% endif %}
                 </div>
+                {% if top_forked %}
+                    <a
+                        href="{{ top_forked.html_url }}"
+                        target="_blank"
+                        class="repo-view-button info-card-view-link"
+                    >
+                        View Repo
+                    </a>
+                {% endif %}
             </div>
 
         </div>
@@ -843,12 +838,13 @@
                                 </div>
 
                                 <div class="activity-sparkline-wrapper">
+                                    <span class="sparkline-period-label">Daily Commits · Last 7 Days</span>
                                     <canvas
                                         class="sparkline-canvas"
                                         data-seed="{{ repo.name }}"
                                         data-commits="{{ repo.commit_count }}"
-                                        data-daily="{{ repo.daily_commits | default([]) | tojson }}"
-                                        data-updated="{{ details.updated_at[:10] if details and details.updated_at else '' }}"
+                                        data-daily='{{ repo.daily_commits | default({}) | tojson }}'
+                                        data-latest-commit="{{ repo.latest_commit_date or '' }}"
                                     ></canvas>
                                 </div>
 
@@ -863,7 +859,8 @@
                                 </span>
 
                                 <span class="activity-repo-updated">
-                                    Updated: {{ details.updated_at[:10] }}
+                                    Latest commit:
+                                    {{ repo.latest_commit_date or "Unavailable" }}
                                 </span>
 
                             </div>
@@ -1421,15 +1418,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     {% if contributions_available %}
 
+    {# "YYYY-MM" keys sort lexically in the same order as
+       chronologically, so this guarantees left-to-right
+       chronological order on the chart no matter what order
+       the backend's monthly_contributions dict was built in.
+       Without this, accounts created within the last year can
+       come through with months out of order (e.g. jumping from
+       the most recent month back to an earlier one instead of
+       continuing forward), because the trailing 12-month window
+       wraps across a year boundary. #}
+    {% set sorted_monthly_contributions = monthly_contributions | dictsort %}
+
     const contributionMonths = [
-        {% for month in monthly_contributions.keys() %}
+        {% for month, total in sorted_monthly_contributions %}
             "{{ month }}"
             {% if not loop.last %},{% endif %}
         {% endfor %}
     ];
 
     const contributionTotals = [
-        {% for total in monthly_contributions.values() %}
+        {% for month, total in sorted_monthly_contributions %}
             {{ total }}
             {% if not loop.last %},{% endif %}
         {% endfor %}
@@ -1529,6 +1537,207 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
+       CONTRIBUTION HEATMAP (calendar grid)
+
+       Built entirely client-side from a flat, chronological
+       list of {date, count, level} entries (data-days on the
+       #contributionHeatmap element). Rebuilding it here — 
+       instead of relying on the server's pre-chunked "weeks"
+       — guarantees the month label row and the day-square
+       grid are generated in lockstep, column by column, so
+       they can never drift apart.
+
+       Rules:
+         - Weeks run Sunday -> Saturday (row 0 = Sunday),
+           matching the Sun..Sat weekday label column.
+         - Columns are grouped strictly by calendar month: a
+           new month always starts a brand-new column, it
+           never continues partway down a column that still
+           has days from the previous month. The first column
+           of a month is padded with blank cells for any
+           weekdays before that month's 1st.
+    ===================================================== */
+
+    function parseISODate(str) {
+
+        if (!str) {
+            return null;
+        }
+
+        const datePart = String(str).slice(0, 10);
+
+        const match =
+            /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
+
+        if (!match) {
+            return null;
+        }
+
+        const parsed = new Date(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3])
+        );
+
+        return isNaN(parsed.getTime())
+            ? null
+            : parsed;
+
+    }
+
+    function renderContributionHeatmap() {
+
+        const grid = document.getElementById("contributionHeatmap");
+        const monthsRow = document.getElementById("heatmapMonths");
+
+        if (!grid || !monthsRow) {
+            return;
+        }
+
+        let rawDays = [];
+
+        try {
+            rawDays = JSON.parse(grid.dataset.days || "[]");
+        } catch (e) {
+            rawDays = [];
+        }
+
+        const monthAbbr = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
+        const days = rawDays
+            .map(function (entry) {
+
+                return {
+                    date: parseISODate(entry.date),
+                    count: Number(entry.count || 0),
+                    level: entry.level != null ? entry.level : 0,
+                    raw: entry.date
+                };
+
+            })
+            .filter(function (entry) {
+                return entry.date !== null;
+            })
+            .sort(function (a, b) {
+                return a.date - b.date;
+            });
+
+        grid.innerHTML = "";
+        monthsRow.innerHTML = "";
+
+        if (!days.length) {
+            return;
+        }
+
+        // Group consecutive days into calendar-month segments.
+        const monthGroups = [];
+        let currentKey = null;
+        let currentGroup = null;
+
+        days.forEach(function (entry) {
+
+            const key = entry.date.getFullYear() + "-" + entry.date.getMonth();
+
+            if (key !== currentKey) {
+
+                currentGroup = {
+                    month: entry.date.getMonth(),
+                    days: []
+                };
+
+                monthGroups.push(currentGroup);
+                currentKey = key;
+
+            }
+
+            currentGroup.days.push(entry);
+
+        });
+
+        const CELL_WIDTH = 10;
+        const CELL_GAP = 3;
+
+        monthGroups.forEach(function (group, groupIndex) {
+
+            // Sunday-start week columns, scoped to this month only.
+            const columns = [];
+            let column = null;
+
+            group.days.forEach(function (entry) {
+
+                const weekday = entry.date.getDay(); // 0 = Sun ... 6 = Sat
+
+                if (weekday === 0 || !column) {
+                    column = new Array(7).fill(null);
+                    columns.push(column);
+                }
+
+                column[weekday] = entry;
+
+            });
+
+            const isLastGroup = groupIndex === monthGroups.length - 1;
+            const addGroupGap = !isLastGroup;
+
+            columns.forEach(function (columnDays, columnIndex) {
+
+                const isLastColumnOfGroup = columnIndex === columns.length - 1;
+                const addGap = isLastColumnOfGroup && addGroupGap;
+
+                // Day-square column.
+                const weekEl = document.createElement("div");
+                weekEl.className = "contribution-week" + (addGap ? " month-gap" : "");
+
+                columnDays.forEach(function (entry) {
+
+                    const dayEl = document.createElement("div");
+
+                    if (entry) {
+                        dayEl.className = "contribution-day level-" + entry.level;
+                        dayEl.title = entry.raw + ": " + entry.count + " contributions";
+                    } else {
+                        dayEl.className = "contribution-day contribution-day-empty";
+                    }
+
+                    weekEl.appendChild(dayEl);
+
+                });
+
+                grid.appendChild(weekEl);
+
+            });
+
+            // One label per month, sized to the exact pixel width
+            // of that whole month's column group (its columns plus
+            // the gaps between them) and centered inside it — so
+            // the name sits in the middle of its own squares
+            // instead of pinned to the left edge of the first
+            // column. Its own width plus the flex gap (and the
+            // same month-gap bonus applied to the day grid's last
+            // column of this group) keeps it lined up exactly with
+            // the squares below, group boundary for group boundary.
+            const groupWidth =
+                columns.length * CELL_WIDTH +
+                (columns.length - 1) * CELL_GAP;
+
+            const labelEl = document.createElement("span");
+            labelEl.className = "heatmap-month-label" + (addGroupGap ? " month-gap" : "");
+            labelEl.style.width = groupWidth + "px";
+            labelEl.textContent = monthAbbr[group.month];
+
+            monthsRow.appendChild(labelEl);
+
+        });
+
+    }
+
+    renderContributionHeatmap();
+
+
+    /* =====================================================
        LANGUAGE DOUGHNUT CHART
     ===================================================== */
 
@@ -1598,251 +1807,240 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    /* =====================================================
-       COMMIT ACTIVITY SPARKLINES
+/* =====================================================
+   COMMIT ACTIVITY SPARKLINES
 
-       Date labels are real calendar dates, not always "today
-       minus N days". Two supported shapes for repo.daily_commits:
+   repo.daily_commits is a dictionary containing the
+   REAL commit count for each calendar date.
 
-         1. Preferred — a list of 7 {date, count} objects
-            (oldest first), e.g. {"date": "2026-08-09", "count": 3}.
-            The exact date + count the backend recorded is used
-            directly, so the chart always matches when the
-            commits actually happened.
+   Example:
+   {
+       "2026-08-10": 0,
+       "2026-08-11": 2,
+       "2026-08-12": 0,
+       "2026-08-13": 4
+   }
 
-         2. Legacy — a plain list of 7 numbers with no dates.
-            In that case there's no real date to show, so dates
-            are anchored to the repo's actual last-updated date
-            (data-updated, i.e. its most recent commit) counting
-            backward, rather than to today — today only lines up
-            with reality if the repo was updated today. If no
-            daily data or updated date is available at all, this
-            falls back to a deterministic distribution of the
-            total commit_count, still anchored the same way.
-    ===================================================== */
+   The graph uses these actual dates and counts directly.
+===================================================== */
 
-    function hashSeed(str) {
+function formatDateLabel(date) {
 
-        let hash = 0;
+    const dayNames = [
+        "Sun", "Mon", "Tue", "Wed",
+        "Thu", "Fri", "Sat"
+    ];
 
-        for (let i = 0; i < str.length; i++) {
-            hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-        }
+    return (
+        dayNames[date.getDay()] +
+        " " +
+        (date.getMonth() + 1) +
+        "/" +
+        date.getDate()
+    );
 
-        return hash || 1;
+}
 
-    }
 
-    function distributeCommits(seed, total, days) {
+document.querySelectorAll(
+    ".sparkline-canvas"
+).forEach(function (canvas) {
 
-        let s = hashSeed(seed);
-        const weights = [];
-        let weightSum = 0;
+    let dailyRaw = {};
 
-        for (let i = 0; i < days; i++) {
+    try {
 
-            s = (s * 9301 + 49297) % 233280;
+        dailyRaw =
+            JSON.parse(
+                canvas.dataset.daily || "{}"
+            );
 
-            const w = 0.4 + (s / 233280);
+    } catch (e) {
 
-            weights.push(w);
-            weightSum += w;
-
-        }
-
-        const data = weights.map(w => Math.floor((w / weightSum) * total));
-
-        let remainder = total - data.reduce((a, b) => a + b, 0);
-
-        let i = data.length - 1;
-
-        while (remainder > 0) {
-            data[i % data.length]++;
-            remainder--;
-            i++;
-        }
-
-        return data;
+        dailyRaw = {};
 
     }
 
-    function formatDateLabel(date) {
 
-        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    /*
+     * Backend sends a dictionary:
+     *
+     * {
+     *   "YYYY-MM-DD": count,
+     *   ...
+     * }
+     *
+     * Sort the real calendar dates chronologically.
+     */
 
-        return dayNames[date.getDay()] + " " + (date.getMonth() + 1) + "/" + date.getDate();
+    const dailyEntries =
+        Object.entries(dailyRaw)
+            .sort(function (a, b) {
+                return a[0].localeCompare(b[0]);
+            })
+            .slice(-7);
 
-    }
 
-    function parseISODate(str) {
+    /*
+     * Do not create fake dates or fake commit counts.
+     *
+     * If real daily data exists, use it directly.
+     */
 
-        if (!str) {
-            return null;
-        }
-
-        // Parse "YYYY-MM-DD" (optionally with a time/offset suffix)
-        // as a local calendar date, not UTC, so the weekday shown
-        // can't shift by a day depending on the viewer's timezone.
-        const datePart = String(str).slice(0, 10);
-        const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
-
-        if (!match) {
-            return null;
-        }
-
-        const parsed = new Date(
-            Number(match[1]),
-            Number(match[2]) - 1,
-            Number(match[3])
+    if (dailyEntries.length === 0) {
+        console.warn(
+            "No daily commit data for:",
+            canvas.dataset.seed
         );
-
-        return isNaN(parsed.getTime()) ? null : parsed;
-
+        return;
     }
 
-    function last7DayLabels(anchorDate) {
+    console.log(
+        "Sparkline data for",
+        canvas.dataset.seed,
+        dailyEntries
+    );
 
-        const labels = [];
-        const anchor = anchorDate || new Date();
 
-        for (let i = 6; i >= 0; i--) {
+    const labels =
+        dailyEntries.map(function (entry) {
 
-            const d = new Date(anchor);
-            d.setDate(anchor.getDate() - i);
+            const parsed =
+                parseISODate(entry[0]);
 
-            labels.push(formatDateLabel(d));
+            return parsed
+                ? formatDateLabel(parsed)
+                : entry[0];
 
-        }
+        });
 
-        return labels;
 
-    }
+    const data =
+        dailyEntries.map(function (entry) {
 
-    document.querySelectorAll(".sparkline-canvas").forEach(function (canvas) {
+            return Number(entry[1] || 0);
 
-        const seed = canvas.dataset.seed || "repo";
-        const commits = Number(canvas.dataset.commits || 0);
-        const anchorDate = parseISODate(canvas.dataset.updated);
+        });
 
-        let dailyRaw = [];
 
-        try {
-            dailyRaw = JSON.parse(canvas.dataset.daily || "[]");
-        } catch (e) {
-            dailyRaw = [];
-        }
+    new Chart(canvas, {
 
-        const hasDailyDates =
-            Array.isArray(dailyRaw) &&
-            dailyRaw.length === 7 &&
-            dailyRaw.every(entry => entry && typeof entry === "object" && "date" in entry);
+        type: "line",
 
-        let data;
-        let labels;
+        data: {
 
-        if (hasDailyDates) {
+            labels: labels,
 
-            // Real per-day dates + counts straight from the backend.
-            data = dailyRaw.map(entry => Number(entry.count || 0));
-            labels = dailyRaw.map(entry => {
-                const parsed = parseISODate(entry.date);
-                return parsed ? formatDateLabel(parsed) : entry.date;
-            });
+            datasets: [{
 
-        } else {
+                data: data,
 
-            const hasDailyCounts =
-                Array.isArray(dailyRaw) &&
-                dailyRaw.length === 7 &&
-                dailyRaw.every(entry => typeof entry === "number");
+                borderColor: "#5b5ce2",
 
-            data = hasDailyCounts
-                ? dailyRaw
-                : distributeCommits(seed, commits, 7);
+                borderWidth: 2,
 
-            // No real per-day dates to show, so anchor the 7-day
-            // window to the repo's actual last-updated date
-            // instead of today, so at least the dates line up
-            // with when the repo was truly last active.
-            labels = last7DayLabels(anchorDate);
+                tension: 0,
 
-        }
+                fill: false,
 
-        new Chart(canvas, {
+                pointRadius: 2.5,
 
-            type: "line",
+                pointHoverRadius: 4,
 
-            data: {
+                pointBackgroundColor: "#ffffff",
 
-                labels: labels,
+                pointBorderColor: "#5b5ce2",
 
-                datasets: [{
+                pointBorderWidth: 1.2
 
-                    data: data,
+            }]
 
-                    borderColor: "#5b5ce2",
+        },
 
-                    borderWidth: 2,
 
-                    tension: 0.4,
+        options: {
 
-                    fill: false,
+            responsive: true,
 
-                    pointRadius: 3,
+            maintainAspectRatio: false,
 
-                    pointHoverRadius: 5,
+            interaction: {
 
-                    pointBackgroundColor: "#ffffff",
+                mode: "nearest",
 
-                    pointBorderColor: "#5b5ce2",
-
-                    pointBorderWidth: 1.5
-
-                }]
+                intersect: false
 
             },
 
-            options: {
 
-                responsive: true,
+            plugins: {
 
-                maintainAspectRatio: false,
-
-                interaction: {
-                    mode: "nearest",
-                    intersect: false
+                legend: {
+                    display: false
                 },
 
-                plugins: {
 
-                    legend: { display: false },
+                tooltip: {
 
-                    tooltip: {
-                        enabled: true,
-                        displayColors: false,
-                        callbacks: {
-                            title: function (items) {
-                                return items[0].label;
-                            },
-                            label: function (item) {
-                                const v = item.raw;
-                                return v + (v === 1 ? " commit" : " commits");
-                            }
+                    enabled: true,
+
+                    displayColors: false,
+
+
+                    callbacks: {
+
+                        title: function (items) {
+
+                            return items[0].label;
+
+                        },
+
+
+                        label: function (item) {
+
+                            const value =
+                                Number(item.raw || 0);
+
+                            return (
+                                value +
+                                (
+                                    value === 1
+                                        ? " commit"
+                                        : " commits"
+                                )
+                            );
+
                         }
+
                     }
 
+                }
+
+            },
+
+
+            scales: {
+
+                x: {
+                    display: false
                 },
 
-                scales: {
-                    x: { display: false },
-                    y: { display: false, beginAtZero: true }
+
+                y: {
+
+                    display: false,
+
+                    beginAtZero: true
+
                 }
 
             }
 
-        });
+        }
 
     });
+
+});
 
 
     /* =====================================================

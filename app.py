@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request
 import requests
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 import os
 import re
 from collections import defaultdict
@@ -1207,73 +1208,106 @@ def analyze():
     # --------------------------------------------------------
     # Recent repository commit activity
     #
-    # Fetches commits from the last 30 days for the
-    # three most recently updated repositories and groups
-    # them by day.
+    # Fetch commits from the last 30 days for the
+    # three most recently updated repositories.
+    #
+    # Only commits belonging to the analyzed GitHub user
+    # are counted.
+    #
+    # GitHub returns commit timestamps in UTC.
+    # They are converted to IST before grouping by date.
     # --------------------------------------------------------
-
+    
     active_repositories = []
-
-    activity_start = datetime.utcnow() - timedelta(days=30)
-
+    
+    IST = ZoneInfo("Asia/Kolkata")
+    
+    now_utc = datetime.now(timezone.utc)
+    
+    activity_start_utc = (
+        now_utc - timedelta(days=30)
+    )
+    
     for repo in recent_repos:
-
+    
         daily_commits = defaultdict(int)
-
+    
+        latest_commit_datetime = None
+    
         page = 1
-
+    
         while True:
-
+    
             try:
-
+    
                 commits_response = requests.get(
+    
                     f"https://api.github.com/repos/"
                     f"{username}/{repo['name']}/commits",
     
                     params={
+    
+                        # Only commits made by this user
+                        "author": username,
+    
                         "since": (
-                            activity_start.isoformat()
-                            + "Z"
+                            activity_start_utc
+                            .strftime("%Y-%m-%dT%H:%M:%SZ")
                         ),
+    
                         "until": (
-                            datetime.utcnow().isoformat()
-                            + "Z"
+                            now_utc
+                            .strftime("%Y-%m-%dT%H:%M:%SZ")
                         ),
+    
                         "per_page": 100,
+    
                         "page": page
                     },
     
                     headers=GITHUB_HEADERS,
+    
                     timeout=10
                 )
     
             except requests.exceptions.Timeout:
+    
                 daily_commits = None
-                break
-        
-            except requests.exceptions.RequestException:
-                daily_commits = None
+    
                 break
     
-            if rate_limit_message(commits_response):
+            except requests.exceptions.RequestException:
+    
                 daily_commits = None
+    
+                break
+    
+            if rate_limit_message(
+                commits_response
+            ):
+    
+                daily_commits = None
+    
                 break
     
             if commits_response.status_code != 200:
+    
                 daily_commits = None
+    
                 break
     
             commits = commits_response.json()
     
             if not commits:
+    
                 break
     
-            # --------------------------------------------
-            # Group commits by calendar date
-            # --------------------------------------------
+            # ------------------------------------------------
+            # Process commits
+            # ------------------------------------------------
     
             for commit in commits:
-
+    
                 commit_data = commit.get(
                     "commit",
                     {}
@@ -1288,31 +1322,93 @@ def analyze():
                     "date"
                 )
     
-                if commit_date:
+                if not commit_date:
+                    continue
     
-                    date_key = commit_date[:10]
+                try:
     
-                    daily_commits[date_key] += 1
+                    # GitHub timestamp -> UTC datetime
+                    commit_datetime_utc = (
+                        datetime.fromisoformat(
+                            commit_date.replace(
+                                "Z",
+                                "+00:00"
+                            )
+                        )
+                    )
+    
+                    # Convert UTC -> IST
+                    commit_datetime_ist = (
+                        commit_datetime_utc.astimezone(
+                            IST
+                        )
+                    )
+    
+                except ValueError:
+    
+                    continue
+    
+                # --------------------------------------------
+                # Use the LOCAL calendar date
+                # --------------------------------------------
+    
+                date_key = (
+                    commit_datetime_ist
+                    .date()
+                    .isoformat()
+                )
+    
+                daily_commits[date_key] += 1
+    
+                # --------------------------------------------
+                # Track latest actual commit
+                # --------------------------------------------
+    
+                if (
+                    latest_commit_datetime is None
+                    or commit_datetime_ist
+                    > latest_commit_datetime
+                ):
+    
+                    latest_commit_datetime = (
+                        commit_datetime_ist
+                    )
+    
+            # --------------------------------------------
+            # Pagination
+            # --------------------------------------------
     
             if len(commits) < 100:
+    
                 break
     
             page += 1
     
-        # --------------------------------------------
+        # ----------------------------------------------------
         # Build complete 30-day timeline
-        # --------------------------------------------
+        # ----------------------------------------------------
     
         if daily_commits is not None:
     
             complete_daily_commits = {}
-        
-            current_date = activity_start.date()
-            end_date = datetime.utcnow().date()
-        
+    
+            current_date = (
+                activity_start_utc
+                .astimezone(IST)
+                .date()
+            )
+    
+            end_date = (
+                now_utc
+                .astimezone(IST)
+                .date()
+            )
+    
             while current_date <= end_date:
-        
-                date_key = current_date.isoformat()
+    
+                date_key = (
+                    current_date.isoformat()
+                )
     
                 complete_daily_commits[date_key] = (
                     daily_commits.get(
@@ -1321,11 +1417,29 @@ def analyze():
                     )
                 )
     
-                current_date += timedelta(days=1)
+                current_date += timedelta(
+                    days=1
+                )
     
             total_commit_count = sum(
                 complete_daily_commits.values()
             )
+    
+            # ------------------------------------------------
+            # Latest commit date
+            # ------------------------------------------------
+    
+            if latest_commit_datetime:
+    
+                latest_commit_date = (
+                    latest_commit_datetime
+                    .date()
+                    .isoformat()
+                )
+    
+            else:
+    
+                latest_commit_date = None
     
             active_repositories.append({
     
@@ -1333,11 +1447,18 @@ def analyze():
     
                 "html_url": repo["html_url"],
     
-                "commit_count": total_commit_count,
+                "commit_count": (
+                    total_commit_count
+                ),
     
                 "daily_commits": (
                     complete_daily_commits
+                ),
+    
+                "latest_commit_date": (
+                    latest_commit_date
                 )
+    
             })
 
     # --------------------------------------------------------
